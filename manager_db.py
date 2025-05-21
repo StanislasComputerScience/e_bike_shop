@@ -372,10 +372,6 @@ def create_insert_into_tables(ecommerce_db_dict: dict):
     ] = """INSERT INTO Invoice(id_shoppingcart, date)
             VALUES(10,'10/02/2024');
         """
-
-
-
-def create_insert_into_tables(ecommerce_db_dict: dict):
     ecommerce_db_dict[
         "insert into Category: bike"
     ] = """INSERT INTO Category (name) VALUES ('bike');
