@@ -2,6 +2,9 @@ import sqlite3
 
 ecommerce_db_dict = {}
 
+def create_json_db():
+    """Function permit to create json db
+    """
 
 def create_table_db(ecommerce_db_dict: dict):
 
@@ -40,7 +43,6 @@ def create_table_db(ecommerce_db_dict: dict):
             FOREIGN KEY(id_prod) REFERENCES Product(id_prod),
             FOREIGN KEY(id_shoppingcart) REFERENCES VAT(ShoppingCart)
        )"""
-
 
 def test():
     create_table_db(ecommerce_db_dict)
