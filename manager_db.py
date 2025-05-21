@@ -5,6 +5,10 @@ def create_json_db():
     """Function permit to create json db"""
 
 
+def create_json_db():
+    """Function permit to create json db"""
+
+
 def create_table_db(ecommerce_db_dict: dict):
     """Function to create table of the db"""
     ecommerce_db_dict[
