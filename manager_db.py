@@ -5,10 +5,6 @@ def create_json_db():
     """Function permit to create json db"""
 
 
-def create_json_db():
-    """Function permit to create json db"""
-
-
 def create_table_db(ecommerce_db_dict: dict):
     """Function to create table of the db"""
     ecommerce_db_dict[
@@ -78,17 +74,17 @@ def create_table_db(ecommerce_db_dict: dict):
         );"""
     ecommerce_db_dict[
         "create_table_role"
-    ] = """CREATE TABLE IF NOT EXISTS Role (
+    ] = """CREATE TABLE Role (
             id_role INTEGER PRIMARY KEY AUTOINCREMENT, 
             name TEXT NOT NULL);"""
     ecommerce_db_dict[
         "create_table_connexion"
-    ] = """CREATE TABLE IF NOT EXISTS Connexion (
+    ] = """CREATE TABLE Connexion (
             id_connexion INTEGER PRIMARY KEY AUTOINCREMENT, 
             status TEXT NOT NULL);"""
     ecommerce_db_dict[
         "create_table_user"
-    ] = """CREATE TABLE IF NOT EXISTS User (
+    ] = """CREATE TABLE User (
             id_user INTEGER PRIMARY KEY AUTOINCREMENT, 
             id_connexion INTEGER NOT NULL,
             id_role INTEGER NOT NULL,
@@ -98,17 +94,19 @@ def create_table_db(ecommerce_db_dict: dict):
             email TEXT NOT NULL,
             phone TEXT,
             FOREIGN KEY(id_connexion) REFERENCES Connexion(id_connexion),
-            FOREIGN KEY(id_role) REFERENCES Role(id_role));"""
+            FOREIGN KEY(id_role) REFERENCES Role(id_role)
+        );"""
     ecommerce_db_dict[
         "create_table_address"
-    ] = """CREATE TABLE IF NOT EXISTS Address (
+    ] = """CREATE TABLE Address (
             id_address INTEGER PRIMARY KEY AUTOINCREMENT, 
             id_user INTEGER NOT NULL,
             number INTEGER NOT NULL,
             street TEXT NOT NULL,
             postal_code TEXT NOT NULL,
             city TEXT NOT NULL,
-            FOREIGN KEY(id_user) REFERENCES User(id_user));"""
+            FOREIGN KEY(id_user) REFERENCES User(id_user)
+        );"""
     ecommerce_db_dict[
         "create_table_shopping_cart"
     ] = """CREATE TABLE IF NOT EXISTS ShoppingCart (
