@@ -7,7 +7,6 @@ def create_json_db():
     """
 
 def create_table_db(ecommerce_db_dict: dict):
-
     ecommerce_db_dict["create table Category"] = \
         """CREATE TABLE IF NOT EXISTS Category (
             id_category INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
@@ -43,15 +42,13 @@ def create_table_db(ecommerce_db_dict: dict):
             FOREIGN KEY(id_prod) REFERENCES Product(id_prod),
             FOREIGN KEY(id_shoppingcart) REFERENCES VAT(ShoppingCart)
        )"""
+    ecommerce_db_dict["create_table_role"] = """CREATE TABLE Role (id_role INTEGER PRIMARY KEY AUTOINCREMENT, 
+                                                                   role_name TEXT NOT NULL);"""
+    ecommerce_db_dict["create_table_connexion"] = """CREATE TABLE Connexion (id_connexion INTEGER PRIMARY KEY AUTOINCREMENT, 
+                                                                             connexion_name TEXT NOT NULL);"""
 
-def test():
-    create_table_db(ecommerce_db_dict)
-    with sqlite3.connect("test.db") as connection:
-        print(connection.total_changes)
-        cursor = connection.cursor()
-        for action, sql_command in ecommerce_db_dict.items():
-            print(f"{action}...")
-            cursor.execute(sql_command)
+def main():
+    pass
 
 if __name__ == "__main__":
-    test()
+        main()    
