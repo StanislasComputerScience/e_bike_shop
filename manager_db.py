@@ -31,7 +31,7 @@ def create_table_db(ecommerce_db_dict: dict):
             FOREIGN KEY(id_vat) REFERENCES VAT(id_vat)
         )"""
     ecommerce_db_dict["create table CommandLine"] = \
-        """CREATE TABLE IF NOT EXISTS Product (
+        """CREATE TABLE IF NOT EXISTS CommandLine (
             id_prod INTEGER PRIMARY KEY NOT NULL,
             id_shoppingcart INTEGER PRIMARY KEY NOT NULL,
             price_ET REAL UNSIGNED NOT NULL,
@@ -39,7 +39,7 @@ def create_table_db(ecommerce_db_dict: dict):
             rate_vat REAL UNSIGNED NOT NULL,
             FOREIGN KEY(id_prod) REFERENCES Product(id_prod),
             FOREIGN KEY(id_shoppingcart) REFERENCES VAT(ShoppingCart)
-        )"""
+       )"""
 
 
 def test():
