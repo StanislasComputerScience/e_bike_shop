@@ -13,7 +13,7 @@ def create_table_db(ecommerce_db_dict: dict):
     ecommerce_db_dict["create table VAT"] = \
         """CREATE TABLE IF NOT EXISTS VAT (
             id_vat INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
-            rate REAL NOT NULL,
+            rate REAL UNSIGNED NOT NULL,
             name TEXT NOT NULL
         )"""
     ecommerce_db_dict["create table Product"] = \
@@ -26,10 +26,21 @@ def create_table_db(ecommerce_db_dict: dict):
             description TEXT NOT NULL,
             tech_specification TEXT,
             image_path TEXT,
-            price_ET INTEGER UNSIGNED NOT NULL,
+            price_ET REAL UNSIGNED NOT NULL,
             FOREIGN KEY(id_category) REFERENCES Category(id_category),
             FOREIGN KEY(id_vat) REFERENCES VAT(id_vat)
         )"""
+    ecommerce_db_dict["create table CommandLine"] = \
+        """CREATE TABLE IF NOT EXISTS Product (
+            id_prod INTEGER PRIMARY KEY NOT NULL,
+            id_shoppingcart INTEGER PRIMARY KEY NOT NULL,
+            price_ET REAL UNSIGNED NOT NULL,
+            quantity INTEGER UNSIGNED NOT NULL,
+            rate_vat REAL UNSIGNED NOT NULL,
+            FOREIGN KEY(id_prod) REFERENCES Product(id_prod),
+            FOREIGN KEY(id_shoppingcart) REFERENCES VAT(ShoppingCart)
+        )"""
+
 
 def test():
     create_table_db(ecommerce_db_dict)
