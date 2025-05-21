@@ -68,23 +68,44 @@ def create_table_db(ecommerce_db_dict: dict):
     ecommerce_db_dict[
         "create_table_role"
     ] = """CREATE TABLE Role (id_role INTEGER PRIMARY KEY AUTOINCREMENT, 
-                                                                   role_name TEXT NOT NULL);"""
+                                                                   name TEXT NOT NULL);"""
     ecommerce_db_dict[
         "create_table_connexion"
     ] = """CREATE TABLE Connexion (id_connexion INTEGER PRIMARY KEY AUTOINCREMENT, 
-                                                                             connexion_name TEXT NOT NULL);"""
+                                                                             status TEXT NOT NULL);"""
     ecommerce_db_dict[
         "create_table_user"
     ] = """CREATE TABLE User (id_user INTEGER PRIMARY KEY AUTOINCREMENT, 
                                                                    id_connexion INTEGER NOT NULL,
                                                                    id_role INTEGER NOT NULL,
-                                                                   user_name TEXT NOT NULL,
-                                                                   user_firstname TEXT NOT NULL,
+                                                                   name TEXT NOT NULL,
+                                                                   firstname TEXT NOT NULL,
                                                                    birth_date TEXT,
-                                                                   user_email TEXT NOT NULL,
-                                                                   user_phone TEXT,
+                                                                   email TEXT NOT NULL,
+                                                                   phone TEXT,
                                                                    FOREIGN KEY(id_connexion) REFERENCES Connexion(id_connexion),
                                                                    FOREIGN KEY(id_role) REFERENCES Role(id_role));"""
+    ecommerce_db_dict[
+        "create_table_address"
+    ] = """CREATE TABLE Address (id_address INTEGER PRIMARY KEY AUTOINCREMENT, 
+                                                                         id_user INTEGER NOT NULL,
+                                                                         number INTEGER NOT NULL,
+                                                                         street TEXT NOT NULL,
+                                                                         postal_code TEXT NOT NULL,
+                                                                         city TEXT NOT NULL,
+                                                                         FOREIGN KEY(id_user) REFERENCES User(id_user));"""
+    ecommerce_db_dict[
+        "create_table_shopping_cart"
+    ] = """CREATE TABLE ShoppingCart (id_shoppingcart INTEGER PRIMARY KEY AUTOINCREMENT, 
+                                                                                    id_user INTEGER NOT NULL,
+                                                                                    date TEXT NOT NULL,
+                                                                                    FOREIGN KEY(id_user) REFERENCES User(id_user));"""
+    ecommerce_db_dict[
+        "create_table_invoice"
+    ] = """CREATE TABLE Invoice (id_invoice INTEGER PRIMARY KEY AUTOINCREMENT, 
+                                                                         id_shoppingcart INTEGER NOT NULL,
+                                                                         date TEXT NOT NULL,
+                                                                         FOREIGN KEY(id_shoppingcart) REFERENCES ShoppingCart(id_shoppingcart));"""
 
 
 def create_database(ecommerce_db_dict: dict, database_name: str):
@@ -111,4 +132,4 @@ def main():
 
 
 if __name__ == "__main__":
-    test()
+    main()
