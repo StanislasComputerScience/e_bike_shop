@@ -115,14 +115,16 @@ def create_table_db(ecommerce_db_dict: dict):
             id_shoppingcart INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
             id_user INTEGER NOT NULL,
             date TEXT NOT NULL,
-            FOREIGN KEY(id_user) REFERENCES User(id_user));"""
+            FOREIGN KEY(id_user) REFERENCES User(id_user)
+        );"""
     ecommerce_db_dict[
         "create_table_invoice"
     ] = """CREATE TABLE IF NOT EXISTS Invoice (
             id_invoice INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
             id_shoppingcart INTEGER NOT NULL,
             date TEXT NOT NULL,
-            FOREIGN KEY(id_shoppingcart) REFERENCES ShoppingCart(id_shoppingcart));"""
+            FOREIGN KEY(id_shoppingcart) REFERENCES ShoppingCart(id_shoppingcart)
+        );"""
     ecommerce_db_dict[
         "create table CommandeLine"
     ] = """CREATE TABLE IF NOT EXISTS CommandLine (
@@ -134,6 +136,7 @@ def create_table_db(ecommerce_db_dict: dict):
             PRIMARY KEY(id_prod,id_shoppingcart)
             FOREIGN KEY(id_prod) REFERENCES Product(id_prod)
             FOREIGN KEY(id_shoppingcart) REFERENCES ShoppingCart(id_shoppingcart)
+<<<<<<< HEAD
         );"""
     ecommerce_db_dict[
         "create table CommandLine"
@@ -146,6 +149,8 @@ def create_table_db(ecommerce_db_dict: dict):
             PRIMARY KEY(id_prod,id_shoppingcart)
             FOREIGN KEY(id_prod) REFERENCES Product(id_prod)
             FOREIGN KEY(id_shoppingcart) REFERENCES ShoppingCart(id_shoppingcart)
+=======
+>>>>>>> c1c7d4e7ff692571d2af040990facddd4087e5f3
        );"""
 
 
