@@ -78,28 +78,27 @@ def create_table_db(ecommerce_db_dict: dict):
             id_role INTEGER PRIMARY KEY AUTOINCREMENT, 
             name TEXT NOT NULL);"""
     ecommerce_db_dict[
-        "create_table_connexion"
-    ] = """CREATE TABLE Connexion (
-            id_connexion INTEGER PRIMARY KEY AUTOINCREMENT, 
+        "create table Connection"
+    ] = """CREATE TABLE IF NOT EXISTS Connection (
+            id_connection INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
             status TEXT NOT NULL);"""
     ecommerce_db_dict[
-        "create_table_user"
-    ] = """CREATE TABLE User (
-            id_user INTEGER PRIMARY KEY AUTOINCREMENT, 
-            id_connexion INTEGER NOT NULL,
+        "create table User"
+    ] = """CREATE TABLE IF NOT EXISTS User (
+            id_user INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
+            id_connection INTEGER NOT NULL,
             id_role INTEGER NOT NULL,
             name TEXT NOT NULL,
             firstname TEXT NOT NULL,
             birth_date TEXT,
             email TEXT NOT NULL,
             phone TEXT,
-            FOREIGN KEY(id_connexion) REFERENCES Connexion(id_connexion),
-            FOREIGN KEY(id_role) REFERENCES Role(id_role)
-        );"""
+            FOREIGN KEY(id_connection) REFERENCES Connection(id_connection),
+            FOREIGN KEY(id_role) REFERENCES Role(id_role));"""
     ecommerce_db_dict[
-        "create_table_address"
-    ] = """CREATE TABLE Address (
-            id_address INTEGER PRIMARY KEY AUTOINCREMENT, 
+        "create table Address"
+    ] = """CREATE TABLE IF NOT EXISTS Address (
+            id_address INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
             id_user INTEGER NOT NULL,
             number INTEGER NOT NULL,
             street TEXT NOT NULL,
@@ -112,8 +111,7 @@ def create_table_db(ecommerce_db_dict: dict):
             id_shoppingcart INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
             id_user INTEGER NOT NULL,
             date TEXT NOT NULL,
-            FOREIGN KEY(id_user) REFERENCES User(id_user)
-        );"""
+            FOREIGN KEY(id_user) REFERENCES User(id_user));"""
     ecommerce_db_dict[
         "create_table_invoice"
     ] = """CREATE TABLE IF NOT EXISTS Invoice (
@@ -130,7 +128,7 @@ def create_table_db(ecommerce_db_dict: dict):
             quantity INTEGER UNSIGNED NOT NULL,
             rate_vat REAL UNSIGNED NOT NULL,
             PRIMARY KEY(id_prod,id_shoppingcart)
-            FOREIGN KEY(id_prod) REFERENCES Product(id_prod),
+            FOREIGN KEY(id_prod) REFERENCES Product(id_prod)
             FOREIGN KEY(id_shoppingcart) REFERENCES ShoppingCart(id_shoppingcart)
         );"""
     ecommerce_db_dict[
@@ -508,6 +506,34 @@ def create_insert_into_tables(ecommerce_db_dict: dict):
             (2, 1, "Porte-bagages arrière aluminium", 11, "Support de charge arrière pour vélos avec freins à disque.", 
             "Charge max: 25 kg ; Matériau: Alu anodisé ; Montage rapide", 
             "images/porte_bagages.jpeg", 44.90);
+        """
+
+
+def create_insert_into_tables(ecommerce_db_dict: dict):
+    ecommerce_db_dict[
+        "insert into Role: user"
+    ] = """INSERT INTO Role(name)
+            VALUES('user');
+        """
+    ecommerce_db_dict[
+        "insert into Role: admin"
+    ] = """INSERT INTO Role(name)
+            VALUES('admin');
+        """
+    ecommerce_db_dict[
+        "insert into Connection: timeout"
+    ] = """INSERT INTO Connection(status)
+            VALUES('timeout');
+        """
+    ecommerce_db_dict[
+        "insert into Connection: pending"
+    ] = """INSERT INTO Connection(status)
+            VALUES('pending');
+        """
+    ecommerce_db_dict[
+        "insert into Connection: connected"
+    ] = """INSERT INTO Connection(status)
+            VALUES('connected');
         """
 
 
