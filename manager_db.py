@@ -67,14 +67,27 @@ def create_table_db(ecommerce_db_dict: dict):
        )"""
 
 
-def test():
-    create_table_db(ecommerce_db_dict)
-    with sqlite3.connect("test.db") as connection:
-        print(connection.total_changes)
-        cursor = connection.cursor()
-        for action, sql_command in ecommerce_db_dict.items():
-            print(f"{action}...")
+def create_database(ecommerce_db_dict: dict, database_name: str):
+    """Create your database
+
+    Args:
+        ecommerce_db_dict (dict): contain all queries to create your database
+        database_name (str): database name
+    """
+    try:
+        connexion = sqlite3.connect(f"{database_name}.db")
+        cursor = connexion.cursor()
+        for key, sql_command in ecommerce_db_dict.items():
+            print(key)
             cursor.execute(sql_command)
+    except:
+        print(f"{database_name} already exist !")
+
+
+def main():
+    ecommerce_db_dict = {}
+    create_table_db(ecommerce_db_dict)
+    create_database(ecommerce_db_dict, "ecommerce_database")
 
 
 if __name__ == "__main__":
