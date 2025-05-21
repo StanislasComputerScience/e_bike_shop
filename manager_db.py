@@ -89,11 +89,12 @@ def create_table_db(ecommerce_db_dict: dict):
             FOREIGN KEY(id_shoppingcart) REFERENCES ShoppingCart(id_shoppingcart)
         );"""
     ecommerce_db_dict[
-        "create table CommandeLine"
+        "create table CommandLine"
     ] = """CREATE TABLE IF NOT EXISTS CommandLine (
             id_prod INTEGER NOT NULL,
             id_shoppingcart INTEGER NOT NULL,
             price_ET REAL UNSIGNED NOT NULL,
+            quantity INTEGER UNSIGNED NOT NULL,
             rate_vat REAL UNSIGNED NOT NULL,
             PRIMARY KEY(id_prod,id_shoppingcart)
             FOREIGN KEY(id_prod) REFERENCES Product(id_prod)
