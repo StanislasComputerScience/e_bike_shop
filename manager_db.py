@@ -614,6 +614,23 @@ def create_database(ecommerce_db_dict: dict, database_name: str):
         print(f"{database_name} already exist !")
 
 
+def create_database(ecommerce_db_dict: dict, database_name: str):
+    """Create your database
+
+    Args:
+        ecommerce_db_dict (dict): contain all queries to create your database
+        database_name (str): database name
+    """
+    try:
+        connexion = sqlite3.connect(f"{database_name}.db")
+        cursor = connexion.cursor()
+        for key, sql_command in ecommerce_db_dict.items():
+            print(key)
+            cursor.execute(sql_command)
+    except:
+        print(f"{database_name} already exist !")
+
+
 def main():
     ecommerce_db_dict = {}
     create_table_db(ecommerce_db_dict)
