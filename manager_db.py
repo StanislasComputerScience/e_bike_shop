@@ -105,8 +105,7 @@ def create_table_db(ecommerce_db_dict: dict):
             street TEXT NOT NULL,
             postal_code TEXT NOT NULL,
             city TEXT NOT NULL,
-            FOREIGN KEY(id_user) REFERENCES User(id_user)
-        );"""
+            FOREIGN KEY(id_user) REFERENCES User(id_user));"""
     ecommerce_db_dict[
         "create_table_shopping_cart"
     ] = """CREATE TABLE IF NOT EXISTS ShoppingCart (
@@ -121,6 +120,17 @@ def create_table_db(ecommerce_db_dict: dict):
             id_invoice INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
             id_shoppingcart INTEGER NOT NULL,
             date TEXT NOT NULL,
+            FOREIGN KEY(id_shoppingcart) REFERENCES ShoppingCart(id_shoppingcart));"""
+    ecommerce_db_dict[
+        "create table CommandLine"
+    ] = """CREATE TABLE IF NOT EXISTS CommandLine (
+            id_prod INTEGER NOT NULL,
+            id_shoppingcart INTEGER NOT NULL,
+            price_ET REAL UNSIGNED NOT NULL,
+            quantity INTEGER UNSIGNED NOT NULL,
+            rate_vat REAL UNSIGNED NOT NULL,
+            PRIMARY KEY(id_prod, id_shoppingcart)
+            FOREIGN KEY(id_prod) REFERENCES Product(id_prod),
             FOREIGN KEY(id_shoppingcart) REFERENCES ShoppingCart(id_shoppingcart)
         );"""
     ecommerce_db_dict[
