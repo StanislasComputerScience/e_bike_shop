@@ -107,4 +107,4 @@ def main():
     create_database(ecommerce_db_dict, "ecommerce_database")
 
 if __name__ == "__main__":
-        main()    
+        main()
