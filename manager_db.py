@@ -10,40 +10,7 @@ def create_json_db():
 
 
 def create_table_db(ecommerce_db_dict: dict):
-    """Function to create table of the db"""
-    ecommerce_db_dict[
-        "create table Role"
-    ] = """CREATE TABLE IF NOT EXISTS Role (
-            id_role INTEGER PRIMARY KEY AUTOINCREMENT, 
-            name TEXT NOT NULL);"""
-    ecommerce_db_dict[
-        "create table Connexion"
-    ] = """CREATE TABLE IF NOT EXISTS Connexion (
-            id_connexion INTEGER PRIMARY KEY AUTOINCREMENT, 
-            status TEXT NOT NULL);"""
-    ecommerce_db_dict[
-        "create table User"
-    ] = """CREATE TABLE IF NOT EXISTS User (
-            id_user INTEGER PRIMARY KEY AUTOINCREMENT, 
-            id_connexion INTEGER NOT NULL,
-            id_role INTEGER NOT NULL,
-            name TEXT NOT NULL,
-            firstname TEXT NOT NULL,
-            birth_date TEXT,
-            email TEXT NOT NULL,
-            phone TEXT,
-            FOREIGN KEY(id_connexion) REFERENCES Connexion(id_connexion),
-            FOREIGN KEY(id_role) REFERENCES Role(id_role));"""
-    ecommerce_db_dict[
-        "create table Address"
-    ] = """CREATE TABLE IF NOT EXISTS Address (
-            id_address INTEGER PRIMARY KEY AUTOINCREMENT, 
-            id_user INTEGER NOT NULL,
-            number INTEGER NOT NULL,
-            street TEXT NOT NULL,
-            postal_code TEXT NOT NULL,
-            city TEXT NOT NULL,
-            FOREIGN KEY(id_user) REFERENCES User(id_user));"""
+
     ecommerce_db_dict[
         "create table Category"
     ] = """CREATE TABLE IF NOT EXISTS Category (
@@ -100,28 +67,15 @@ def create_table_db(ecommerce_db_dict: dict):
        )"""
 
 
-def create_database(ecommerce_db_dict: dict, database_name: str):
-    """Create your database
-
-    Args:
-        ecommerce_db_dict (dict): contain all queries to create your database
-        database_name (str): database name
-    """
-    try:
-        connexion = sqlite3.connect(f"{database_name}.db")
-        cursor = connexion.cursor()
-        for key, sql_command in ecommerce_db_dict.items():
-            print(key)
-            cursor.execute(sql_command)
-    except:
-        print(f"{database_name} already exist !")
-
-
-def main():
-    ecommerce_db_dict = {}
+def test():
     create_table_db(ecommerce_db_dict)
-    create_database(ecommerce_db_dict, "ecommerce_database")
+    with sqlite3.connect("test.db") as connection:
+        print(connection.total_changes)
+        cursor = connection.cursor()
+        for action, sql_command in ecommerce_db_dict.items():
+            print(f"{action}...")
+            cursor.execute(sql_command)
 
 
 if __name__ == "__main__":
-    main()
+    test()
