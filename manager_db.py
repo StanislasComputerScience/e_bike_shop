@@ -13,3 +13,9 @@ def create_table_db(ecommerce_db_dict: dict):
                                                                    role_name TEXT NOT NULL);"""
     ecommerce_db_dict["create_table_connexion"] = """CREATE TABLE Connexion (id_connexion INTEGER PRIMARY KEY AUTOINCREMENT, 
                                                                              connexion_name TEXT NOT NULL);"""
+    
+def main():
+    pass
+
+if __name__ == "__main__":
+        main()    
