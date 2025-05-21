@@ -867,12 +867,12 @@ def create_database(ecommerce_db_dict: dict, database_name: str):
         database_name (str): database name
     """
     try:
-        Connection = sqlite3.connect(f"{database_name}.db")
-        cursor = Connection.cursor()
+        connection = sqlite3.connect(f"{database_name}.db")
+        cursor = connection.cursor()
         for key, sql_command in ecommerce_db_dict.items():
             print(key)
             cursor.execute(sql_command)
-        Connection.commit()
+        connection.commit()
     except:
         print(f"{database_name} already exist !")
 
