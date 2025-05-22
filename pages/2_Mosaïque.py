@@ -3,7 +3,7 @@ import streamlit as st
 
 st.subheader("Mosaïque de produits :")
 
-path = "./assets/produits/"
+path = "./bdd/assets/products/"
 
 list_products = []
 

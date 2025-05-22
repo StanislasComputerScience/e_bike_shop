@@ -6,7 +6,7 @@ def display():
     """Display the page "Panier" in the streamlit app."""
 
     # TEMPORARY: create a fake dictionnary for having a first version
-    folder = "./assets/produits/"
+    folder = "./bdd/assets/products/"
     command_lines = []
 
     for idx, file in enumerate(os.listdir(folder)):
