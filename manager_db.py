@@ -465,6 +465,83 @@ def create_insert_into_tables(ecommerce_db_dict: dict):
             "Charge max: 25 kg ; Matériau: Alu anodisé ; Montage rapide",
             "images/porte_bagages.jpeg", 44.90, 10);
         """
+    ecommerce_db_dict[
+        "insert into CommandLine: first CommandLine"
+    ] = """INSERT INTO CommandLine (id_prod, id_shoppingcart, price_ET, quantity, rate_vat)
+            VALUES (1,1,899.99, 2,0.2)
+        """
+    ecommerce_db_dict[
+        "insert into CommandLine: second CommandLine"
+    ] = """INSERT INTO CommandLine (id_prod, id_shoppingcart, price_ET, quantity, rate_vat)
+            VALUES 
+            (2, 2, 749.99, 3, 0.2),
+            (13, 2, 59.90, 2, 0.2),
+            (15, 2, 39.00, 3, 0.2);
+        """
+    ecommerce_db_dict[
+        "insert into CommandLine: third CommandLine"
+    ] = """INSERT INTO CommandLine (id_prod, id_shoppingcart, price_ET, quantity, rate_vat)
+            VALUES 
+            (3, 3, 1299.00, 2, 0.2),
+            (5, 3, 499.50, 4, 0.2),
+            (18, 3, 19.90, 3, 0.2);
+        """
+    ecommerce_db_dict[
+        "insert into CommandLine: fourth CommandLine"
+    ] = """INSERT INTO CommandLine (id_prod, id_shoppingcart, price_ET, quantity, rate_vat)
+            VALUES 
+            (6, 4, 1149.00, 2, 0.2),
+            (11, 4, 569.00, 1, 0.2),
+            (14, 4, 24.90, 5, 0.2);
+        """
+    ecommerce_db_dict[
+        "insert into CommandLine: fifth CommandLine"
+    ] = """INSERT INTO CommandLine (id_prod, id_shoppingcart, price_ET, quantity, rate_vat)
+            VALUES 
+            (8, 5, 1699.00, 1, 0.2),
+            (9, 5, 399.00, 2, 0.2),
+            (19, 5, 29.95, 3, 0.2);
+        """
+    ecommerce_db_dict[
+        "insert into CommandLine: sixth CommandLine"
+    ] = """INSERT INTO CommandLine (id_prod, id_shoppingcart, price_ET, quantity, rate_vat)
+            VALUES 
+            (1, 6, 899.99, 2, 0.2),
+            (17, 6, 14.50, 2, 0.2);
+        """
+    ecommerce_db_dict[
+        "insert into CommandLine: seventh CommandLine"
+    ] = """INSERT INTO CommandLine (id_prod, id_shoppingcart, price_ET, quantity, rate_vat)
+            VALUES 
+            (4, 7, 1999.99, 1, 0.2),
+            (10, 7, 899.99, 1, 0.2),
+            (20, 7, 12.99, 3, 0.2),
+            (16, 7, 50.00, 4, 0.2);
+        """
+    ecommerce_db_dict[
+        "insert into CommandLine: eighth CommandLine"
+    ] = """INSERT INTO CommandLine (id_prod, id_shoppingcart, price_ET, quantity, rate_vat)
+            VALUES 
+            (12, 8, 49.99, 2, 0.2),
+            (18, 8, 19.90, 2, 0.2),
+            (6, 8, 1149.00, 1, 0.2);
+        """
+    ecommerce_db_dict[
+        "insert into CommandLine: ninth CommandLine"
+    ] = """INSERT INTO CommandLine (id_prod, id_shoppingcart, price_ET, quantity, rate_vat)
+            VALUES 
+            (7, 9, 159.90, 1, 0.2),
+            (14, 9, 24.90, 2, 0.2);
+        """
+    ecommerce_db_dict[
+        "insert into CommandLine: tenth CommandLine"
+    ] = """INSERT INTO CommandLine (id_prod, id_shoppingcart, price_ET, quantity, rate_vat)
+            VALUES 
+            (5, 10, 499.50, 2, 0.2),
+            (19, 10, 29.95, 1, 0.2),
+            (13, 10, 59.90, 1, 0.2),
+            (15, 10, 39.00, 2, 0.2);
+        """
 
 
 def create_database(ecommerce_db_dict: dict, database_name: str):
