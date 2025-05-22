@@ -3,7 +3,15 @@ import sqlite3
 
 # region Home
 # Most 2 popular products
-def most_popular_products(ecommerce_db_name: str) -> list[tuple[str, str]]:
+def most_popular_products(ecommerce_db_name: str) -> list[dict]:
+    """Most popular products
+
+    Args:
+        ecommerce_db_name (str): database name
+
+    Returns:
+        list[dict]: list of product most popular
+    """
     with sqlite3.connect(f"{ecommerce_db_name}.db") as connexion:
         cursor = connexion.cursor()
 
@@ -15,11 +23,25 @@ def most_popular_products(ecommerce_db_name: str) -> list[tuple[str, str]]:
                LIMIT 2;
             """
         )
-        return query.fetchall()
+        list_product = []
+        for prod_info in query.fetchall():
+            dict_temp = {}
+            dict_temp["name"] = prod_info(0)
+            dict_temp["image_path"] = prod_info(1)
+            list_product.append(dict_temp)
+        return list_product
 
 
 # Most 2 products buy
-def most_products_buy(ecommerce_db_name: str):
+def most_products_buy(ecommerce_db_name: str) -> list[dict]:
+    """Most buy products
+
+    Args:
+        ecommerce_db_name (str): database name
+
+    Returns:
+        list[dict]: list of product most popular
+    """
     with sqlite3.connect(f"{ecommerce_db_name}.db") as connexion:
         cursor = connexion.cursor()
 
@@ -38,7 +60,13 @@ def most_products_buy(ecommerce_db_name: str):
                LIMIT 2;
             """
         )
-        return query.fetchall()
+        list_product = []
+        for prod_info in query.fetchall():
+            dict_temp = {}
+            dict_temp["name"] = prod_info(0)
+            dict_temp["image_path"] = prod_info(1)
+            list_product.append(dict_temp)
+        return list_product
 
 
 def main():
