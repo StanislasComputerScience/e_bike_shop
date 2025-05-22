@@ -40,7 +40,6 @@ with colonne_gauche:
 with colonne_droite:
     st.image("./assets/Velo2.jpeg", caption="Vélo 2", use_container_width=True)
 
-
 st.subheader("produits les plus vendus :")
 colonne_gauche, colonne_droite = st.columns(2)
 

@@ -1,1 +1,1 @@
-streamlit run ./view/Home.py
+streamlit run view/Home.py
