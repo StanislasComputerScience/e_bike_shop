@@ -26,18 +26,19 @@ def most_products_buy(ecommerce_db_name: str):
         query = cursor.execute(
             """SELECT prod.name,
                       prod.image_path
-               FROM Product as prod
-               RIGHT JOIN (SELECT cl.id_product
-                            FROM Invoice as fact
-                            INNER JOIN ShoppingCart as sc on sc.id_shoppingcart = fact.id_shoppingcart 
-                                                            and sc.id_invoice = fact.id_invoice
-                            INNER JOIN CommandLine as cl on cl.id_shoppingcart = sc.id_shoppingcart
-                            GROUP BY cl.id_product) as prod_sale on prod_sale.id_product = prod.id_prod
-               ORDER BY prod.popularity DESC
-               LIMIT 2
+               FROM Product as prod 
+               RIGHT JOIN (SELECT cl.id_prod, 
+                                SUM(cl.quantity) as number_sale,
+                                ROUND(SUM(cl.quantity) * SUM(cl.price_ET),2) as total_price_product_sale
+                            FROM CommandLine as cl
+                            RIGHT JOIN ShoppingCart as sc on sc.id_shoppingcart = cl.id_shoppingcart
+                            RIGHT JOIN Invoice as inv on inv.id_invoice = sc.id_shoppingcart
+                            GROUP BY cl.id_prod) as prod_sale on prod_sale.id_prod = prod.id_prod
+               ORDER BY prod_sale.number_sale DESC, prod_sale.total_price_product_sale DESC
+               LIMIT 2;
             """
         )
-        print(query.fetchall())
+        return query.fetchall()
 
 
 def main():
