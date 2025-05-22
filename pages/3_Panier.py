@@ -7,8 +7,8 @@ def display():
     """Display the page "Panier" in the streamlit app."""
 
     # Request to the DB
-    test_id_user = 1
-    shopping_cart = user_shopping_cart("ecommerce_db_name", test_id_user)
+    test_id_user = 2
+    shopping_cart = user_shopping_cart("bdd/ecommerce_database", test_id_user)
 
     # Display the title
     st.header("Panier")
