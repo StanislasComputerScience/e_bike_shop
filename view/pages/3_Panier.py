@@ -1,25 +1,14 @@
 import streamlit as st
 import os
+from controller.controller import user_shopping_cart
 
 
 def display():
     """Display the page "Panier" in the streamlit app."""
 
-    # TEMPORARY: create a fake dictionnary for having a first version
-    folder = "./assets/produits/"
-    command_lines = []
-
-    for idx, file in enumerate(os.listdir(folder)):
-        file_path = os.path.join(folder, file)
-        if os.path.isfile(file_path):
-            command_lines.append(
-                {
-                    "nom": f"Produit_{idx}",
-                    "quantité": idx,
-                    "chemin_image": file_path,
-                    "prix": idx * 100,
-                }
-            )
+    # Request to the DB
+    test_id_user = 1
+    shopping_cart = user_shopping_cart("ecommerce_db_name", test_id_user)
 
     # Display the title
     st.header("Panier")
@@ -28,7 +17,7 @@ def display():
     column_widths = [1, 3, 3, 1, 1]
     display_table_header(column_widths)
     total_price = 0
-    for command_line in command_lines:
+    for command_line in shopping_cart:
         total_price += display_table_line(column_widths, command_line)
 
     column_widths = [4, 2, 1]
@@ -86,32 +75,32 @@ def display_table_line(column_widths: list[int], command_line: dict) -> int:
 
     # Column image
     with col_image:
-        st.image(command_line["chemin_image"], width=50)
+        st.image(command_line["image_path"], width=50)
 
     # Column product name
     with col_name:
-        st.text(command_line["nom"])
+        st.text(command_line["product_name"])
 
     # Column quantity in the shopping cart
     with col_quantity:
         st.number_input(
-            command_line["nom"] + "_quantity",
+            command_line["product_name"] + "_quantity",
             min_value=0,
             max_value=9999,
-            value=command_line["quantité"],
+            value=command_line["quantity"],
             step=1,
             label_visibility="collapsed",
         )
 
     # Column product price
     with col_price:
-        st.text(str(command_line["prix"]) + " €")
+        st.text(str(command_line["price_ET"]) + " €")
 
     # Column command line price
     with col_total_price:
-        st.text(str(command_line["prix"] * command_line["quantité"]) + " €")
+        st.text(str(command_line["price_ET"] * command_line["quantity"]) + " €")
 
-    return command_line["prix"] * command_line["quantité"]
+    return command_line["price_ET"] * command_line["quantity"]
 
 
 def display_order_and_total(column_widths: list[int], total_price: int):

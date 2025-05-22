@@ -3,7 +3,7 @@ import sqlite3
 
 def user_shopping_cart(
     ecommerce_db_name: str, id_user: int
-) -> list[tuple[str, str, int, float, float, str]]:
+) -> list[dict[str, str, int, float, float, str]]:
     """Return information of the user shopping cart.
     Interrogate the database with the name ecommerce_db_name
 
@@ -12,7 +12,7 @@ def user_shopping_cart(
         id_user (int): id of the user
 
     Returns:
-        (list[tuple[str, str, int, float, float, str]]): result of the request
+        (list[dict[str, str, int, float, float, str]]): result of the request
     """
 
     with sqlite3.connect(f"{ecommerce_db_name}.db") as connexion:
@@ -36,7 +36,20 @@ def user_shopping_cart(
             """,
             {"id_user": id_user},
         )
-        return query.fetchall()
+
+        # Convert tuple into dictionnary
+        shopping_cart = []
+        for command_line in query.fetchall():
+            command_line_as_dict = dict()
+            command_line_as_dict["image_path"] = command_line[0]
+            command_line_as_dict["product_name"] = command_line[1]
+            command_line_as_dict["quantity"] = command_line[2]
+            command_line_as_dict["price_ET"] = command_line[3]
+            command_line_as_dict["rate_vat"] = command_line[4]
+            command_line_as_dict["date"] = command_line[5]
+            shopping_cart.append(command_line_as_dict)
+
+        return shopping_cart
 
 
 if __name__ == "__main__":
