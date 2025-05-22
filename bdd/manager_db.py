@@ -392,7 +392,7 @@ def create_insert_into_tables(ecommerce_db_dict: dict):
             "Ce VTT est conçu pour se lancer dans la pratique du VTT Cross Country (XC). Votre premier
              VTT XC axé performance à prix contenu. Cadre aluminium et transmission 11 vitesses.",
             "Cadre: Aluminium, tubes à épaisseurs variables ; Transmission: Plateau de 32 ; Roues: 29'' ; Amortisseur: simple ; Freins : hydraulique",
-            "assets/products/vtt_1250xc.jpg", 899.99, 23)
+            "bdd/assets/products/vtt_1250xc.jpg", 899.99, 23)
         """
     ecommerce_db_dict[
         "insert into Product: ten bikes"
@@ -400,34 +400,34 @@ def create_insert_into_tables(ecommerce_db_dict: dict):
             VALUES
             (1, 1, "VTT Trail 500", 15, "VTT robuste pour les sentiers forestiers et les randonnées en montagne.",
             "Cadre: Aluminium 6061 ; Transmission: Shimano 9 vitesses ; Roues: 27.5'' ; Freins: Disques hydrauliques",
-            "assets/products/vtt_trail_500.jpeg", 749.99, 36),
+            "bdd/assets/products/vtt_trail_500.jpeg", 749.99, 36),
             (1, 1, "Vélo de route AeroX", 8, "Vélo de route profilé pour les cyclistes avides de performance sur bitume.",
             "Cadre: Carbone ; Transmission: Shimano 105 ; Roues: 700C ; Freins: Patins",
-            "assets/products/aerox.jpeg", 1299.00, 14),
+            "bdd/assets/products/aerox.jpeg", 1299.00, 14),
             (1, 1, "VTT XC Pro 900", 5, "Modèle haute performance pour le cross-country intensif.",
             "Cadre: Carbone ; Transmission: SRAM Eagle 12v ; Amortisseur: RockShox ; Freins: Disques hydrauliques",
-            "assets/products/xc_pro_900.jpeg", 1999.99, 9),
+            "bdd/assets/products/xc_pro_900.jpg", 1999.99, 9),
             (1, 1, "VTC Urbain 300", 20, "Vélo tout chemin idéal pour les trajets quotidiens en ville ou en campagne.",
             "Cadre: Acier ; Vitesses: 7 intégrées ; Porte-bagages ; Garde-boue",
-            "assets/products/vtc_urbain_300.jpeg", 499.50, 4),
+            "bdd/assets/products/vtc_urbain_300.jpeg", 499.50, 4),
             (1, 1, "Gravel TerraMix", 7, "Vélo gravel polyvalent pour la route et les chemins non goudronnés.",
             "Cadre: Aluminium ; Transmission: 2x10 Shimano GRX ; Pneus: 40 mm ; Freins: Disques",
-            "assets/products/terramix.jpeg", 1149.00, 28),
+            "bdd/assets/products/terramix.jpeg", 1149.00, 28),
             (1, 1, "Vélo enfant KidRider 16''", 12, "Vélo 16 pouces pour enfants de 4 à 6 ans avec stabilisateurs amovibles.",
             "Cadre: Acier ; Transmission: Monovitesse ; Freins: V-brake",
-            "assets/products/kidrider_16.jpeg", 159.90, 7),
+            "bdd/assets/products/kidrider_16.jpeg", 159.90, 7),
             (1, 1, "Vélo électrique E-City 400", 6, "Vélo à assistance électrique pour les déplacements urbains confortables.",
             "Cadre: Aluminium ; Moteur: 250W ; Batterie: 36V 10Ah ; Autonomie: 70 km",
-            "assets/products/e_city_400.jpeg", 1699.00, 0),
+            "bdd/assets/products/e_city_400.jpeg", 1699.00, 0),
             (1, 1, "Fixie Urban Classic", 10, "Vélo fixie élégant et minimaliste pour la ville.",
             "Cadre: Acier chromé ; Transmission: Single Speed ; Freins: Caliper",
-            "assets/products/fixie_urban_classic.jpeg", 399.00, 45),
+            "bdd/assets/products/fixie_urban_classic.jpeg", 399.00, 45),
             (1, 1, "Fatbike SnowBeast", 3, "Vélo tout-terrain à gros pneus pour rouler sur neige ou sable.",
             "Cadre: Aluminium ; Pneus: 4.5'' ; Transmission: Shimano 1x9 ; Freins: Disques",
-            "assets/products/snowbeast.jpeg", 899.99, 34),
+            "bdd/assets/products/snowbeast.jpeg", 899.99, 34),
             (1, 1, "Vélo pliant Compact 20", 9, "Vélo pliable pour les trajets multimodaux et les petits espaces.",
             "Cadre: Aluminium pliant ; Roues: 20'' ; Vitesses: 6 ; Porte-bagages intégré",
-            "assets/products/compact_20.jpeg", 569.00, 23);
+            "bdd/assets/products/compact_20.jpeg", 569.00, 23);
         """
     ecommerce_db_dict[
         "insert into Product: ten accessories"
@@ -435,34 +435,34 @@ def create_insert_into_tables(ecommerce_db_dict: dict):
             VALUES
             (2, 1, "Casque UrbanRide", 25, "Casque léger et ventilé pour les trajets urbains.",
             "Taille: M/L ; Certification: EN1078 ; Poids: 280g ; 14 aérations",
-            "images/casque_urbanride.jpeg", 49.99, 12),
+            "bdd/assets/products/casque_urbanride.jpeg", 49.99, 12),
             (2, 1, "Antivol U LockMax", 30, "Antivol en U haute sécurité avec double verrouillage.",
             "Matériau: Acier trempé ; Dimensions: 18x24cm ; Serrure anti-perçage",
-            "images/ulockmax.jpeg", 59.90, 56),
+            "bdd/assets/products/ulockmax.jpeg", 59.90, 56),
             (2, 1, "Lumières LED avant/arrière", 40, "Kit de lumières rechargeables pour une meilleure visibilité de nuit.",
             "Batterie: USB ; Autonomie: 10h ; Modes: 4 ; Étanchéité: IPX4",
-            "images/lumieres_led.jpeg", 24.90, 3),
+            "bdd/assets/products/lumieres_led.jpeg", 24.90, 3),
             (2, 1, "Pompe à pied ProAir", 18, "Pompe avec manomètre pour un gonflage précis de tous types de pneus.",
             "Pression max: 11 bars ; Corps: aluminium ; Embout: Presta/Schrader",
-            "images/pompe_proair.jpeg", 39.00, 6),
+            "bdd/assets/products/pompe_proair.jpeg", 39.00, 6),
             (2, 1, "Bidon isotherme 600ml", 50, "Bidon cycliste double paroi pour conserver vos boissons au frais.",
             "Matériau: Sans BPA ; Capacité: 600ml ; Poids: 180g",
-            "images/bidon_600.jpeg", 14.50, 2),
+            "bdd/assets/products/bidon_600.jpeg", 14.50, 2),
             (2, 1, "Selle Gel Confort+", 22, "Selle large avec gel pour une assise confortable sur longue distance.",
             "Rails: Acier ; Housse: Synthétique ; Longueur: 270mm",
-            "images/selle_confort.jpeg", 34.99, 4),
+            "bdd/assets/products/selle_confort.jpeg", 34.99, 4),
             (2, 1, "Gants été respirants", 35, "Gants légers avec paumes renforcées pour cyclisme estival.",
             "Taille: S à XL ; Matière: Lycra ; Inserts en gel",
-            "images/gants_ete.jpeg", 19.90, 3),
+            "bdd/assets/products/gants_ete.jpeg", 19.90, 3),
             (2, 1, "Sacoche de cadre étanche", 14, "Sacoche pour smartphone et objets essentiels.",
             "Volume: 1.2L ; Fixation: velcro ; Écran tactile compatible",
-            "images/sacoche_cadre.jpeg", 29.95, 3),
+            "bdd/assets/products/sacoche_cadre.jpeg", 29.95, 3),
             (2, 1, "Rétroviseur latéral universel", 27, "Rétroviseur adaptable sur guidon gauche ou droit.",
             "Angle réglable ; Fixation: collier universel ; Matériau: ABS",
-            "images/retroviseur.jpeg", 12.99, 8),
+            "bdd/assets/products/retroviseur.jpeg", 12.99, 8),
             (2, 1, "Porte-bagages arrière aluminium", 11, "Support de charge arrière pour vélos avec freins à disque.",
             "Charge max: 25 kg ; Matériau: Alu anodisé ; Montage rapide",
-            "images/porte_bagages.jpeg", 44.90, 10);
+            "bdd/assets/products/porte_bagages.jpeg", 44.90, 10);
         """
     ecommerce_db_dict[
         "insert into CommandLine: first CommandLine"
@@ -543,7 +543,7 @@ def create_insert_into_tables(ecommerce_db_dict: dict):
         """
 
 
-def create_database(ecommerce_db_dict: dict, database_name: str) -> None:
+def create_database(ecommerce_db_dict: dict, database_name: str):
     """Create your database
     Args:
         ecommerce_db_dict (dict): contain all queries to create your database
@@ -561,24 +561,15 @@ def create_database(ecommerce_db_dict: dict, database_name: str) -> None:
         print(f"{database_name} already exist !")
 
 
-def create_json_file(ecommerce_db_dict: dict, database_name: str) -> None:
-    """Create JSON file
-
-    Args:
-        ecommerce_db_dict (dict): contain all queries to create your database
-        database_name (str): database name
-    """
+def create_json_file(ecommerce_db_dict: dict, database_name: str):
+    # Write data to a JSON file
     folder = "bdd/"
     with open(f"{folder}{database_name}.json", "w") as db_json_file:
         json.dump(ecommerce_db_dict, db_json_file, indent=4, ensure_ascii=False)
 
 
-def create_database_with_json_file(database_name: str) -> None:
-    """Create database with a JSON file
-
-    Args:
-        database_name (str): JSON file
-    """
+def create_database_with_json_file(database_name: str) -> dict:
+    """Read your database"""
     try:
         folder = "bdd/"
         with open(f"{folder}{database_name}.json") as db_json_file:
