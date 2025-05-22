@@ -543,30 +543,29 @@ import json
 #         """
 
 
-def create_database(ecommerce_db_dict: dict, database_name: str):
-    """Create your database
+# def create_database(ecommerce_db_dict: dict, database_name: str):
+#     """Create your database
+#     Args:
+#         ecommerce_db_dict (dict): contain all queries to create your database
+#         database_name (str): database name
+#     """
+#     try:
+#         folder = "bdd/"
+#         connection = sqlite3.connect(f"{folder}{database_name}.db")
+#         cursor = connection.cursor()
+#         for key, sql_command in ecommerce_db_dict.items():
+#             print(key)
+#             cursor.execute(sql_command)
+#         connection.commit()
+#     except:
+#         print(f"{database_name} already exist !")
 
-    Args:
-        ecommerce_db_dict (dict): contain all queries to create your database
-        database_name (str): database name
-    """
-    try:
-        folder = "bdd/"
-        connection = sqlite3.connect(f"{folder}{database_name}.db")
-        cursor = connection.cursor()
-        for key, sql_command in ecommerce_db_dict.items():
-            print(key)
-            cursor.execute(sql_command)
-        connection.commit()
-    except:
-        print(f"{database_name} already exist !")
 
-
-def create_json_file(ecommerce_db_dict: dict, database_name: str):
-    # Write data to a JSON file
-    folder = "bdd/"
-    with open(f"{folder}{database_name}.json", "w") as db_json_file:
-        json.dump(ecommerce_db_dict, db_json_file, indent=4, ensure_ascii=False)
+# def create_json_file(ecommerce_db_dict: dict, database_name: str):
+#     # Write data to a JSON file
+#     folder = "bdd/"
+#     with open(f"{folder}{database_name}.json", "w") as db_json_file:
+#         json.dump(ecommerce_db_dict, db_json_file, indent=4, ensure_ascii=False)
 
 
 def create_database_with_json_file(database_name: str) -> dict:
@@ -576,7 +575,7 @@ def create_database_with_json_file(database_name: str) -> dict:
         with open(f"{folder}{database_name}.json") as db_json_file:
             ecommerce_db_dict = json.load(db_json_file)
 
-        connection = sqlite3.connect(f"{database_name}.db")
+        connection = sqlite3.connect(f"{folder}{database_name}.db")
         cursor = connection.cursor()
         for key, sql_command in ecommerce_db_dict.items():
             print(key)
