@@ -1,4 +1,5 @@
 import sqlite3
+import json
 
 
 def create_json_db():
@@ -562,11 +563,20 @@ def create_database(ecommerce_db_dict: dict, database_name: str):
         print(f"{database_name} already exist !")
 
 
+def create_json_file(ecommerce_db_dict: dict, database_name: str):
+    pass
+    # Write data to a JSON file
+    with open(f"{database_name}.json", "w") as db_json_file:
+        json.dump(ecommerce_db_dict, db_json_file, indent=4, ensure_ascii=False)
+
+
 def main():
+    db_name = "ecommerce_database"
     ecommerce_db_dict = {}
     create_table_db(ecommerce_db_dict)
     create_insert_into_tables(ecommerce_db_dict)
-    create_database(ecommerce_db_dict, "ecommerce_database")
+    # create_database(ecommerce_db_dict, db_name)
+    create_json_file(ecommerce_db_dict, db_name)
 
 
 if __name__ == "__main__":
