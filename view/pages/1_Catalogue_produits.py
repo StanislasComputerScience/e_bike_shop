@@ -1,7 +1,13 @@
 import os
 import streamlit as st
 
-# Initialisation de l'index du  bouton radio
+
+# --- Fonction appelée quand le radio change ---
+def changement_produit():
+    st.session_state.c = noms_produits.index(st.session_state.choix_radio)
+
+
+# Initialisation de l'index du bouton radio
 if "c" not in st.session_state:
     st.session_state.c = 0
 
@@ -23,13 +29,24 @@ for i, f in enumerate(os.listdir(dossier)):
 # Liste des noms pour le bouton radio
 noms_produits = [p["nom"] for p in l_produits]
 
+
+# --- Affichage du menu latéral ---
+st.sidebar.subheader("Fichiers dans 'produits' :")
+
+st.sidebar.radio(
+    "Sélectionnez un produit :",
+    noms_produits,
+    index=st.session_state.c,
+    key="choix_radio",
+    on_change=changement_produit,
+)
+
 # Boutons navigation
 col1, col2, col3 = st.columns([1, 3, 1])
 
 with col1:
     if st.button("Précédent"):
         st.session_state.c = (st.session_state.c - 1) % len(l_produits)
-
 
 with col2:
     st.markdown(
@@ -60,15 +77,3 @@ produit_selectionne = l_produits[st.session_state.c]
 st.subheader("Affichage du produit sélectionné :")
 st.image(produit_selectionne["chemin_image"], width=300)
 st.write(produit_selectionne["description"])
-
-# Menu latéral
-st.sidebar.subheader("Fichiers dans 'produits' :")
-
-# On ne modifie PAS `st.session_state.c` ici !
-choix_nom = st.sidebar.radio(
-    "Sélectionnez un produit :", noms_produits, index=st.session_state.c
-)
-
-# Si l'utilisateur sélectionne via la sidebar, on met à jour l'index
-if noms_produits.index(choix_nom) != st.session_state.c:
-    st.session_state.c = noms_produits.index(choix_nom)
