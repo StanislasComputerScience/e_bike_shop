@@ -1,6 +1,12 @@
 import os
 import streamlit as st
 
+
+# --- Fonction appelée quand le radio change ---
+def changement_produit():
+    st.session_state.c = noms_produits.index(st.session_state.choix_radio)
+
+
 # Initialisation de l'index du bouton radio
 if "c" not in st.session_state:
     st.session_state.c = 0
@@ -22,11 +28,6 @@ for i, f in enumerate(os.listdir(dossier)):
 
 # Liste des noms pour le bouton radio
 noms_produits = [p["nom"] for p in l_produits]
-
-
-# --- Fonction appelée quand le radio change ---
-def changement_produit():
-    st.session_state.c = noms_produits.index(st.session_state.choix_radio)
 
 
 # --- Affichage du menu latéral ---
