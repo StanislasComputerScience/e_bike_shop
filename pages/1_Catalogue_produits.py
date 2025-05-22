@@ -12,7 +12,7 @@ if "c" not in st.session_state:
     st.session_state.c = 0
 
 # Chargement des produits depuis le dossier
-dossier = "./assets/produits/"
+dossier = "./bdd/assets/products/"
 l_produits = []
 
 for i, f in enumerate(os.listdir(dossier)):
