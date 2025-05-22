@@ -585,7 +585,7 @@ def create_database_with_json_file(database_name: str) -> dict:
 
 def main():
     db_name = "ecommerce_database"
-    ecommerce_db_dict = {}
+    # ecommerce_db_dict = {}
     # create_table_db(ecommerce_db_dict)
     # create_insert_into_tables(ecommerce_db_dict)
     # create_database(ecommerce_db_dict, db_name)
