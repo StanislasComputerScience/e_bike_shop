@@ -22,7 +22,7 @@ colonne_image, colonne_titre = st.columns([1, 3])
 
 with colonne_image:
 
-    st.image("./assets/velo4.jpeg")
+    st.image("./bdd/assets/velo4.jpeg")
 
 with colonne_titre:
     st.markdown(
