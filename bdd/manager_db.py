@@ -392,7 +392,7 @@ import json
 #             "Ce VTT est conçu pour se lancer dans la pratique du VTT Cross Country (XC). Votre premier
 #              VTT XC axé performance à prix contenu. Cadre aluminium et transmission 11 vitesses.",
 #             "Cadre: Aluminium, tubes à épaisseurs variables ; Transmission: Plateau de 32 ; Roues: 29'' ; Amortisseur: simple ; Freins : hydraulique",
-#             "vers/mon/image.jpeg", 899.99, 23)
+#             "assets/products/vtt_1250xc.jpg", 899.99, 23)
 #         """
 #     ecommerce_db_dict[
 #         "insert into Product: ten bikes"
@@ -400,34 +400,34 @@ import json
 #             VALUES
 #             (1, 1, "VTT Trail 500", 15, "VTT robuste pour les sentiers forestiers et les randonnées en montagne.",
 #             "Cadre: Aluminium 6061 ; Transmission: Shimano 9 vitesses ; Roues: 27.5'' ; Freins: Disques hydrauliques",
-#             "images/vtt_trail_500.jpeg", 749.99, 36),
+#             "assets/products/vtt_trail_500.jpeg", 749.99, 36),
 #             (1, 1, "Vélo de route AeroX", 8, "Vélo de route profilé pour les cyclistes avides de performance sur bitume.",
 #             "Cadre: Carbone ; Transmission: Shimano 105 ; Roues: 700C ; Freins: Patins",
-#             "images/aerox.jpeg", 1299.00, 14),
+#             "assets/products/aerox.jpeg", 1299.00, 14),
 #             (1, 1, "VTT XC Pro 900", 5, "Modèle haute performance pour le cross-country intensif.",
 #             "Cadre: Carbone ; Transmission: SRAM Eagle 12v ; Amortisseur: RockShox ; Freins: Disques hydrauliques",
-#             "images/xc_pro_900.jpeg", 1999.99, 9),
+#             "assets/products/xc_pro_900.jpeg", 1999.99, 9),
 #             (1, 1, "VTC Urbain 300", 20, "Vélo tout chemin idéal pour les trajets quotidiens en ville ou en campagne.",
 #             "Cadre: Acier ; Vitesses: 7 intégrées ; Porte-bagages ; Garde-boue",
-#             "images/vtc_urbain_300.jpeg", 499.50, 4),
+#             "assets/products/vtc_urbain_300.jpeg", 499.50, 4),
 #             (1, 1, "Gravel TerraMix", 7, "Vélo gravel polyvalent pour la route et les chemins non goudronnés.",
 #             "Cadre: Aluminium ; Transmission: 2x10 Shimano GRX ; Pneus: 40 mm ; Freins: Disques",
-#             "images/terramix.jpeg", 1149.00, 28),
+#             "assets/products/terramix.jpeg", 1149.00, 28),
 #             (1, 1, "Vélo enfant KidRider 16''", 12, "Vélo 16 pouces pour enfants de 4 à 6 ans avec stabilisateurs amovibles.",
 #             "Cadre: Acier ; Transmission: Monovitesse ; Freins: V-brake",
-#             "images/kidrider_16.jpeg", 159.90, 7),
+#             "assets/products/kidrider_16.jpeg", 159.90, 7),
 #             (1, 1, "Vélo électrique E-City 400", 6, "Vélo à assistance électrique pour les déplacements urbains confortables.",
 #             "Cadre: Aluminium ; Moteur: 250W ; Batterie: 36V 10Ah ; Autonomie: 70 km",
-#             "images/e_city_400.jpeg", 1699.00, 0),
+#             "assets/products/e_city_400.jpeg", 1699.00, 0),
 #             (1, 1, "Fixie Urban Classic", 10, "Vélo fixie élégant et minimaliste pour la ville.",
 #             "Cadre: Acier chromé ; Transmission: Single Speed ; Freins: Caliper",
-#             "images/fixie_urban_classic.jpeg", 399.00, 45),
+#             "assets/products/fixie_urban_classic.jpeg", 399.00, 45),
 #             (1, 1, "Fatbike SnowBeast", 3, "Vélo tout-terrain à gros pneus pour rouler sur neige ou sable.",
 #             "Cadre: Aluminium ; Pneus: 4.5'' ; Transmission: Shimano 1x9 ; Freins: Disques",
-#             "images/snowbeast.jpeg", 899.99, 34),
+#             "assets/products/snowbeast.jpeg", 899.99, 34),
 #             (1, 1, "Vélo pliant Compact 20", 9, "Vélo pliable pour les trajets multimodaux et les petits espaces.",
 #             "Cadre: Aluminium pliant ; Roues: 20'' ; Vitesses: 6 ; Porte-bagages intégré",
-#             "images/compact_20.jpeg", 569.00, 23);
+#             "assets/products/compact_20.jpeg", 569.00, 23);
 #         """
 #     ecommerce_db_dict[
 #         "insert into Product: ten accessories"
@@ -545,13 +545,13 @@ import json
 
 # def create_database(ecommerce_db_dict: dict, database_name: str):
 #     """Create your database
-
 #     Args:
 #         ecommerce_db_dict (dict): contain all queries to create your database
 #         database_name (str): database name
 #     """
 #     try:
-#         connection = sqlite3.connect(f"{database_name}.db")
+#         folder = "bdd/"
+#         connection = sqlite3.connect(f"{folder}{database_name}.db")
 #         cursor = connection.cursor()
 #         for key, sql_command in ecommerce_db_dict.items():
 #             print(key)
@@ -563,17 +563,19 @@ import json
 
 # def create_json_file(ecommerce_db_dict: dict, database_name: str):
 #     # Write data to a JSON file
-#     with open(f"{database_name}.json", "w") as db_json_file:
+#     folder = "bdd/"
+#     with open(f"{folder}{database_name}.json", "w") as db_json_file:
 #         json.dump(ecommerce_db_dict, db_json_file, indent=4, ensure_ascii=False)
 
 
 def create_database_with_json_file(database_name: str) -> dict:
     """Read your database"""
     try:
-        with open(f"{database_name}.json") as db_json_file:
+        folder = "bdd/"
+        with open(f"{folder}{database_name}.json") as db_json_file:
             ecommerce_db_dict = json.load(db_json_file)
 
-        connection = sqlite3.connect(f"{database_name}.db")
+        connection = sqlite3.connect(f"{folder}{database_name}.db")
         cursor = connection.cursor()
         for key, sql_command in ecommerce_db_dict.items():
             print(key)
