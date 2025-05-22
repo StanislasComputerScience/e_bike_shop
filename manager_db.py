@@ -1,6 +1,7 @@
 import sqlite3
 import json
 
+
 # def create_table_db(ecommerce_db_dict: dict):
 #     """Function to create table of the db"""
 #     ecommerce_db_dict[
@@ -74,8 +75,10 @@ import json
 #     ] = """CREATE TABLE IF NOT EXISTS ShoppingCart (
 #             id_shoppingcart INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 #             id_user INTEGER NOT NULL,
+#             id_invoice INTEGER,
 #             date TEXT NOT NULL,
-#             FOREIGN KEY(id_user) REFERENCES User(id_user)
+#             FOREIGN KEY(id_user) REFERENCES User(id_user),
+#             FOREIGN KEY(id_invoice) REFERENCES Invoice(id_invoice)
 #         );"""
 #     ecommerce_db_dict[
 #         "create table Invoice"
@@ -271,56 +274,6 @@ import json
 #             VALUES(10,4,'Rue Jean Jaurès','72000','Le Mans');
 #         """
 #     ecommerce_db_dict[
-#         "insert into ShoppingCart: first ShopCart"
-#     ] = """INSERT INTO ShoppingCart(id_user, date)
-#             VALUES(1,'28/12/1911');
-#         """
-#     ecommerce_db_dict[
-#         "insert into ShoppingCart: second ShopCart"
-#     ] = """INSERT INTO ShoppingCart(id_user, date)
-#         VALUES(2,'05/01/2024');
-#     """
-#     ecommerce_db_dict[
-#         "insert into ShoppingCart: third ShopCart"
-#     ] = """INSERT INTO ShoppingCart(id_user, date)
-#             VALUES(3,'22/11/2023');
-#         """
-#     ecommerce_db_dict[
-#         "insert into ShoppingCart: fourth ShopCart"
-#     ] = """INSERT INTO ShoppingCart(id_user, date)
-#             VALUES(4,'30/10/2023');
-#         """
-#     ecommerce_db_dict[
-#         "insert into ShoppingCart: fifth ShopCart"
-#     ] = """INSERT INTO ShoppingCart(id_user, date)
-#             VALUES(5,'15/08/2023');
-#         """
-#     ecommerce_db_dict[
-#         "insert into ShoppingCart: sixth ShopCart"
-#     ] = """INSERT INTO ShoppingCart(id_user, date)
-#             VALUES(6,'19/04/2024');
-#         """
-#     ecommerce_db_dict[
-#         "insert into ShoppingCart: seventh ShopCart"
-#     ] = """INSERT INTO ShoppingCart(id_user, date)
-#             VALUES(7,'03/05/2024');
-#         """
-#     ecommerce_db_dict[
-#         "insert into ShoppingCart: eighth ShopCart"
-#     ] = """INSERT INTO ShoppingCart(id_user, date)
-#             VALUES(8,'25/12/2023');
-#         """
-#     ecommerce_db_dict[
-#         "insert into ShoppingCart: ninth ShopCart"
-#     ] = """INSERT INTO ShoppingCart(id_user, date)
-#             VALUES(9,'01/01/2024');
-#         """
-#     ecommerce_db_dict[
-#         "insert into ShoppingCart: tenth ShopCart"
-#     ] = """INSERT INTO ShoppingCart(id_user, date)
-#             VALUES(10,'09/02/2024');
-#         """
-#     ecommerce_db_dict[
 #         "insert into Invoice: first Invoice"
 #     ] = """INSERT INTO Invoice(id_shoppingcart, date)
 #             VALUES(1,'04/01/2001');
@@ -369,6 +322,56 @@ import json
 #         "insert into Invoice: tenth Invoice"
 #     ] = """INSERT INTO Invoice(id_shoppingcart, date)
 #             VALUES(10,'10/02/2024');
+#         """
+#     ecommerce_db_dict[
+#         "insert into ShoppingCart: first ShopCart"
+#     ] = """INSERT INTO ShoppingCart(id_user, id_invoice, date)
+#             VALUES(1,1,'28/12/1911');
+#         """
+#     ecommerce_db_dict[
+#         "insert into ShoppingCart: second ShopCart"
+#     ] = """INSERT INTO ShoppingCart(id_user, id_invoice, date)
+#         VALUES(2,2,'05/01/2024');
+#     """
+#     ecommerce_db_dict[
+#         "insert into ShoppingCart: third ShopCart"
+#     ] = """INSERT INTO ShoppingCart(id_user, id_invoice, date)
+#             VALUES(3,3,'22/11/2023');
+#         """
+#     ecommerce_db_dict[
+#         "insert into ShoppingCart: fourth ShopCart"
+#     ] = """INSERT INTO ShoppingCart(id_user, id_invoice, date)
+#             VALUES(4,4,'30/10/2023');
+#         """
+#     ecommerce_db_dict[
+#         "insert into ShoppingCart: fifth ShopCart"
+#     ] = """INSERT INTO ShoppingCart(id_user, id_invoice, date)
+#             VALUES(5,5,'15/08/2023');
+#         """
+#     ecommerce_db_dict[
+#         "insert into ShoppingCart: sixth ShopCart"
+#     ] = """INSERT INTO ShoppingCart(id_user, id_invoice, date)
+#             VALUES(6,6,'19/04/2024');
+#         """
+#     ecommerce_db_dict[
+#         "insert into ShoppingCart: seventh ShopCart"
+#     ] = """INSERT INTO ShoppingCart(id_user, id_invoice, date)
+#             VALUES(7,7,'03/05/2024');
+#         """
+#     ecommerce_db_dict[
+#         "insert into ShoppingCart: eighth ShopCart"
+#     ] = """INSERT INTO ShoppingCart(id_user, id_invoice, date)
+#             VALUES(8,8,'25/12/2023');
+#         """
+#     ecommerce_db_dict[
+#         "insert into ShoppingCart: ninth ShopCart"
+#     ] = """INSERT INTO ShoppingCart(id_user, id_invoice, date)
+#             VALUES(9,9,'01/01/2024');
+#         """
+#     ecommerce_db_dict[
+#         "insert into ShoppingCart: tenth ShopCart"
+#     ] = """INSERT INTO ShoppingCart(id_user, id_invoice, date)
+#             VALUES(10,10,'09/02/2024');
 #         """
 #     ecommerce_db_dict[
 #         "insert into Category: bike"
@@ -558,11 +561,10 @@ import json
 #         print(f"{database_name} already exist !")
 
 
-def create_json_file(ecommerce_db_dict: dict, database_name: str):
-    pass
-    # Write data to a JSON file
-    with open(f"{database_name}.json", "w") as db_json_file:
-        json.dump(ecommerce_db_dict, db_json_file, indent=4, ensure_ascii=False)
+# def create_json_file(ecommerce_db_dict: dict, database_name: str):
+#     # Write data to a JSON file
+#     with open(f"{database_name}.json", "w") as db_json_file:
+#         json.dump(ecommerce_db_dict, db_json_file, indent=4, ensure_ascii=False)
 
 
 def create_database_with_json_file(database_name: str) -> dict:
