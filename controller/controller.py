@@ -23,13 +23,13 @@ def most_popular_products(ecommerce_db_name: str) -> list[dict]:
                LIMIT 2;
             """
         )
-        list_product = []
+        product_list = []
         for prod_info in query.fetchall():
             dict_temp = {}
             dict_temp["name"] = prod_info[0]
             dict_temp["image_path"] = prod_info[1]
-            list_product.append(dict_temp)
-        return list_product
+            product_list.append(dict_temp)
+        return product_list
 
 
 # Most 2 products buy
@@ -60,13 +60,78 @@ def most_products_buy(ecommerce_db_name: str) -> list[dict]:
                LIMIT 2;
             """
         )
-        list_product = []
+        product_list = []
         for prod_info in query.fetchall():
             dict_temp = {}
             dict_temp["name"] = prod_info[0]
             dict_temp["image_path"] = prod_info[1]
-            list_product.append(dict_temp)
-        return list_product
+            product_list.append(dict_temp)
+        return product_list
+
+
+# region Connection
+# Get id_user
+def get_user_info_connect(ecommerce_db_name: str, user_email: str) -> list[dict]:
+    """Get the user information
+
+    Args:
+        ecommerce_db_name (str): database name
+        user_email (str): user email
+
+    Returns:
+        list[dict]: user information
+    """
+    with sqlite3.connect(f"bdd/{ecommerce_db_name}.db") as connexion:
+        cursor = connexion.cursor()
+
+        query = cursor.execute(
+            """SELECT u.id_user, u.password
+                FROM User as u
+                WHERE u.email = (:email)
+               ;
+            """,
+            {"email": user_email},
+        )
+        user_info_list = []
+        for prod_info in query.fetchall():
+            dict_temp = {}
+            dict_temp["id_user"] = prod_info[0]
+            dict_temp["password"] = prod_info[1]
+            user_info_list.append(dict_temp)
+        return user_info_list
+
+
+# User is validated
+def connect_user(ecommerce_db_name: str, id_user: str) -> None:
+    with sqlite3.connect(f"bdd/{ecommerce_db_name}.db") as connexion:
+        cursor = connexion.cursor()
+
+        query = cursor.execute(
+            """UPDATE User
+                SET id_connection = (SELECT con.id_connection 
+                                     FROM Connection as con 
+                                     WHERE con.status = 'connected')
+                WHERE id_user = (:id_user)
+                ;
+            """,
+            {"id_user": id_user},
+        )
+
+
+def disconnect_user(ecommerce_db_name: str, id_user: str) -> None:
+    with sqlite3.connect(f"bdd/{ecommerce_db_name}.db") as connexion:
+        cursor = connexion.cursor()
+
+        query = cursor.execute(
+            """UPDATE User
+                SET id_connection = (SELECT con.id_connection 
+                                     FROM Connection as con 
+                                     WHERE con.status = 'timeout')
+                WHERE id_user = (:id_user)
+                ;
+            """,
+            {"id_user": id_user},
+        )
 
 
 # region Panier
@@ -165,10 +230,6 @@ def update_command_line(
 
 def main():
     db_name = "ecommerce_database"
-
-    # Test most_popular_products
-    list_product = most_popular_products(db_name)
-    print(f"list_product= {list_product}")
 
     # Test user_shopping_cart
     for i in range(3):
