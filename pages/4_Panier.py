@@ -6,8 +6,10 @@ def display():
     """Display the page "Panier" in the streamlit app."""
 
     # Request to the DB
-    test_id_user = 2
-    shopping_cart = control.user_shopping_cart("ecommerce_database", test_id_user)
+    if "id_user" in st.session_state:
+        shopping_cart = control.user_shopping_cart("ecommerce_database", st.session_state["id_user"])
+    else:
+        shopping_cart = list()
 
     # Display the title
     st.header("Panier")
@@ -152,7 +154,8 @@ def display_order_and_total(
         st.text(
             f"Prix total HT: {total_price_ET:10.2f} €\nPrix total TTC: {total_price_IT:10.2f} €"
         )
-        st.button("order", icon="🚴")
+        if "id_user" in st.session_state:
+            st.button("order", icon="🚴")
 
 
 if __name__ == "__main__":
