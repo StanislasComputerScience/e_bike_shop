@@ -1,6 +1,8 @@
 import os
 import streamlit as st
+import controller.controller as control
 
+ecommerce_db_name = "ecommerce_database"
 
 # CSS pour centrer le texte
 st.markdown(
@@ -30,21 +32,40 @@ with colonne_titre:
         unsafe_allow_html=True,
     )
 
+most_popular_products = control.most_popular_products(ecommerce_db_name)
+most_products_buy = control.most_products_buy(ecommerce_db_name)
+
 st.subheader("Produits les plus populaires :")
 # Créer 2 colonnes
 colonne_gauche, colonne_droite = st.columns(2)
 
 with colonne_gauche:
-    st.image("./bdd/assets/Velo1.jpeg", caption="Vélo 1", use_container_width=True)
+    st.image(
+        most_popular_products[0]["image_path"],
+        caption=most_popular_products[0]["name"],
+        use_container_width=True,
+    )
 
 with colonne_droite:
-    st.image("./bdd/assets/Velo2.jpeg", caption="Vélo 2", use_container_width=True)
+    st.image(
+        most_popular_products[1]["image_path"],
+        caption=most_popular_products[1]["name"],
+        use_container_width=True,
+    )
 
-st.subheader("produits les plus vendus :")
+st.subheader("Produits les plus vendus :")
 colonne_gauche, colonne_droite = st.columns(2)
 
 with colonne_gauche:
-    st.image("./bdd/assets/Velo1.jpeg", caption="Vélo 1", use_container_width=True)
+    st.image(
+        most_products_buy[0]["image_path"],
+        caption=most_products_buy[0]["name"],
+        use_container_width=True,
+    )
 
 with colonne_droite:
-    st.image("./bdd/assets/velo3.jpeg", caption="Vélo 1", use_container_width=True)
+    st.image(
+        most_products_buy[1]["image_path"],
+        caption=most_products_buy[1]["name"],
+        use_container_width=True,
+    )

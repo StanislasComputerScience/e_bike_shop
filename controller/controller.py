@@ -12,7 +12,7 @@ def most_popular_products(ecommerce_db_name: str) -> list[dict]:
     Returns:
         list[dict]: list of product most popular
     """
-    with sqlite3.connect(f"{ecommerce_db_name}.db") as connexion:
+    with sqlite3.connect(f"bdd/{ecommerce_db_name}.db") as connexion:
         cursor = connexion.cursor()
 
         query = cursor.execute(
@@ -26,8 +26,8 @@ def most_popular_products(ecommerce_db_name: str) -> list[dict]:
         list_product = []
         for prod_info in query.fetchall():
             dict_temp = {}
-            dict_temp["name"] = prod_info(0)
-            dict_temp["image_path"] = prod_info(1)
+            dict_temp["name"] = prod_info[0]
+            dict_temp["image_path"] = prod_info[1]
             list_product.append(dict_temp)
         return list_product
 
@@ -42,7 +42,7 @@ def most_products_buy(ecommerce_db_name: str) -> list[dict]:
     Returns:
         list[dict]: list of product most popular
     """
-    with sqlite3.connect(f"{ecommerce_db_name}.db") as connexion:
+    with sqlite3.connect(f"bdd/{ecommerce_db_name}.db") as connexion:
         cursor = connexion.cursor()
 
         query = cursor.execute(
@@ -63,15 +63,16 @@ def most_products_buy(ecommerce_db_name: str) -> list[dict]:
         list_product = []
         for prod_info in query.fetchall():
             dict_temp = {}
-            dict_temp["name"] = prod_info(0)
-            dict_temp["image_path"] = prod_info(1)
+            dict_temp["name"] = prod_info[0]
+            dict_temp["image_path"] = prod_info[1]
             list_product.append(dict_temp)
         return list_product
 
 
 def main():
     db_name = "ecommerce_database"
-    most_products_buy(db_name)
+    list_product = most_popular_products(db_name)
+    print(f"list_product= {list_product}")
 
 
 if __name__ == "__main__":
