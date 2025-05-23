@@ -7,7 +7,7 @@ def display():
     """Display the page "Panier" in the streamlit app."""
 
     # Request to the DB
-    test_id_user = 2
+    test_id_user = 1
     shopping_cart = user_shopping_cart("bdd/ecommerce_database", test_id_user)
 
     # Display the title
@@ -20,7 +20,7 @@ def display():
     for command_line in shopping_cart:
         total_price += display_table_line(column_widths, command_line)
 
-    column_widths = [4, 2, 1]
+    column_widths = [4, 2, 2]
 
     # Display the order button and the total price
     display_order_and_total(column_widths, total_price)
@@ -94,11 +94,11 @@ def display_table_line(column_widths: list[int], command_line: dict) -> int:
 
     # Column product price
     with col_price:
-        st.text(str(command_line["price_ET"]) + " €")
+        st.text(f"{command_line["price_ET"]:8.2f} €")
 
     # Column command line price
     with col_total_price:
-        st.text(str(command_line["price_ET"] * command_line["quantity"]) + " €")
+        st.text(f"{command_line["price_ET"] * command_line["quantity"]:8.2f} €")
 
     return command_line["price_ET"] * command_line["quantity"]
 
