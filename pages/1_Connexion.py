@@ -28,8 +28,9 @@ if submit_coo:
     except:
         st.error("Identifiants incorrects ❌")
 
-if submit_coo:
+if submit_dec:
     try:
-        pass
+        control.deconnect_user(ecommerce_db_name, st.session_state.get("id_user"))
+        st.success("Déconnexion réussie ✅")
     except:
-        pass
+        st.error("Vous êtes déjà déconnectés ❌")

@@ -118,6 +118,22 @@ def connect_user(ecommerce_db_name: str, id_user: str) -> None:
         )
 
 
+def deconnect_user(ecommerce_db_name: str, id_user: str) -> None:
+    with sqlite3.connect(f"bdd/{ecommerce_db_name}.db") as connexion:
+        cursor = connexion.cursor()
+
+        query = cursor.execute(
+            """UPDATE User
+                SET id_connection = (SELECT con.id_connection 
+                                     FROM Connection as con 
+                                     WHERE con.status = 'timeout')
+                WHERE id_user = (:id_user)
+                ;
+            """,
+            {"id_user": id_user},
+        )
+
+
 def main():
     db_name = "ecommerce_database"
     user_info = get_user_info(db_name, "paul.dupont@generator.com")
