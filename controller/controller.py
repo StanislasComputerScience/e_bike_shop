@@ -84,7 +84,7 @@ def user_shopping_cart(ecommerce_db_name: str, id_user: int) -> list[dict]:
         on the page "Panier".
     """
 
-    with sqlite3.connect(f"{ecommerce_db_name}.db") as connexion:
+    with sqlite3.connect(f"bdd/{ecommerce_db_name}.db") as connexion:
         cursor = connexion.cursor()
 
         query = cursor.execute(
@@ -93,6 +93,7 @@ def user_shopping_cart(ecommerce_db_name: str, id_user: int) -> list[dict]:
                     cl.id_shoppingcart,
                     prod.image_path,
                     prod.name,
+                    prod.number_of_units,
                     cl.quantity,
                     cl.price_ET,
                     cl.rate_vat,
@@ -112,14 +113,21 @@ def user_shopping_cart(ecommerce_db_name: str, id_user: int) -> list[dict]:
         shopping_cart = []
         for command_line in query.fetchall():
             command_line_as_dict = dict()
-            command_line_as_dict["id_prod"] = command_line[0]
-            command_line_as_dict["id_shoppingcart"] = command_line[1]
-            command_line_as_dict["image_path"] = command_line[2]
-            command_line_as_dict["product_name"] = command_line[3]
-            command_line_as_dict["quantity"] = command_line[4]
-            command_line_as_dict["price_ET"] = command_line[5]
-            command_line_as_dict["rate_vat"] = command_line[6]
-            command_line_as_dict["date"] = command_line[7]
+            keys = [
+                "id_prod",
+                "id_shoppingcart",
+                "image_path",
+                "product_name",
+                "number_of_units",
+                "quantity",
+                "price_ET",
+                "rate_vat",
+                "date",
+            ]
+            idx = 0
+            for key in keys:
+                command_line_as_dict[key] = command_line[idx]
+                idx += 1
             shopping_cart.append(command_line_as_dict)
 
         return shopping_cart

@@ -7,7 +7,7 @@ def display():
 
     # Request to the DB
     test_id_user = 1
-    shopping_cart = control.user_shopping_cart("bdd/ecommerce_database", test_id_user)
+    shopping_cart = control.user_shopping_cart("ecommerce_database", test_id_user)
 
     # Display the title
     st.header("Panier")
@@ -85,7 +85,7 @@ def display_table_line(column_widths: list[int], command_line: dict) -> int:
         new_quantity = st.number_input(
             command_line["product_name"] + "_quantity",
             min_value=0,
-            max_value=9999,
+            max_value=command_line["number_of_units"],
             value=command_line["quantity"],
             step=1,
             label_visibility="collapsed",
@@ -101,11 +101,11 @@ def display_table_line(column_widths: list[int], command_line: dict) -> int:
 
     # Column product price
     with col_price:
-        st.text(f"{command_line["price_ET"]:8.2f} €")
+        st.text(f"{command_line["price_ET"]:10.2f} €")
 
     # Column command line price
     with col_total_price:
-        st.text(f"{command_line["price_ET"] * command_line["quantity"]:8.2f} €")
+        st.text(f"{command_line["price_ET"] * command_line["quantity"]:10.2f} €")
 
     return command_line["price_ET"] * command_line["quantity"]
 
@@ -126,7 +126,7 @@ def display_order_and_total(column_widths: list[int], total_price: int):
         st.button("order", icon="🚴")
 
     with col_total_price:
-        st.text(f"Total: {total_price} €")
+        st.text(f"Total: {total_price:10.2f} €")
 
 
 if __name__ == "__main__":
