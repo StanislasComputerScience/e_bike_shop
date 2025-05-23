@@ -13,16 +13,16 @@ def display():
     st.header("Panier")
 
     # Display the shopping cart as a table
-    column_widths = [1, 3, 3, 1, 1]
+    column_widths = [1, 3, 2, 1, 1, 1]
     display_table_header(column_widths)
     total_price = 0
     for command_line in shopping_cart:
         total_price += display_table_line(column_widths, command_line)
 
-    column_widths = [4, 2, 2]
+    column_widths = [4, 2]
 
     # Display the order button and the total price
-    display_order_and_total(column_widths, total_price)
+    display_order_and_total(column_widths, total_price, command_line["rate_vat"])
 
 
 def display_table_header(column_widths: list[int]):
@@ -32,9 +32,14 @@ def display_table_header(column_widths: list[int]):
         column_widths (list[int]): Relative widths for each column
     """
     # Dividing the field into columns
-    col_image, col_name, col_quantity, col_price, col_total_price = st.columns(
-        column_widths
-    )
+    (
+        col_image,
+        col_name,
+        col_quantity,
+        col_price_ET,
+        col_total_price_ET,
+        col_total_price_IT,
+    ) = st.columns(column_widths)
 
     # Column image
     with col_image:
@@ -49,12 +54,16 @@ def display_table_header(column_widths: list[int]):
         st.text("Quantité")
 
     # Column product price
-    with col_price:
-        st.text("Prix unitaire")
+    with col_price_ET:
+        st.text("Prix HT unitaire")
 
     # Column command line price
-    with col_total_price:
-        st.text("Prix")
+    with col_total_price_ET:
+        st.text("Prix HT")
+
+    # Column command line price
+    with col_total_price_IT:
+        st.text("Prix TTC")
 
 
 def display_table_line(column_widths: list[int], command_line: dict) -> int:
@@ -68,9 +77,14 @@ def display_table_line(column_widths: list[int], command_line: dict) -> int:
         int: The total cost for this command line
     """
     # Dividing the field into columns
-    col_image, col_name, col_quantity, col_price, col_total_price = st.columns(
-        column_widths, vertical_alignment="center"
-    )
+    (
+        col_image,
+        col_name,
+        col_quantity,
+        col_price_ET,
+        col_total_price_ET,
+        col_total_price_IT,
+    ) = st.columns(column_widths, vertical_alignment="center")
 
     # Column image
     with col_image:
@@ -99,18 +113,26 @@ def display_table_line(column_widths: list[int], command_line: dict) -> int:
             )
             st.rerun()
 
-    # Column product price
-    with col_price:
+    # Column product price ET
+    with col_price_ET:
         st.text(f"{command_line["price_ET"]:10.2f} €")
 
-    # Column command line price
-    with col_total_price:
+    # Column command line price ET
+    with col_total_price_ET:
         st.text(f"{command_line["price_ET"] * command_line["quantity"]:10.2f} €")
+
+    # Column command line price IT
+    with col_total_price_IT:
+        st.text(
+            f"{command_line["price_ET"] * command_line["quantity"] * (1 + command_line["rate_vat"]):10.2f} €"
+        )
 
     return command_line["price_ET"] * command_line["quantity"]
 
 
-def display_order_and_total(column_widths: list[int], total_price: int):
+def display_order_and_total(
+    column_widths: list[int], total_price: int, rate_vat: float
+):
     """Display the order button and the total cost of the shopping cart
 
     Args:
@@ -118,15 +140,15 @@ def display_order_and_total(column_widths: list[int], total_price: int):
         total_price (int): Total cost of the shopping cart
     """
     # Dividing the field into columns
-    empty_col, col_order, col_total_price = st.columns(
-        column_widths, vertical_alignment="center"
+    empty_col, col_total_price = st.columns(
+        column_widths, vertical_alignment="bottom"
     )
 
-    with col_order:
-        st.button("order", icon="🚴")
-
     with col_total_price:
-        st.text(f"Total: {total_price:10.2f} €")
+        st.text(
+            f"Prix total HT: {total_price:10.2f} €\nPrix total TTC: {total_price*rate_vat:10.2f} €"
+        )
+        st.button("order", icon="🚴")
 
 
 if __name__ == "__main__":
