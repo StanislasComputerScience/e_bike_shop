@@ -32,8 +32,8 @@ with colonne_titre:
         unsafe_allow_html=True,
     )
 
-most_popular_products = control.most_popular_products(ecommerce_db_name)
-most_products_buy = control.most_products_buy(ecommerce_db_name)
+most_popular_products = control.most_popular_products(./bdd/ecommerce_db_name)
+most_products_buy = control.most_products_buy(./bdd/ecommerce_db_name)
 
 st.subheader("Produits les plus populaires :")
 # Créer 2 colonnes
