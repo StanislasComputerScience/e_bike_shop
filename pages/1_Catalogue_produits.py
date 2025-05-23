@@ -68,8 +68,18 @@ product_selected = l_products[st.session_state.c]
 st.subheader("Affichage du produit sélectionné :")
 st.image(product_selected["image_path"], width=300)
 st.write(product_selected["description"])
-
-val = round(product_selected["price_it"], 2)
-st.write(f"prix : {val:.2f} €")
-
 st.write(product_selected["tech_specification"])
+
+val_et = round(product_selected["price_ET"], 2)
+# st.write(f"Prix TCC: {val_et:.2f} €")
+
+val_it = round(product_selected["price_it"], 2)
+# st.write(f"Prix TCC: {val_it:.2f} €")
+
+st.markdown(
+    f"""
+<b style="font-size:20px">🧾 Prix HT : {val_et} €</b><br>
+<b style="font-size:20px">💰 Prix TTC : {val_it} €</b>
+""",
+    unsafe_allow_html=True,
+)
