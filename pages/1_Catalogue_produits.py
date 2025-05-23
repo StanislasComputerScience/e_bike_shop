@@ -3,38 +3,25 @@ import streamlit as st
 import controller.controller as control
 
 
-# --- Fonction appelée quand le radio change ---
+# --- function called on radio change ---
 def changement_produit():
     st.session_state.c = name_products.index(st.session_state.choix_radio)
 
 
-# Initialisation de l'index du bouton radio
+# radio button index initialisation
 if "c" not in st.session_state:
     st.session_state.c = 0
 
-# Chargement des produits depuis le dossier
+# loading product
 l_products = control.product_catalog()
 # st.write(l)
 
-# dossier = "./bdd/assets/products/"
-# l_produits = product_catalog()
 
-# for i, f in enumerate(os.listdir(dossier)):
-#     chemin = os.path.join(dossier, f)
-#     if os.path.isfile(chemin):
-#         l_produits.append(
-#             {
-#                 "nom": f"Produit_{i}",
-#                 "description": f"Produit n°{i+1} : vélo performant pour usage quotidien.",
-#                 "chemin_image": chemin,
-#             }
-#         )
-
-# Liste des noms pour le bouton radio
+# List of product's name for the radio button
 name_products = [p["name"] for p in l_products]
 
 
-# --- Affichage du menu latéral ---
+# --- sidebar display ---
 st.sidebar.subheader("Fichiers dans 'produits' :")
 
 st.sidebar.radio(
@@ -45,7 +32,7 @@ st.sidebar.radio(
     on_change=changement_produit,
 )
 
-# Boutons navigation
+# Button navigation
 col1, col2, col3 = st.columns([1, 3, 1])
 
 with col1:
@@ -71,17 +58,15 @@ with col3:
     if st.button("Suivant"):
         st.session_state.c = (st.session_state.c + 1) % len(l_products)
 
-# Barre de progression
+# progress bar
 st.progress((st.session_state.c + 1) / len(l_products))
 
-# Produit sélectionné
+# product selected
 product_selected = l_products[st.session_state.c]
 
-# Affichage principal
+# principal display
 st.subheader("Affichage du produit sélectionné :")
-# st.write(product_selected["image_path"])
 st.image(product_selected["image_path"], width=300)
 st.write(product_selected["description"])
 st.write(f"prix : {product_selected['price_it']}")
-
 st.write(product_selected["tech_specification"])
