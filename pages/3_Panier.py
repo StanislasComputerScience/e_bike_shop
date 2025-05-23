@@ -1,6 +1,5 @@
 import streamlit as st
-import os
-from controller.controller import user_shopping_cart
+import controller.controller as control
 
 
 def display():
@@ -8,7 +7,7 @@ def display():
 
     # Request to the DB
     test_id_user = 1
-    shopping_cart = user_shopping_cart("bdd/ecommerce_database", test_id_user)
+    shopping_cart = control.user_shopping_cart("bdd/ecommerce_database", test_id_user)
 
     # Display the title
     st.header("Panier")
@@ -83,7 +82,7 @@ def display_table_line(column_widths: list[int], command_line: dict) -> int:
 
     # Column quantity in the shopping cart
     with col_quantity:
-        st.number_input(
+        new_quantity = st.number_input(
             command_line["product_name"] + "_quantity",
             min_value=0,
             max_value=9999,
@@ -91,6 +90,14 @@ def display_table_line(column_widths: list[int], command_line: dict) -> int:
             step=1,
             label_visibility="collapsed",
         )
+        if new_quantity != command_line["quantity"]:
+            control.update_command_line(
+                "ecommerce_database",
+                command_line["id_prod"],
+                command_line["id_shoppingcart"],
+                new_quantity,
+            )
+            st.rerun()
 
     # Column product price
     with col_price:
