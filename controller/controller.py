@@ -173,7 +173,7 @@ def disconnect_user(ecommerce_db_name: str, id_user: str) -> None:
 
 
 # region Invoice
-def get_all_info_user(ecommerce_db_name: str, id_user: str) -> list[dict]:
+def get_all_info_user(ecommerce_db_name: str, id_user: str) -> dict:
     with sqlite3.connect(f"bdd/{ecommerce_db_name}.db") as connexion:
         cursor = connexion.cursor()
 
@@ -195,24 +195,51 @@ def get_all_info_user(ecommerce_db_name: str, id_user: str) -> list[dict]:
 
 
 # region Panier
+def user_open_shopping_cart_id(ecommerce_db_name: str, id_user: int) -> int | None:
+    """Return the id_shoppingcart of the latest opened shopping cart
+    associated to the user with id id_user. An opened shopping cart
+    is a shopping cart that does not have an invoice yet.
+
+    Args:
+        ecommerce_db_name (str): Database name
+        id_user (int): User Id
+
+    Returns:
+        int: Shopping cart Id
+    """
+    query = f"""SELECT
+                    MAX(id_shoppingcart) as max_id_shoppingcart
+                FROM ShoppingCart
+                WHERE id_invoice IS NULL AND
+                      id_user = {id_user};
+            """
+
+    params = ()
+    result = execute_sql_query(query, params)
+    print(result)
+    print(type(result))
+
+    if result:
+        return result[0][0]
+    else:
+        return None
+
+
 # Shopping cart
-def user_shopping_cart(ecommerce_db_name: str, id_user: int) -> list[dict]:
-    """Return information of the user shopping cart.
-    Interrogate the database with the name ecommerce_db_name
+def user_shopping_cart(ecommerce_db_name: str, id_shoppingcart: int) -> list[dict]:
+    """Return information of a shopping cart.
+    Interrogate the database with the name ecommerce_db_name.
 
     Args:
         ecommerce_db_name (str): database name
-        id_user (int): id of the user
+        id_shoppingcart (int): shopping cart id
 
     Returns:
         (list[dict]): list of shopping cart command lines to display
-        on the page "Panier".
+        on the page "Panier" or "Command".
     """
-    with sqlite3.connect(f"bdd/{ecommerce_db_name}.db") as connexion:
-        cursor = connexion.cursor()
 
-        query = cursor.execute(
-            """ SELECT
+    query = f"""SELECT 
                     cl.id_prod,
                     cl.id_shoppingcart,
                     prod.image_path,
@@ -223,20 +250,17 @@ def user_shopping_cart(ecommerce_db_name: str, id_user: int) -> list[dict]:
                     cl.rate_vat,
                     cart.date
                 FROM CommandLine as cl
-                LEFT JOIN ShoppingCart as cart
-                ON cart.id_shoppingcart = cl.id_shoppingcart
                 LEFT JOIN Product as prod
                 ON prod.id_prod = cl.id_prod
-                WHERE cart.id_user = (:id_user);
-            """,
-            {"id_user": id_user},
-        )
+                LEFT JOIN ShoppingCart as cart
+                ON cart.id_shoppingcart = cl.id_shoppingcart
+                WHERE cl.id_shoppingcart = {id_shoppingcart};
+            """
+    params = ()
+    result = execute_sql_query(query, params)
 
-    # Convert tuple into dictionnary
-    shopping_cart = []
-    for command_line in query.fetchall():
-        command_line_as_dict = dict()
-        keys = [
+    if result:
+        fields = [
             "id_prod",
             "id_shoppingcart",
             "image_path",
@@ -247,13 +271,11 @@ def user_shopping_cart(ecommerce_db_name: str, id_user: int) -> list[dict]:
             "rate_vat",
             "date",
         ]
-        idx = 0
-        for key in keys:
-            command_line_as_dict[key] = command_line[idx]
-            idx += 1
-        shopping_cart.append(command_line_as_dict)
 
-    return shopping_cart
+        # Transformation result into a dictionnary
+        return [dict(zip(fields, row)) for row in result]
+    else:
+        return list()
 
 
 # Update command line
