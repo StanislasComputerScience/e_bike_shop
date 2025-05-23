@@ -5,7 +5,7 @@ import controller.controller as control
 
 # --- Fonction appelée quand le radio change ---
 def changement_produit():
-    st.session_state.c = noms_produits.index(st.session_state.choix_radio)
+    st.session_state.c = name_products.index(st.session_state.choix_radio)
 
 
 # Initialisation de l'index du bouton radio
@@ -75,13 +75,13 @@ with col3:
 st.progress((st.session_state.c + 1) / len(l_products))
 
 # Produit sélectionné
-produit_selectionne = l_products[st.session_state.c]
+product_selected = l_products[st.session_state.c]
 
 # Affichage principal
 st.subheader("Affichage du produit sélectionné :")
-# st.write(produit_selectionne["image_path"])
-st.image(produit_selectionne["image_path"], width=300)
-st.write(produit_selectionne["description"])
-st.write(f"prix : {produit_selectionne['price_it']}")
+# st.write(product_selected["image_path"])
+st.image(product_selected["image_path"], width=300)
+st.write(product_selected["description"])
+st.write(f"prix : {product_selected['price_it']}")
 
-st.write(produit_selectionne["tech_specification"])
+st.write(product_selected["tech_specification"])
