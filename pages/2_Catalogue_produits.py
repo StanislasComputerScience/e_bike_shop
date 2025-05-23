@@ -1,52 +1,43 @@
 import os
 import streamlit as st
+import controller.controller as control
 
 
-# --- Fonction appelée quand le radio change ---
+# --- function called on radio change ---
 def changement_produit():
-    st.session_state.c = noms_produits.index(st.session_state.choix_radio)
+    st.session_state.c = name_products.index(st.session_state.choix_radio)
 
 
-# Initialisation de l'index du bouton radio
+# radio button index initialisation
 if "c" not in st.session_state:
     st.session_state.c = 0
 
-# Chargement des produits depuis le dossier
-dossier = "./bdd/assets/products/"
-l_produits = []
-
-for i, f in enumerate(os.listdir(dossier)):
-    chemin = os.path.join(dossier, f)
-    if os.path.isfile(chemin):
-        l_produits.append(
-            {
-                "nom": f"Produit_{i}",
-                "description": f"Produit n°{i+1} : vélo performant pour usage quotidien.",
-                "chemin_image": chemin,
-            }
-        )
-
-# Liste des noms pour le bouton radio
-noms_produits = [p["nom"] for p in l_produits]
+# loading product
+l_products = control.product_catalog()
+# st.write(l)
 
 
-# --- Affichage du menu latéral ---
+# List of product's name for the radio button
+name_products = [p["name"] for p in l_products]
+
+
+# --- sidebar display ---
 st.sidebar.subheader("Fichiers dans 'produits' :")
 
 st.sidebar.radio(
     "Sélectionnez un produit :",
-    noms_produits,
+    name_products,
     index=st.session_state.c,
     key="choix_radio",
     on_change=changement_produit,
 )
 
-# Boutons navigation
+# Button navigation
 col1, col2, col3 = st.columns([1, 3, 1])
 
 with col1:
     if st.button("Précédent"):
-        st.session_state.c = (st.session_state.c - 1) % len(l_produits)
+        st.session_state.c = (st.session_state.c - 1) % len(l_products)
 
 with col2:
     st.markdown(
@@ -65,15 +56,30 @@ with col2:
 
 with col3:
     if st.button("Suivant"):
-        st.session_state.c = (st.session_state.c + 1) % len(l_produits)
+        st.session_state.c = (st.session_state.c + 1) % len(l_products)
 
-# Barre de progression
-st.progress((st.session_state.c + 1) / len(l_produits))
+# progress bar
+st.progress((st.session_state.c + 1) / len(l_products))
 
-# Produit sélectionné
-produit_selectionne = l_produits[st.session_state.c]
+# product selected
+product_selected = l_products[st.session_state.c]
 
-# Affichage principal
+# principal display
 st.subheader("Affichage du produit sélectionné :")
-st.image(produit_selectionne["chemin_image"], width=300)
-st.write(produit_selectionne["description"])
+st.image(product_selected["image_path"], width=300)
+st.write(product_selected["description"])
+st.write(product_selected["tech_specification"])
+
+val_et = round(product_selected["price_ET"], 2)
+# st.write(f"Prix TCC: {val_et:.2f} €")
+
+val_it = round(product_selected["price_it"], 2)
+# st.write(f"Prix TCC: {val_it:.2f} €")
+
+st.markdown(
+    f"""
+<b style="font-size:20px">🧾  Prix HT : {val_et} €</b><br>
+<b style="font-size:20px">💰  Prix TTC : {val_it} €</b>
+""",
+    unsafe_allow_html=True,
+)

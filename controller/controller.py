@@ -1,6 +1,42 @@
 import sqlite3
 
 
+def execute_sql_query(query, params=()):
+    try:
+        with sqlite3.connect("./bdd/ecommerce_database.db") as connexion:
+            cursor = connexion.cursor()
+            cursor.execute(query, params)
+            result = cursor.fetchall()
+            connexion.commit()
+            return result
+    except sqlite3.Error as e:
+        print(f"Erreur SQL : {e}")
+        return None
+
+
+def product_catalog():
+    query = """
+        SELECT p.id_prod, p.name, p.description, p.tech_specification,
+               p.image_path, p.price_ET * (1 + v.rate) AS price_it, p.price_ET as price_et
+        FROM Product p
+        INNER JOIN VAT v ON v.id_vat = p.id_vat
+    """
+    params = ()
+    result = execute_sql_query(query, params)
+
+    if result:
+        fields = [
+            "id_prod",
+            "name",
+            "description",
+            "tech_specification",
+            "image_path",
+            "price_it",
+            "price_ET",
+        ]
+
+        # Transformation result into a dictionnary
+        return [dict(zip(fields, row)) for row in result]
 # region Home
 # Most 2 popular products
 def most_popular_products(ecommerce_db_name: str) -> list[dict]:
@@ -48,8 +84,8 @@ def most_products_buy(ecommerce_db_name: str) -> list[dict]:
         query = cursor.execute(
             """SELECT prod.name,
                       prod.image_path
-               FROM Product as prod 
-               RIGHT JOIN (SELECT cl.id_prod, 
+               FROM Product as prod
+               RIGHT JOIN (SELECT cl.id_prod,
                                 SUM(cl.quantity) as number_sale,
                                 ROUND(SUM(cl.quantity) * SUM(cl.price_ET),2) as total_price_product_sale
                             FROM CommandLine as cl
@@ -108,8 +144,8 @@ def connect_user(ecommerce_db_name: str, id_user: str) -> None:
 
         query = cursor.execute(
             """UPDATE User
-                SET id_connection = (SELECT con.id_connection 
-                                     FROM Connection as con 
+                SET id_connection = (SELECT con.id_connection
+                                     FROM Connection as con
                                      WHERE con.status = 'connected')
                 WHERE id_user = (:id_user)
                 ;
@@ -124,8 +160,8 @@ def disconnect_user(ecommerce_db_name: str, id_user: str) -> None:
 
         query = cursor.execute(
             """UPDATE User
-                SET id_connection = (SELECT con.id_connection 
-                                     FROM Connection as con 
+                SET id_connection = (SELECT con.id_connection
+                                     FROM Connection as con
                                      WHERE con.status = 'timeout')
                 WHERE id_user = (:id_user)
                 ;
