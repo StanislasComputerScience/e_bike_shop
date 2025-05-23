@@ -1,13 +1,23 @@
 import streamlit as st
 import controller.controller as control
 
+ecommerce_db_name = "ecommerce_database"
+
 
 def display():
     """Display the page "Panier" in the streamlit app."""
 
     # Request to the DB
     if "id_user" in st.session_state:
-        shopping_cart = control.user_shopping_cart("ecommerce_database", st.session_state["id_user"])
+        id_shoppingcart = control.user_open_shopping_cart_id(
+            ecommerce_db_name, st.session_state["id_user"]
+        )
+        if id_shoppingcart:
+            shopping_cart = control.user_shopping_cart(
+                ecommerce_db_name, id_shoppingcart
+            )
+        else:
+            shopping_cart = list()
     else:
         shopping_cart = list()
 
@@ -128,9 +138,7 @@ def display_table_line(column_widths: list[int], command_line: dict) -> tuple[in
     # Column command line price IT
     with col_total_price_IT:
         total_price_IT = total_price_ET * (1 + command_line["rate_vat"])
-        st.text(
-            f"{total_price_IT:10.2f} €"
-        )
+        st.text(f"{total_price_IT:10.2f} €")
 
     return total_price_ET, total_price_IT
 
@@ -146,9 +154,7 @@ def display_order_and_total(
         total_price_IT (int): Total cost of the shopping cart (incl. taxes)
     """
     # Dividing the field into columns
-    empty_col, col_total_price = st.columns(
-        column_widths, vertical_alignment="bottom"
-    )
+    empty_col, col_total_price = st.columns(column_widths, vertical_alignment="bottom")
 
     with col_total_price:
         st.text(
