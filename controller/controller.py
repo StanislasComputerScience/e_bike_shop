@@ -71,7 +71,7 @@ def most_products_buy(ecommerce_db_name: str) -> list[dict]:
 
 # region Connection
 # Get id_user
-def get_user_info(ecommerce_db_name: str, user_email: str) -> list[dict]:
+def get_user_info_connect(ecommerce_db_name: str, user_email: str) -> list[dict]:
     """Get the user information
 
     Args:

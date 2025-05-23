@@ -20,7 +20,7 @@ with st.form("login_form"):
 
 if submit_coo:
     try:
-        user_info = control.get_user_info(ecommerce_db_name, email)
+        user_info = control.get_user_info_connect(ecommerce_db_name, email)
         bcrypt.checkpw(password.encode(), user_info[0]["password"].encode())
         st.session_state["id_user"] = user_info[0]["id_user"]
         control.connect_user(ecommerce_db_name, user_info[0]["id_user"])
