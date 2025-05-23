@@ -98,8 +98,8 @@ def create_table_db(ecommerce_db_dict: dict):
             price_ET REAL UNSIGNED NOT NULL,
             quantity INTEGER UNSIGNED NOT NULL,
             rate_vat REAL UNSIGNED NOT NULL,
-            PRIMARY KEY(id_prod,id_shoppingcart)
-            FOREIGN KEY(id_prod) REFERENCES Product(id_prod)
+            PRIMARY KEY(id_prod,id_shoppingcart),
+            FOREIGN KEY(id_prod) REFERENCES Product(id_prod),
             FOREIGN KEY(id_shoppingcart) REFERENCES ShoppingCart(id_shoppingcart)
        );"""
 
@@ -595,7 +595,7 @@ def generate_password() -> str:
 
     for pwd in passwords:
         hashed = bcrypt.hashpw(pwd.encode(), bcrypt.gensalt())
-        print(f"{pwd:<18} --- {hashed.decode("utf-8")}")
+        print(f"{pwd:<18} --- {hashed.decode('utf-8')}")
 
 
 def create_database(ecommerce_db_dict: dict, database_name: str):

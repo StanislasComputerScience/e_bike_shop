@@ -1,40 +1,31 @@
 import streamlit as st
-import os
+import controller.controller as control
 
 
 def display():
     """Display the page "Panier" in the streamlit app."""
 
-    # TEMPORARY: create a fake dictionnary for having a first version
-    folder = "./bdd/assets/products/"
-    command_lines = []
-
-    for idx, file in enumerate(os.listdir(folder)):
-        file_path = os.path.join(folder, file)
-        if os.path.isfile(file_path):
-            command_lines.append(
-                {
-                    "nom": f"Produit_{idx}",
-                    "quantité": idx,
-                    "chemin_image": file_path,
-                    "prix": idx * 100,
-                }
-            )
+    # Request to the DB
+    if "id_user" in st.session_state:
+        shopping_cart = control.user_shopping_cart("ecommerce_database", st.session_state["id_user"])
+    else:
+        shopping_cart = list()
 
     # Display the title
     st.header("Panier")
 
     # Display the shopping cart as a table
-    column_widths = [1, 3, 3, 1, 1]
+    column_widths = [1, 2, 2, 1, 1, 1]
     display_table_header(column_widths)
-    total_price = 0
-    for command_line in command_lines:
-        total_price += display_table_line(column_widths, command_line)
-
-    column_widths = [4, 2, 1]
+    total_price_ET, total_price_IT = 0, 0
+    for command_line in shopping_cart:
+        add_prices = display_table_line(column_widths, command_line)
+        total_price_ET += add_prices[0]
+        total_price_IT += add_prices[1]
 
     # Display the order button and the total price
-    display_order_and_total(column_widths, total_price)
+    column_widths = [4, 2]
+    display_order_and_total(column_widths, total_price_ET, total_price_IT)
 
 
 def display_table_header(column_widths: list[int]):
@@ -44,9 +35,14 @@ def display_table_header(column_widths: list[int]):
         column_widths (list[int]): Relative widths for each column
     """
     # Dividing the field into columns
-    col_image, col_name, col_quantity, col_price, col_total_price = st.columns(
-        column_widths
-    )
+    (
+        col_image,
+        col_name,
+        col_quantity,
+        col_price_ET,
+        col_total_price_ET,
+        col_total_price_IT,
+    ) = st.columns(column_widths)
 
     # Column image
     with col_image:
@@ -61,76 +57,105 @@ def display_table_header(column_widths: list[int]):
         st.text("Quantité")
 
     # Column product price
-    with col_price:
-        st.text("Prix unitaire")
+    with col_price_ET:
+        st.text("Prix HT unitaire")
 
     # Column command line price
-    with col_total_price:
-        st.text("Prix")
+    with col_total_price_ET:
+        st.text("Prix HT")
+
+    # Column command line price
+    with col_total_price_IT:
+        st.text("Prix TTC")
 
 
-def display_table_line(column_widths: list[int], command_line: dict) -> int:
+def display_table_line(column_widths: list[int], command_line: dict) -> tuple[int, int]:
     """Display a command line of the shopping cart.
 
     Args:
         column_widths (list[int]): Relative widths of the columns
-        command_line (dict): The command line information
+        command_line (dict): Command line information
 
     Returns:
-        int: The total cost for this command line
+        int: Total cost for this command line
     """
     # Dividing the field into columns
-    col_image, col_name, col_quantity, col_price, col_total_price = st.columns(
-        column_widths, vertical_alignment="center"
-    )
+    (
+        col_image,
+        col_name,
+        col_quantity,
+        col_price_ET,
+        col_total_price_ET,
+        col_total_price_IT,
+    ) = st.columns(column_widths, vertical_alignment="center")
 
     # Column image
     with col_image:
-        st.image(command_line["chemin_image"], width=50)
+        st.image(command_line["image_path"], width=50)
 
     # Column product name
     with col_name:
-        st.text(command_line["nom"])
+        st.text(command_line["product_name"])
 
     # Column quantity in the shopping cart
     with col_quantity:
-        st.number_input(
-            command_line["nom"] + "_quantity",
+        new_quantity = st.number_input(
+            command_line["product_name"] + "_quantity",
             min_value=0,
-            max_value=9999,
-            value=command_line["quantité"],
+            max_value=command_line["number_of_units"],
+            value=command_line["quantity"],
             step=1,
             label_visibility="collapsed",
         )
+        if new_quantity != command_line["quantity"]:
+            control.update_command_line(
+                "ecommerce_database",
+                command_line["id_prod"],
+                command_line["id_shoppingcart"],
+                new_quantity,
+            )
+            st.rerun()
 
-    # Column product price
-    with col_price:
-        st.text(str(command_line["prix"]) + " €")
+    # Column product price ET
+    with col_price_ET:
+        st.text(f"{command_line["price_ET"]:10.2f} €")
 
-    # Column command line price
-    with col_total_price:
-        st.text(str(command_line["prix"] * command_line["quantité"]) + " €")
+    # Column command line price ET
+    with col_total_price_ET:
+        total_price_ET = command_line["price_ET"] * command_line["quantity"]
+        st.text(f"{total_price_ET:10.2f} €")
 
-    return command_line["prix"] * command_line["quantité"]
+    # Column command line price IT
+    with col_total_price_IT:
+        total_price_IT = total_price_ET * (1 + command_line["rate_vat"])
+        st.text(
+            f"{total_price_IT:10.2f} €"
+        )
+
+    return total_price_ET, total_price_IT
 
 
-def display_order_and_total(column_widths: list[int], total_price: int):
+def display_order_and_total(
+    column_widths: list[int], total_price_ET: int, total_price_IT: int
+):
     """Display the order button and the total cost of the shopping cart
 
     Args:
         column_widths (list[int]): Relative widths of the columns
-        total_price (int): Total cost of the shopping cart
+        total_price_ET (int): Total cost of the shopping cart (excl. taxes)
+        total_price_IT (int): Total cost of the shopping cart (incl. taxes)
     """
     # Dividing the field into columns
-    empty_col, col_order, col_total_price = st.columns(
-        column_widths, vertical_alignment="center"
+    empty_col, col_total_price = st.columns(
+        column_widths, vertical_alignment="bottom"
     )
 
-    with col_order:
-        st.button("order", icon="🚴")
-
     with col_total_price:
-        st.text(f"Total: {total_price} €")
+        st.text(
+            f"Prix total HT: {total_price_ET:10.2f} €\nPrix total TTC: {total_price_IT:10.2f} €"
+        )
+        if "id_user" in st.session_state:
+            st.button("order", icon="🚴")
 
 
 if __name__ == "__main__":
