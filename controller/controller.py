@@ -134,6 +134,28 @@ def disconnect_user(ecommerce_db_name: str, id_user: str) -> None:
         )
 
 
+# region Invoice
+def get_all_info_user(ecommerce_db_name: str, id_user: str) -> list[dict]:
+    with sqlite3.connect(f"bdd/{ecommerce_db_name}.db") as connexion:
+        cursor = connexion.cursor()
+
+        query = cursor.execute(
+            """SELECT u.name, u.firstname, u.email, u.phone
+                FROM User as u
+                WHERE id_user = (:id_user)
+                ;
+            """,
+            {"id_user": id_user},
+        )
+        user_info_dict = {}
+        for prod_info in query.fetchall():
+            user_info_dict["name"] = prod_info[0]
+            user_info_dict["firstname"] = prod_info[1]
+            user_info_dict["email"] = prod_info[2]
+            user_info_dict["phone"] = prod_info[3]
+        return user_info_dict
+
+
 def main():
     db_name = "ecommerce_database"
     pass
