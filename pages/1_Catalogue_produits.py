@@ -78,8 +78,8 @@ val_it = round(product_selected["price_it"], 2)
 
 st.markdown(
     f"""
-<b style="font-size:20px">🧾 Prix HT : {val_et} €</b><br>
-<b style="font-size:20px">💰 Prix TTC : {val_it} €</b>
+<b style="font-size:20px">🧾  Prix HT : {val_et} €</b><br>
+<b style="font-size:20px">💰  Prix TTC : {val_it} €</b>
 """,
     unsafe_allow_html=True,
 )
