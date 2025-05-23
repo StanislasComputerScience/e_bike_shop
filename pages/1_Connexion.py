@@ -12,11 +12,11 @@ st.write("Veuillez entrer vos identifiants pour vous connecter.")
 with st.form("login_form"):
     email = st.text_input("📧 Insérer votre email")
     password = st.text_input("🔑 Insérer votre mot de passe", type="password")
-    col_coo, space, col_deco = st.columns([1, 3, 1])
+    col_coo, space, col_disc = st.columns([1, 3, 1])
     with col_coo:
         submit_coo = st.form_submit_button("Se connecter")
-    with col_deco:
-        submit_dec = st.form_submit_button("Se déconnecter")
+    with col_disc:
+        submit_disc = st.form_submit_button("Se déconnecter")
 
 if submit_coo:
     try:
@@ -28,9 +28,9 @@ if submit_coo:
     except:
         st.error("Identifiants incorrects ❌")
 
-if submit_dec:
+if submit_disc:
     try:
-        control.deconnect_user(ecommerce_db_name, st.session_state.get("id_user"))
+        control.disconnect_user(ecommerce_db_name, st.session_state.get("id_user"))
         st.success("Déconnexion réussie ✅")
     except:
         st.error("Vous êtes déjà déconnectés ❌")

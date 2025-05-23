@@ -118,7 +118,7 @@ def connect_user(ecommerce_db_name: str, id_user: str) -> None:
         )
 
 
-def deconnect_user(ecommerce_db_name: str, id_user: str) -> None:
+def disconnect_user(ecommerce_db_name: str, id_user: str) -> None:
     with sqlite3.connect(f"bdd/{ecommerce_db_name}.db") as connexion:
         cursor = connexion.cursor()
 
@@ -136,8 +136,7 @@ def deconnect_user(ecommerce_db_name: str, id_user: str) -> None:
 
 def main():
     db_name = "ecommerce_database"
-    user_info = get_user_info(db_name, "paul.dupont@generator.com")
-    print(user_info)
+    pass
 
 
 if __name__ == "__main__":
