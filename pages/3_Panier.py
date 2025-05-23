@@ -6,7 +6,7 @@ def display():
     """Display the page "Panier" in the streamlit app."""
 
     # Request to the DB
-    test_id_user = 1
+    test_id_user = 2
     shopping_cart = control.user_shopping_cart("ecommerce_database", test_id_user)
 
     # Display the title
@@ -15,14 +15,15 @@ def display():
     # Display the shopping cart as a table
     column_widths = [1, 3, 2, 1, 1, 1]
     display_table_header(column_widths)
-    total_price = 0
+    total_price_ET, total_price_IT = 0, 0
     for command_line in shopping_cart:
-        total_price += display_table_line(column_widths, command_line)
-
-    column_widths = [4, 2]
+        add_prices = display_table_line(column_widths, command_line)
+        total_price_ET += add_prices[0]
+        total_price_IT += add_prices[1]
 
     # Display the order button and the total price
-    display_order_and_total(column_widths, total_price, command_line["rate_vat"])
+    column_widths = [4, 2]
+    display_order_and_total(column_widths, total_price_ET, total_price_IT)
 
 
 def display_table_header(column_widths: list[int]):
@@ -66,7 +67,7 @@ def display_table_header(column_widths: list[int]):
         st.text("Prix TTC")
 
 
-def display_table_line(column_widths: list[int], command_line: dict) -> int:
+def display_table_line(column_widths: list[int], command_line: dict) -> tuple[int, int]:
     """Display a command line of the shopping cart.
 
     Args:
@@ -119,19 +120,21 @@ def display_table_line(column_widths: list[int], command_line: dict) -> int:
 
     # Column command line price ET
     with col_total_price_ET:
-        st.text(f"{command_line["price_ET"] * command_line["quantity"]:10.2f} €")
+        total_price_ET = command_line["price_ET"] * command_line["quantity"]
+        st.text(f"{total_price_ET:10.2f} €")
 
     # Column command line price IT
     with col_total_price_IT:
+        total_price_IT = total_price_ET * (1 + command_line["rate_vat"])
         st.text(
-            f"{command_line["price_ET"] * command_line["quantity"] * (1 + command_line["rate_vat"]):10.2f} €"
+            f"{total_price_IT:10.2f} €"
         )
 
-    return command_line["price_ET"] * command_line["quantity"]
+    return total_price_ET, total_price_IT
 
 
 def display_order_and_total(
-    column_widths: list[int], total_price: int, rate_vat: float
+    column_widths: list[int], total_price: int, total_price_vat: int
 ):
     """Display the order button and the total cost of the shopping cart
 
@@ -146,7 +149,7 @@ def display_order_and_total(
 
     with col_total_price:
         st.text(
-            f"Prix total HT: {total_price:10.2f} €\nPrix total TTC: {total_price*rate_vat:10.2f} €"
+            f"Prix total HT: {total_price:10.2f} €\nPrix total TTC: {total_price_vat:10.2f} €"
         )
         st.button("order", icon="🚴")
 
