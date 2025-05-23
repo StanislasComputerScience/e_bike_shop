@@ -161,7 +161,8 @@ def display_order_and_total(
             f"Prix total HT: {total_price_ET:10.2f} €\nPrix total TTC: {total_price_IT:10.2f} €"
         )
         if "id_user" in st.session_state:
-            st.button("order", icon="🚴")
+            if st.button("order", icon="🚴"):
+                st.switch_page("pages/5_Commande.py")
 
 
 if __name__ == "__main__":
