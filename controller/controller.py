@@ -37,6 +37,8 @@ def product_catalog():
 
         # Transformation result into a dictionnary
         return [dict(zip(fields, row)) for row in result]
+
+
 # region Home
 # Most 2 popular products
 def most_popular_products(ecommerce_db_name: str) -> list[dict]:
@@ -170,6 +172,28 @@ def disconnect_user(ecommerce_db_name: str, id_user: str) -> None:
         )
 
 
+# region Invoice
+def get_all_info_user(ecommerce_db_name: str, id_user: str) -> list[dict]:
+    with sqlite3.connect(f"bdd/{ecommerce_db_name}.db") as connexion:
+        cursor = connexion.cursor()
+
+        query = cursor.execute(
+            """SELECT u.name, u.firstname, u.email, u.phone
+                FROM User as u
+                WHERE id_user = (:id_user)
+                ;
+            """,
+            {"id_user": id_user},
+        )
+        user_info_dict = {}
+        for prod_info in query.fetchall():
+            user_info_dict["name"] = prod_info[0]
+            user_info_dict["firstname"] = prod_info[1]
+            user_info_dict["email"] = prod_info[2]
+            user_info_dict["phone"] = prod_info[3]
+        return user_info_dict
+
+
 # region Panier
 # Shopping cart
 def user_shopping_cart(ecommerce_db_name: str, id_user: int) -> list[dict]:
@@ -184,7 +208,6 @@ def user_shopping_cart(ecommerce_db_name: str, id_user: int) -> list[dict]:
         (list[dict]): list of shopping cart command lines to display
         on the page "Panier".
     """
-
     with sqlite3.connect(f"bdd/{ecommerce_db_name}.db") as connexion:
         cursor = connexion.cursor()
 
@@ -204,34 +227,33 @@ def user_shopping_cart(ecommerce_db_name: str, id_user: int) -> list[dict]:
                 ON cart.id_shoppingcart = cl.id_shoppingcart
                 LEFT JOIN Product as prod
                 ON prod.id_prod = cl.id_prod
-                WHERE cart.id_user = (:id_user)
-                ;
+                WHERE cart.id_user = (:id_user);
             """,
             {"id_user": id_user},
         )
 
-        # Convert tuple into dictionnary
-        shopping_cart = []
-        for command_line in query.fetchall():
-            command_line_as_dict = dict()
-            keys = [
-                "id_prod",
-                "id_shoppingcart",
-                "image_path",
-                "product_name",
-                "number_of_units",
-                "quantity",
-                "price_ET",
-                "rate_vat",
-                "date",
-            ]
-            idx = 0
-            for key in keys:
-                command_line_as_dict[key] = command_line[idx]
-                idx += 1
-            shopping_cart.append(command_line_as_dict)
+    # Convert tuple into dictionnary
+    shopping_cart = []
+    for command_line in query.fetchall():
+        command_line_as_dict = dict()
+        keys = [
+            "id_prod",
+            "id_shoppingcart",
+            "image_path",
+            "product_name",
+            "number_of_units",
+            "quantity",
+            "price_ET",
+            "rate_vat",
+            "date",
+        ]
+        idx = 0
+        for key in keys:
+            command_line_as_dict[key] = command_line[idx]
+            idx += 1
+        shopping_cart.append(command_line_as_dict)
 
-        return shopping_cart
+    return shopping_cart
 
 
 # Update command line
@@ -245,7 +267,7 @@ def update_command_line(
         ecommerce_db_name (str): database name
         id_prod (int): id of the product
         id_shoppingcart (int): id of the shoppingcart
-        new_quantity (int): the new quantity    
+        new_quantity (int): the new quantity
     """
 
     with sqlite3.connect(f"bdd/{ecommerce_db_name}.db") as connexion:
