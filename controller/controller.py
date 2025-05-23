@@ -137,6 +137,15 @@ def user_shopping_cart(ecommerce_db_name: str, id_user: int) -> list[dict]:
 def update_command_line(
     ecommerce_db_name: str, id_prod: int, id_shoppingcart: int, new_quantity: int
 ):
+    """Update the database with the name ecommerce_db_name to modify the
+    quantity of the entry with primary key id_prod, id_shopingcart
+
+    Args:
+        ecommerce_db_name (str): database name
+        id_prod (int): id of the product
+        id_shoppingcart (int): id of the shoppingcart
+        new_quantity (int): the new quantity    
+    """
 
     with sqlite3.connect(f"bdd/{ecommerce_db_name}.db") as connexion:
         cursor = connexion.cursor()

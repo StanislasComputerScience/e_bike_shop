@@ -13,7 +13,7 @@ def display():
     st.header("Panier")
 
     # Display the shopping cart as a table
-    column_widths = [1, 3, 2, 1, 1, 1]
+    column_widths = [1, 2, 2, 1, 1, 1]
     display_table_header(column_widths)
     total_price_ET, total_price_IT = 0, 0
     for command_line in shopping_cart:
@@ -72,10 +72,10 @@ def display_table_line(column_widths: list[int], command_line: dict) -> tuple[in
 
     Args:
         column_widths (list[int]): Relative widths of the columns
-        command_line (dict): The command line information
+        command_line (dict): Command line information
 
     Returns:
-        int: The total cost for this command line
+        int: Total cost for this command line
     """
     # Dividing the field into columns
     (
@@ -134,13 +134,14 @@ def display_table_line(column_widths: list[int], command_line: dict) -> tuple[in
 
 
 def display_order_and_total(
-    column_widths: list[int], total_price: int, total_price_vat: int
+    column_widths: list[int], total_price_ET: int, total_price_IT: int
 ):
     """Display the order button and the total cost of the shopping cart
 
     Args:
         column_widths (list[int]): Relative widths of the columns
-        total_price (int): Total cost of the shopping cart
+        total_price_ET (int): Total cost of the shopping cart (excl. taxes)
+        total_price_IT (int): Total cost of the shopping cart (incl. taxes)
     """
     # Dividing the field into columns
     empty_col, col_total_price = st.columns(
@@ -149,7 +150,7 @@ def display_order_and_total(
 
     with col_total_price:
         st.text(
-            f"Prix total HT: {total_price:10.2f} €\nPrix total TTC: {total_price_vat:10.2f} €"
+            f"Prix total HT: {total_price_ET:10.2f} €\nPrix total TTC: {total_price_IT:10.2f} €"
         )
         st.button("order", icon="🚴")
 
