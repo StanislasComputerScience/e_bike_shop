@@ -23,7 +23,7 @@ list_products = control.product_catalog()
 # Afficher en tableau de 3 colonnes par ligne
 n_colonnes = 3
 for i in range(0, len(list_products), n_colonnes):
-    cols = st.columns(n_colonnes)
+    cols = st.columns(n_colonnes, vertical_alignment="bottom")
     for j in range(n_colonnes):
         if i + j < len(list_products):
             product = list_products[i + j]
