@@ -17,7 +17,7 @@ def execute_sql_query(query, params=()):
 def product_catalog():
     query = """
         SELECT p.id_prod, p.name, p.description, p.tech_specification,
-               p.image_path, p.price_ET * (1 + v.rate) AS price_it
+               p.image_path, p.price_ET * (1 + v.rate) AS price_it, p.price_ET as price_et
         FROM Product p
         INNER JOIN VAT v ON v.id_vat = p.id_vat
     """
@@ -32,10 +32,8 @@ def product_catalog():
             "tech_specification",
             "image_path",
             "price_it",
+            "price_ET",
         ]
 
-        # Transformation du résultat en une liste de dictionnaires
+        # Transformation result into a dictionnary
         return [dict(zip(fields, row)) for row in result]
-
-
-print(product_catalog()[0])
