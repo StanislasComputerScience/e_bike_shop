@@ -1,5 +1,6 @@
 import sqlite3
 import json
+import bcrypt
 
 
 def create_table_db(ecommerce_db_dict: dict):
@@ -26,6 +27,7 @@ def create_table_db(ecommerce_db_dict: dict):
             firstname TEXT NOT NULL,
             birth_date TEXT,
             email TEXT NOT NULL,
+            password TEXT NOT NULL,
             phone TEXT,
             FOREIGN KEY(id_connection) REFERENCES Connection(id_connection),
             FOREIGN KEY(id_role) REFERENCES Role(id_role)
@@ -130,53 +132,53 @@ def create_insert_into_tables(ecommerce_db_dict: dict):
         """
     ecommerce_db_dict[
         "insert into User: first user"
-    ] = """INSERT INTO User(id_connection, id_role, name,firstname, birth_date, email, phone)
-            VALUES(1,1,'Dupont','Paul','13/01/1992','paul.dupont@generator.com','010203040506');
+    ] = """INSERT INTO User(id_connection, id_role, name, firstname, birth_date, email, password, phone)
+            VALUES(1,1,'Dupont','Paul','13/01/1992','paul.dupont@generator.com', '$2b$12$Va0N.6FKF341HjLiDRvgeOlSW6vN2hLLDwmqKZ5dms5MZB7dFZ16a','010203040506');
         """
     ecommerce_db_dict[
         "insert into User: second user"
-    ] = """INSERT INTO User(id_connection, id_role, name,firstname, birth_date, email, phone)
-        VALUES(1,1,'Martin','Claire','22/07/1988','claire.martin@generator.com','060102030405');
+    ] = """INSERT INTO User(id_connection, id_role, name,firstname, birth_date, email, password, phone)
+        VALUES(1,1,'Martin','Claire','22/07/1988','claire.martin@generator.com', '$2b$12$i8VbU.ONeJ4MQeLAJnq.uO3wVtXg1/dyVuyPNMf544ivhuZvtZOuS','060102030405');
     """
     ecommerce_db_dict[
         "insert into User: third user"
-    ] = """INSERT INTO User(id_connection, id_role, name,firstname, birth_date, email, phone)
-            VALUES(1,1,'Bernard','Luc','05/11/1990','luc.bernard@generator.com','070809101112');
+    ] = """INSERT INTO User(id_connection, id_role, name,firstname, birth_date, email, password, phone)
+            VALUES(1,1,'Bernard','Luc','05/11/1990','luc.bernard@generator.com', '$2b$12$4DBeNvxpOMNFrUmxDAzXNOBVCCD3tQp3x2rNtk.GCnzsMjqlXnrK2','070809101112');
         """
     ecommerce_db_dict[
         "insert into User: fourth user"
-    ] = """INSERT INTO User(id_connection, id_role, name,firstname, birth_date, email, phone)
-            VALUES(1,1,'Lemoine','Sophie','17/03/1985','sophie.lemoine@generator.com','060708091011');
+    ] = """INSERT INTO User(id_connection, id_role, name,firstname, birth_date, email, password, phone)
+            VALUES(1,1,'Lemoine','Sophie','17/03/1985','sophie.lemoine@generator.com', '$2b$12$atfoZMRhfoxTvZldTM4hzepfWVYmSGKce9P1zI6k.bW9iPPdm/OD2','060708091011');
         """
     ecommerce_db_dict[
         "insert into User: fifth user"
-    ] = """INSERT INTO User(id_connection, id_role, name,firstname, birth_date, email, phone)
-            VALUES(1,1,'Roux','Antoine','30/06/1993','antoine.roux@generator.com','010101010101');
+    ] = """INSERT INTO User(id_connection, id_role, name,firstname, birth_date, email, password, phone)
+            VALUES(1,1,'Roux','Antoine','30/06/1993','antoine.roux@generator.com', '$2b$12$iTgVbR7U7L47S/anDA85cemWY2g8APVVKU2f4oekB1sdH5api0lFO','010101010101');
         """
     ecommerce_db_dict[
         "insert into User: sixth user"
-    ] = """INSERT INTO User(id_connection, id_role, name,firstname, birth_date, email, phone)
-            VALUES(1,1,'Garcia','Emma','09/12/1996','emma.garcia@generator.com','050505050505');
+    ] = """INSERT INTO User(id_connection, id_role, name,firstname, birth_date, email, password, phone)
+            VALUES(1,1,'Garcia','Emma','09/12/1996','emma.garcia@generator.com', '$2b$12$M8v9HVFgqP3czM70OgXYAOwlfWESliTwXgvTs.ZyX2hd3sQj8WlFS','050505050505');
         """
     ecommerce_db_dict[
         "insert into User: seventh user"
-    ] = """INSERT INTO User(id_connection, id_role, name,firstname, birth_date, email, phone)
-            VALUES(1,1,'Moreau','Julien','14/02/1991','julien.moreau@generator.com','020304050607');
+    ] = """INSERT INTO User(id_connection, id_role, name,firstname, birth_date, email, password, phone)
+            VALUES(1,1,'Moreau','Julien','14/02/1991','julien.moreau@generator.com', '$2b$12$fF0qa1C7MEpnEFpFImmE4OtrdI0d2wKyCeaMeorzNHhJh/NDsIkNe','020304050607');
         """
     ecommerce_db_dict[
         "insert into User: eighth user"
-    ] = """INSERT INTO User(id_connection, id_role, name,firstname, birth_date, email, phone)
-            VALUES(1,1,'Fournier','Camille','25/09/1989','camille.fournier@generator.com','080807070707');
+    ] = """INSERT INTO User(id_connection, id_role, name,firstname, birth_date, email, password, phone)
+            VALUES(1,1,'Fournier','Camille','25/09/1989','camille.fournier@generator.com', '$2b$12$dz4PXTvCalkZVQtMHNELyuWxTro02jf28eg5ZGCrYWq00pFN8/SIm','080807070707');
         """
     ecommerce_db_dict[
         "insert into User: ninth user"
-    ] = """INSERT INTO User(id_connection, id_role, name,firstname, birth_date, email, phone)
-            VALUES(1,1,'Girard','Hugo','08/08/1994','hugo.girard@generator.com','090909090909');
+    ] = """INSERT INTO User(id_connection, id_role, name,firstname, birth_date, email, password, phone)
+            VALUES(1,1,'Girard','Hugo','08/08/1994','hugo.girard@generator.com', '$2b$12$kKzL8uIHwibwVCiXpQVUcOHUCSxKQrUET.kD7.ptA4ODMAVbeqWDi','090909090909');
         """
     ecommerce_db_dict[
         "insert into User: tenth user"
-    ] = """INSERT INTO User(id_connection, id_role, name,firstname, birth_date, email, phone)
-            VALUES(1,1,'Lambert','Nina','01/04/1995','nina.lambert@generator.com','040404040404');
+    ] = """INSERT INTO User(id_connection, id_role, name,firstname, birth_date, email, password, phone)
+            VALUES(1,1,'Lambert','Nina','01/04/1995','nina.lambert@generator.com', '$2b$12$ATS2k0Q/zd7mj.kfVhEo4uSzTe3a32ljO/hnejWYQu02KDCMnNu0.','040404040404');
         """
     ecommerce_db_dict[
         "insert into Address: first address"
@@ -541,6 +543,26 @@ def create_insert_into_tables(ecommerce_db_dict: dict):
             (13, 10, 59.90, 1, 0.2),
             (15, 10, 39.00, 2, 0.2);
         """
+
+
+def generate_password() -> str:
+    # Declaring our password
+    passwords = [
+        "password123",
+        "bonjour2024",
+        "streamlit",
+        "adminadmin",
+        "azerty123",
+        "testuser",
+        "motdepasse",
+        "welcome2025",
+        "login2025",
+        "abc123",
+    ]
+
+    for pwd in passwords:
+        hashed = bcrypt.hashpw(pwd.encode(), bcrypt.gensalt())
+        print(f"{pwd:<18} --- {hashed.decode("utf-8")}")
 
 
 def create_database(ecommerce_db_dict: dict, database_name: str):
