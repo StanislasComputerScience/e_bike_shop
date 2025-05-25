@@ -138,7 +138,7 @@ def create_insert_into_tables(ecommerce_db_dict: dict):
     ecommerce_db_dict[
         "insert into User: second user"
     ] = """INSERT INTO User(id_connection, id_role, name,firstname, birth_date, email, password, phone)
-        VALUES(1,1,'Martin','Claire','22/07/1988','claire.martin@generator.com', '$2b$12$i8VbU.ONeJ4MQeLAJnq.uO3wVtXg1/dyVuyPNMf544ivhuZvtZOuS','060102030405');
+        VALUES(1,2,'Martin','Claire','22/07/1988','claire.martin@generator.com', '$2b$12$i8VbU.ONeJ4MQeLAJnq.uO3wVtXg1/dyVuyPNMf544ivhuZvtZOuS','060102030405');
     """
     ecommerce_db_dict[
         "insert into User: third user"

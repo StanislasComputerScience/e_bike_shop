@@ -358,6 +358,22 @@ def update_shoppingcart(id_shoppingcart: int) -> None:
     execute_sql_query(query, params)
 
 
+# region Admin
+
+
+def is_admin(id_user: int) -> bool:
+    query = f"""SELECT r.name
+                FROM User as u
+                LEFT JOIN Role as r on r.id_role = u.id_role
+                WHERE id_user = {id_user};
+            """
+    params = ()
+    result = execute_sql_query(query, params)
+
+    return result[0][0] == "admin"
+
+
+# region main local
 def main():
     db_name = "ecommerce_database"
 
@@ -368,6 +384,7 @@ def main():
     #     print()
 
     # get_user_address(1)
+    print(is_admin(2))
 
 
 if __name__ == "__main__":
