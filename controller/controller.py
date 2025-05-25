@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import datetime
 
 
 def execute_sql_query(query, params=()):
@@ -194,7 +195,7 @@ def get_all_info_user(ecommerce_db_name: str, id_user: str) -> dict:
         return user_info_dict
 
 
-# region Panier
+# region Panier & Commande
 def user_open_shopping_cart_id(ecommerce_db_name: str, id_user: int) -> int | None:
     """Return the id_shoppingcart of the latest opened shopping cart
     associated to the user with id id_user. An opened shopping cart
@@ -308,14 +309,65 @@ def update_command_line(
         )
 
 
+# region Commande
+
+
+def get_user_address(id_user: int) -> list[tuple]:
+    query = f"""SELECT
+                    number,
+                    street,
+                    postal_code,
+                    city
+                FROM Address
+                WHERE id_user = {id_user};
+            """
+
+    params = ()
+    result = execute_sql_query(query, params)
+    final_result = []
+    for result_tuple in result:
+        temp_result = (
+            f"{result_tuple[0]} {result_tuple[1]}",
+            f"{result_tuple[2]} {result_tuple[3]}",
+        )
+        final_result.append(temp_result)
+    return final_result
+
+
+# pour améliorer la facturation, créer une clé étrangère dans invoice: id_address
+def create_invoice(ecommerce_db_name: str, id_user: int) -> None:
+    id_shoppingcart = user_open_shopping_cart_id(ecommerce_db_name, id_user)
+    today_date = datetime.now().strftime("%d/%m/%Y")
+    query = f"""INSERT INTO Invoice(id_shoppingcart, date)
+                VALUES({id_shoppingcart},'{today_date}');
+            """
+
+    params = ()
+    execute_sql_query(query, params)
+    update_shoppingcart(id_shoppingcart)
+
+
+def update_shoppingcart(id_shoppingcart: int) -> None:
+    query = f"""UPDATE ShoppingCart
+                SET id_invoice = (SELECT inv.id_invoice
+                                  FROM ShoppingCart as sc
+                                  LEFT JOIN Invoice as inv on inv.id_shoppingcart = sc.id_shoppingcart
+                                  WHERE sc.id_shoppingcart = {id_shoppingcart});
+            """
+    params = ()
+    execute_sql_query(query, params)
+
+
 def main():
     db_name = "ecommerce_database"
 
-    # Test user_shopping_cart
-    for i in range(3):
-        for info in user_shopping_cart(db_name, i + 1):
-            print(info)
-        print()
+    # # Test user_shopping_cart
+    # for i in range(3):
+    #     for info in user_shopping_cart(db_name, i + 1):
+    #         print(info)
+    #     print()
+
+    # get_user_address(1)
 
 
 if __name__ == "__main__":
