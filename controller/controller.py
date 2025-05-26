@@ -7,7 +7,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import const_values as cv
 
 
-def execute_sql_query(query: str, params=()) -> list[tuple]:
+def execute_sql_query(query: str, params=()) -> list[tuple] | None:
     """Function to execute sql query
 
     Args:
@@ -29,24 +29,7 @@ def execute_sql_query(query: str, params=()) -> list[tuple]:
         return None
 
 
-def commande_ver_panier(id_shoppingcart: int, id_prod: int):
-    query = """
-        SELECT com.quantity AS quantity
-        FROM CommandLine com
-        LEFT JOIN ShoppingCart s ON s.id_shoppingcart = com.id_shoppingcart
-        WHERE s.id_shoppingcart = ? AND com.id_prod = ?;
-    """
-    params = (id_shoppingcart, id_prod)
-    result = execute_sql_query(query, params)
-
-    if result:
-        fields = ["quantity"]
-        return [dict(zip(fields, row)) for row in result]
-    return []
-
-
-
-def product_catalog() -> list[dict]:
+def product_catalog() -> list[dict] | None:
     """Function to execute sql query
 
     Args:
@@ -78,16 +61,27 @@ def product_catalog() -> list[dict]:
 
         # Transformation result into a dictionnary
         return [dict(zip(fields, row)) for row in result]
+    else:
+        return None
+
 
 def is_command_line_exist(id_shoppingcart: int, id_prod: int) -> bool:
+    """Return True id the command line with primary key (id_shoppingcart, id_prod)
+    is present in the table CommandLine
+
+    Args:
+        id_shopping_cart (int): Id of the shoppingcart
+        id_prod (int): Id of the products"""
     query = """
-            SELECT com.id_commandline
+            SELECT com.id_shoppingcart,
+                   com.id_prod
             FROM CommandLine com
             WHERE com.id_shoppingcart = ? AND com.id_prod = ?;
         """
     params = (id_shoppingcart, id_prod)
     result = execute_sql_query(query, params)
     return not result == []
+
 
 def add_new_command_line(
     id_prod: int, id_shoppingcart: int, price: float, rate_vat: float
