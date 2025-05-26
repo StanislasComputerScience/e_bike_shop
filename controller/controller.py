@@ -158,6 +158,11 @@ def connect_user(id_user: int) -> None:
 
 
 def disconnect_user(id_user: str) -> None:
+    """Update the user connection
+
+    Args:
+        id_user (int): user id
+    """
     query = f"""UPDATE User
                 SET id_connection = (SELECT con.id_connection
                                      FROM Connection as con
