@@ -1,6 +1,7 @@
 import os
 import streamlit as st
 import controller.controller as control
+import controller.tools as tool
 
 
 # --- function called on radio change ---
@@ -8,18 +9,14 @@ def changement_produit():
     st.session_state.c = name_products.index(st.session_state.choix_radio)
 
 
-# radio button index initialisation
+# # radio button index initialisation
 if "c" not in st.session_state:
     st.session_state.c = 0
 
 # loading product
-l_products = control.product_catalog()
-# st.write(l)
-
 
 # List of product's name for the radio button
-name_products = [p["name"] for p in l_products]
-
+(l_products, name_products) = tool.load_products_and_c()
 
 # --- sidebar display ---
 st.sidebar.subheader("Fichiers dans 'produits' :")
@@ -31,6 +28,9 @@ st.sidebar.radio(
     key="choix_radio",
     on_change=changement_produit,
 )
+
+
+
 
 # Button navigation
 col1, col2, col3 = st.columns([1, 3, 1])

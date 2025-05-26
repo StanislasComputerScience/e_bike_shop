@@ -1,8 +1,6 @@
 import streamlit as st
 import controller.controller as control
 
-ecommerce_db_name = "ecommerce_database"
-
 
 def display():
     """Display the page "Panier" in the streamlit app."""
@@ -10,12 +8,10 @@ def display():
     # Request to the DB
     if "id_user" in st.session_state:
         id_shoppingcart = control.user_open_shopping_cart_id(
-            ecommerce_db_name, st.session_state["id_user"]
+            st.session_state["id_user"]
         )
         if id_shoppingcart:
-            shopping_cart = control.user_shopping_cart(
-                ecommerce_db_name, id_shoppingcart
-            )
+            shopping_cart = control.user_shopping_cart(id_shoppingcart)
         else:
             shopping_cart = list()
     else:
@@ -25,7 +21,7 @@ def display():
     st.header("Panier")
 
     # Display the shopping cart as a table
-    column_widths = [1, 2, 2, 1, 1, 1]
+    column_widths = [1, 2, 2, 1, 1, 1, 1]
     display_table_header(column_widths)
     total_price_ET, total_price_IT = 0, 0
     for command_line in shopping_cart:
@@ -52,6 +48,7 @@ def display_table_header(column_widths: list[int]):
         col_price_ET,
         col_total_price_ET,
         col_total_price_IT,
+        _,
     ) = st.columns(column_widths)
 
     # Column image
@@ -97,6 +94,7 @@ def display_table_line(column_widths: list[int], command_line: dict) -> tuple[in
         col_price_ET,
         col_total_price_ET,
         col_total_price_IT,
+        col_trash,
     ) = st.columns(column_widths, vertical_alignment="center")
 
     # Column image
@@ -119,7 +117,6 @@ def display_table_line(column_widths: list[int], command_line: dict) -> tuple[in
         )
         if new_quantity != command_line["quantity"]:
             control.update_command_line(
-                "ecommerce_database",
                 command_line["id_prod"],
                 command_line["id_shoppingcart"],
                 new_quantity,
@@ -139,6 +136,13 @@ def display_table_line(column_widths: list[int], command_line: dict) -> tuple[in
     with col_total_price_IT:
         total_price_IT = total_price_ET * (1 + command_line["rate_vat"])
         st.text(f"{total_price_IT:10.2f} €")
+
+    with col_trash:
+        if st.button(label="🗑️", key=command_line["id_prod"]):
+            control.remove_command_line(
+                command_line["id_prod"], command_line["id_shoppingcart"]
+            )
+            st.rerun()
 
     return total_price_ET, total_price_IT
 

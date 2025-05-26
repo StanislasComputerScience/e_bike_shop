@@ -3,23 +3,18 @@ import controller.controller as control
 
 
 def display():
+    """Main display"""
     try:
-        ecommerce_db_name = "ecommerce_database"
-
         # Request to the DB
         if "id_user" in st.session_state:
             id_shoppingcart = control.user_open_shopping_cart_id(
-                ecommerce_db_name, st.session_state["id_user"]
+                st.session_state["id_user"]
             )
             if id_shoppingcart:
-                shopping_cart = control.user_shopping_cart(
-                    ecommerce_db_name, id_shoppingcart
-                )
+                shopping_cart = control.user_shopping_cart(id_shoppingcart)
             else:
                 shopping_cart = list()
-            user_info = control.get_all_info_user(
-                ecommerce_db_name, st.session_state["id_user"]
-            )
+            user_info = control.get_all_info_user(st.session_state["id_user"])
         else:
             shopping_cart = list()
             user_info = list()
@@ -45,13 +40,18 @@ def display():
         display_order_and_total(column_widths, total_price_ET, total_price_IT)
 
         # Display address choice
-        display_address_choice(ecommerce_db_name)
+        display_address_choice()
 
     except:
         st.text("Il est nécessaire de vous connecter pour voir votre commande.")
 
 
 def display_table_header(user_info: list[dict]) -> None:
+    """Display header who contain user information
+
+    Args:
+        user_info (list[dict]): user information
+    """
     st.text(f"Utilisateur: {user_info["name"]} {user_info["firstname"]}")
     st.text(f"Mail: {user_info["email"]}")
     st.text(f"Téléphone: {user_info["phone"]}")
@@ -168,7 +168,8 @@ def display_order_and_total(
         )
 
 
-def display_address_choice(ecommerce_db_name: str) -> None:
+def display_address_choice() -> None:
+    """Display in streamlit all address to permit to the user the choice"""
     user_address = control.get_user_address(st.session_state["id_user"])
 
     options = [f"{rue}, {ville}" for rue, ville in user_address]
@@ -183,7 +184,7 @@ def display_address_choice(ecommerce_db_name: str) -> None:
     rue_choisie, ville_choisie = user_address[index_choix]
 
     if st.button("order", icon="🚴") and index_choix is not None:
-        control.create_invoice(ecommerce_db_name, st.session_state["id_user"])
+        control.create_invoice(st.session_state["id_user"])
         st.write("Commande effectué")
 
 
