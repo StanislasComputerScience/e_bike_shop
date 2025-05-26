@@ -1,6 +1,7 @@
 import os
 import streamlit as st
 import controller.controller as control
+from random import choice
 
 # CSS pour centrer le texte
 st.markdown(
@@ -18,11 +19,14 @@ st.markdown(
 )
 
 # Crée 2 colonnes : image et message bienvenue
-colonne_image, colonne_titre = st.columns([1, 3])
+colonne_image, colonne_titre = st.columns([3, 2])
 
 with colonne_image:
-
-    st.image("./bdd/assets/velo4.jpeg")
+    match choice([1, 2]):
+        case 1:
+            st.image("./assets/eShop-bike.png")
+        case 2:
+            st.image("./assets/eShop-bike2.png")
 
 with colonne_titre:
     st.markdown(
