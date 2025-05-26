@@ -8,7 +8,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import const_values as cv
 
 
-def execute_sql_query(query: str, params=()) -> list[tuple]:
+def execute_sql_query(query: str, params=()) -> list[tuple] | None:
     """Function to execute sql query
 
     Args:
@@ -30,7 +30,7 @@ def execute_sql_query(query: str, params=()) -> list[tuple]:
         return None
 
 
-def product_catalog() -> list[dict]:
+def product_catalog() -> list[dict] | None:
     """Function to execute sql query
 
     Args:
@@ -62,6 +62,59 @@ def product_catalog() -> list[dict]:
 
         # Transformation result into a dictionnary
         return [dict(zip(fields, row)) for row in result]
+    else:
+        return None
+
+
+def is_command_line_exist(id_shoppingcart: int, id_prod: int) -> bool:
+    """Return True id the command line with primary key (id_shoppingcart, id_prod)
+    is present in the table CommandLine
+
+    Args:
+        id_shopping_cart (int): Id of the shoppingcart
+        id_prod (int): Id of the products"""
+    query = """
+            SELECT com.id_shoppingcart,
+                   com.id_prod
+            FROM CommandLine com
+            WHERE com.id_shoppingcart = ? AND com.id_prod = ?;
+        """
+    params = (id_shoppingcart, id_prod)
+    result = execute_sql_query(query, params)
+    return not result == []
+
+
+def add_new_command_line(
+    id_prod: int, id_shoppingcart: int, price: float, rate_vat: float
+) -> None:
+    """Add a new entry in the table CommandLine corresponding to
+    the id_prod and id_shoppingcart
+
+    Args:
+        id_prod (int): Id of the products
+        id_shopping_cart (int): Id of the shoppingcart
+    """
+    query = f"""INSERT INTO CommandLine (id_prod, id_shoppingcart, price_ET, quantity, rate_vat)
+                VALUES ({id_prod},{id_shoppingcart},{price:.2f}, 1, {rate_vat:.1f})
+    """
+    params = ()
+    execute_sql_query(query, params)
+
+
+def add_new_shoppingcart(id_user: int) -> None:
+    """Add a new shopping cart in the table ShoppingCart corresponding to
+    the user with id_user
+
+    Args:
+        id_user (int): Id of the user
+    """
+    today_date = datetime.now().strftime("%d/%m/%Y")
+    query = f"""INSERT INTO ShoppingCart (id_user, date)
+                VALUES ({id_user},'{today_date}');
+            """
+
+    params = ()
+    execute_sql_query(query, params)
 
 
 # region Home
@@ -259,7 +312,7 @@ def user_shopping_cart(id_shoppingcart: int) -> list[dict]:
 
 # Update command line
 def update_command_line(id_prod: int, id_shoppingcart: int, new_quantity: int) -> None:
-    """Update the database with the name ecommerce_db_name to modify the
+    """Update the database to modify the
     quantity of the entry with primary key id_prod, id_shopingcart
 
     Args:
@@ -269,6 +322,22 @@ def update_command_line(id_prod: int, id_shoppingcart: int, new_quantity: int) -
     """
     query = f"""UPDATE CommandLine
             SET quantity = {new_quantity}
+            WHERE id_prod = {id_prod} AND id_shoppingcart = {id_shoppingcart};
+        """
+    params = ()
+    execute_sql_query(query, params)
+
+
+# Remove command line
+def remove_command_line(id_prod: int, id_shoppingcart: int) -> None:
+    """Remove in the database the command line matching the
+    primary key id_prod, id_shopingcart
+
+    Args:
+        id_prod (int): id of the product
+        id_shoppingcart (int): id of the shoppingcart
+    """
+    query = f"""DELETE FROM CommandLine
             WHERE id_prod = {id_prod} AND id_shoppingcart = {id_shoppingcart};
         """
     params = ()
