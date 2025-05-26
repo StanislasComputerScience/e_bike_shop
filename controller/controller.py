@@ -424,6 +424,37 @@ def create_new_product(
     execute_sql_query(query, params)
 
 
+def get_all_products() -> None:
+    """Get all products
+
+    Returns:
+        list[tuple]: list of all products
+    """
+    query = f"""SELECT prod.name,
+                       cat.name,
+                       prod.number_of_units, 
+                       prod.price_ET,
+                       vat.rate,
+                       ROUND(prod.price_ET * vat.rate,2) as total_price
+            FROM Product as prod
+            LEFT JOIN Category as cat on cat.id_category = prod.id_category
+            LEFT JOIN VAT as vat on vat.id_vat = prod.id_vat;
+        """
+    params = ()
+    result = execute_sql_query(query, params)
+    products_list = []
+    for prod_info in result:
+        dict_temp = {}
+        dict_temp["prod_name"] = prod_info[0]
+        dict_temp["cat_name"] = prod_info[1]
+        dict_temp["stocks"] = prod_info[2]
+        dict_temp["price_ET"] = prod_info[3]
+        dict_temp["vat"] = prod_info[4]
+        dict_temp["total_price"] = prod_info[4]
+        products_list.append(dict_temp)
+    return products_list
+
+
 def is_product_allready_in_base(name: str) -> bool:
     """Verify if the product are allready in base
 
@@ -558,6 +589,23 @@ def is_role_allready_in_base(name: str) -> bool:
     return not result == []
 
 
+def get_all_role() -> list[str]:
+    """Get all role
+
+    Returns:
+        list[str]: list of all role
+    """
+    query = f"""SELECT name
+                FROM Role;
+            """
+    params = ()
+    result = execute_sql_query(query, params)
+    categories_list = []
+    for ind, vat_name in enumerate(result):
+        categories_list.append(vat_name[0])
+    return categories_list
+
+
 # region main local
 def main():
     db_name = cv.bdd_path
@@ -573,16 +621,9 @@ def main():
     # get_user_info_connect("paul.dupont@generator.com")
     # print(get_all_categories())
     # print(get_all_VAT())
-    create_new_product(
-        "Tandem",
-        1,
-        42,
-        "Tandem donc cool",
-        "Aucune spec",
-        899,
-        1,
-        "bdd/assets/produits/test",
-    )
+    # print(get_all_products())
+    # print(get_all_VAT())
+    # print(get_all_role())
 
 
 if __name__ == "__main__":

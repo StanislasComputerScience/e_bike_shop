@@ -1,7 +1,7 @@
 import streamlit as st
 import controller.controller as control
 import os
-import time
+import pandas as pd
 
 
 def display() -> None:
@@ -72,12 +72,14 @@ def new_product() -> None:
         with st.expander("🗂️ Choisissez votre catégorie"):
             choice_cat = st.radio("", options)
 
-        number_of_units = st.text_input("📦 Insérer le stock du produit")
+        number_of_units = st.number_input(
+            "📦 Insérer le stock du produit", min_value=0, format="%d"
+        )
         description = st.text_area("📝 Insérer la description du produit")
         tech_specification = st.text_area(
             "⚙️ Insérer la description technique du produit"
         )
-        price_ET = st.text_input("💰 Insérer le prix du produit")
+        price_ET = st.number_input("💰 Insérer le prix du produit", min_value=0)
 
         options = control.get_all_VAT()
         # Choose actions to do
@@ -88,33 +90,42 @@ def new_product() -> None:
             type=["jpg", "jpeg"],
         )
         submit_coo = st.form_submit_button("Valider")
-        if submit_coo and not control.is_product_allready_in_base(name):
-            if (
-                not name
-                or not number_of_units
-                or not description
-                or not tech_specification
-                or not price_ET
-                or uploaded_file is None
-            ):
-                st.error("Il manque une information pour créer le produit ❌")
+        if submit_coo:
+            if not control.is_product_allready_in_base(name):
+                if (
+                    not name
+                    or not number_of_units
+                    or not description
+                    or not tech_specification
+                    or not price_ET
+                    or uploaded_file is None
+                ):
+                    st.error("Il manque une information pour créer le produit ❌")
+                else:
+                    file_path = os.path.join("bdd/assets/products", uploaded_file.name)
+                    control.create_new_product(
+                        name,
+                        choice_cat,
+                        number_of_units,
+                        description,
+                        tech_specification,
+                        price_ET,
+                        choice_vat,
+                        file_path,
+                    )
+                    with open(file_path, "wb") as f:
+                        f.write(uploaded_file.getbuffer())
+                    st.success("Produit créé ✅")
+                    display_products()
             else:
-                file_path = os.path.join("bdd/assets/products", uploaded_file.name)
-                control.create_new_product(
-                    name,
-                    choice_cat,
-                    number_of_units,
-                    description,
-                    tech_specification,
-                    price_ET,
-                    choice_vat,
-                    file_path,
-                )
-                with open(file_path, "wb") as f:
-                    f.write(uploaded_file.getbuffer())
-                st.success("Produit créé ✅")
-        else:
-            st.error("Le produit existe déjà ❌")
+                st.error("Le produit existe déjà ❌")
+
+
+def display_products() -> None:
+    """Display list of all products"""
+    st.subheader("Produits :")
+    for product in control.get_all_products():
+        st.write(product)
 
 
 def new_category() -> None:
@@ -125,15 +136,23 @@ def new_category() -> None:
     with st.form("product_info"):
         name = st.text_input("🚴 Insérer le nom de la catégorie")
         submit_coo = st.form_submit_button("Valider")
-        if submit_coo and not control.is_category_allready_in_base(name):
-            if not name:
-                st.error("Il manque une information pour créer le produit ❌")
+        if submit_coo:
+            if not control.is_category_allready_in_base(name):
+                if not name:
+                    st.error("Il manque une information pour créer le produit ❌")
+                else:
+                    control.create_new_category(name)
+                    st.success("Catégorie créé ✅")
+                    display_category()
             else:
-                control.create_new_category(name)
-                st.success("Catégorie créé ✅")
+                st.error("La catégorie existe déjà ❌")
 
-        else:
-            st.error("La catégorie existe déjà ❌")
+
+def display_category() -> None:
+    """Display list of all category"""
+    st.subheader("Category :")
+    for category in control.get_all_categories():
+        st.write(category)
 
 
 def new_vat() -> None:
@@ -143,17 +162,26 @@ def new_vat() -> None:
 
     with st.form("product_info"):
         name = st.text_input("🚴 Insérer le nom de la TVA")
-        number_of_units = st.text_input("💰 Insérer le taux pas en pourcentage")
+        rate = st.number_input("💰 Insérer le taux pas en pourcentage")
         submit_coo = st.form_submit_button("Valider")
-        if submit_coo and not control.is_vat_allready_in_base(name):
-            if not name:
-                st.error("Il manque une information pour créer le produit ❌")
-            else:
-                control.create_new_vat(name)
-                st.success("TVA créé ✅")
+        if submit_coo:
+            if not control.is_vat_allready_in_base(name):
+                if not name:
+                    st.error("Il manque une information pour créer le produit ❌")
+                else:
+                    control.create_new_vat(name, rate)
+                    st.success("TVA créé ✅")
+                    display_vat()
 
-        else:
-            st.error("La TVA existe déjà ❌")
+            else:
+                st.error("La TVA existe déjà ❌")
+
+
+def display_vat() -> None:
+    """Display list of all VAT"""
+    st.subheader("TVA :")
+    for vat in control.get_all_VAT():
+        st.write(vat)
 
 
 def new_role() -> None:
@@ -164,15 +192,24 @@ def new_role() -> None:
     with st.form("product_info"):
         name = st.text_input("🚴 Insérer le nom du rôle")
         submit_coo = st.form_submit_button("Valider")
-        if submit_coo and not control.is_role_allready_in_base(name):
-            if not name:
-                st.error("Il manque une information pour créer le produit ❌")
-            else:
-                control.create_new_role(name)
-                st.success("Rôle créé ✅")
+        if submit_coo:
+            if not control.is_role_allready_in_base(name):
+                if not name:
+                    st.error("Il manque une information pour créer le produit ❌")
+                else:
+                    control.create_new_role(name)
+                    st.success("Rôle créé ✅")
+                    display_role()
 
-        else:
-            st.error("Le rôle existe déjà ❌")
+            else:
+                st.error("Le rôle existe déjà ❌")
+
+
+def display_role() -> None:
+    """Display list of all role"""
+    st.subheader("Rôle :")
+    for role in control.get_all_role():
+        st.write(role)
 
 
 if __name__ == "__main__":
