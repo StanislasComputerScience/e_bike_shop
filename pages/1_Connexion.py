@@ -3,7 +3,7 @@ import controller.controller as control
 import bcrypt
 
 
-def display():
+def display() -> None:
     """Main display"""
     st.title("Connexion")
 

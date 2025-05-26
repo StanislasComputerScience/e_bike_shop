@@ -1,9 +1,10 @@
 import streamlit as st
 import controller.controller as control
 import os
+import time
 
 
-def display():
+def display() -> None:
     """Main display"""
     try:
         if control.is_admin(st.session_state["id_user"]):
@@ -17,7 +18,6 @@ def display():
 
             index_choix = options.index(choix_str)
             admin_actions(index_choix)
-
         else:
             st.write("Vous n'êtes pas un administrateur")
     except:
@@ -59,7 +59,7 @@ def admin_actions(action_choice: int) -> None:
         new_role()
 
 
-def new_product():
+def new_product() -> None:
     """Create a product"""
     # Formulary here
     st.write("Veuillez entrer les informations du nouveau produit.")
@@ -88,7 +88,7 @@ def new_product():
             type=["jpg", "jpeg"],
         )
         submit_coo = st.form_submit_button("Valider")
-        if submit_coo:
+        if submit_coo and not control.is_product_allready_in_base(name):
             if (
                 not name
                 or not number_of_units
@@ -113,9 +113,11 @@ def new_product():
                 with open(file_path, "wb") as f:
                     f.write(uploaded_file.getbuffer())
                 st.success("Produit créé ✅")
+        else:
+            st.error("Le produit existe déjà ❌")
 
 
-def new_category():
+def new_category() -> None:
     """Create a category"""
     # Formulary here
     st.write("Veuillez entrer les informations de la nouvelle catégorie.")
@@ -123,15 +125,18 @@ def new_category():
     with st.form("product_info"):
         name = st.text_input("🚴 Insérer le nom de la catégorie")
         submit_coo = st.form_submit_button("Valider")
-        if submit_coo:
+        if submit_coo and not control.is_category_allready_in_base(name):
             if not name:
                 st.error("Il manque une information pour créer le produit ❌")
             else:
                 control.create_new_category(name)
                 st.success("Catégorie créé ✅")
 
+        else:
+            st.error("La catégorie existe déjà ❌")
 
-def new_vat():
+
+def new_vat() -> None:
     """Create a VAT"""
     # Formulary here
     st.write("Veuillez entrer les informations de la nouvelle TVA.")
@@ -140,15 +145,18 @@ def new_vat():
         name = st.text_input("🚴 Insérer le nom de la TVA")
         number_of_units = st.text_input("💰 Insérer le taux pas en pourcentage")
         submit_coo = st.form_submit_button("Valider")
-        if submit_coo:
+        if submit_coo and not control.is_vat_allready_in_base(name):
             if not name:
                 st.error("Il manque une information pour créer le produit ❌")
             else:
                 control.create_new_vat(name)
                 st.success("TVA créé ✅")
 
+        else:
+            st.error("La TVA existe déjà ❌")
 
-def new_role():
+
+def new_role() -> None:
     """Create a role"""
     # Formulary here
     st.write("Veuillez entrer les informations du nouveau rôle.")
@@ -156,12 +164,15 @@ def new_role():
     with st.form("product_info"):
         name = st.text_input("🚴 Insérer le nom du rôle")
         submit_coo = st.form_submit_button("Valider")
-        if submit_coo:
+        if submit_coo and not control.is_role_allready_in_base(name):
             if not name:
                 st.error("Il manque une information pour créer le produit ❌")
             else:
                 control.create_new_role(name)
                 st.success("Rôle créé ✅")
+
+        else:
+            st.error("Le rôle existe déjà ❌")
 
 
 if __name__ == "__main__":

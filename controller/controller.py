@@ -424,6 +424,34 @@ def create_new_product(
     execute_sql_query(query, params)
 
 
+def is_product_allready_in_base(name: str) -> bool:
+    """Verify if the product are allready in base
+
+    Returns:
+        bool: if the product are in base or not
+    """
+    query = f"""SELECT *
+            FROM Product
+            WHERE name = "{name}";
+        """
+    params = ()
+    result = execute_sql_query(query, params)
+    return not result == []
+
+
+def create_new_category(name: str) -> None:
+    """Create new category
+
+    Args:
+        name (str): category name
+    """
+    query = f"""INSERT INTO Category (name)
+                VALUES ("{name}");
+            """
+    params = ()
+    execute_sql_query(query, params)
+
+
 def get_all_categories() -> list[str]:
     """Get all categories
 
@@ -439,6 +467,35 @@ def get_all_categories() -> list[str]:
     for ind, category in enumerate(result):
         categories_list.append(category[0])
     return categories_list
+
+
+def is_category_allready_in_base(name: str) -> bool:
+    """Verify if the category are allready in base
+
+    Returns:
+        bool: if the category are in base or not
+    """
+    query = f"""SELECT *
+            FROM Category
+            WHERE name = "{name}";
+        """
+    params = ()
+    result = execute_sql_query(query, params)
+    return not result == []
+
+
+def create_new_vat(name: str, rate: int) -> None:
+    """Create new VAT
+
+    Args:
+        name (str): vat name
+        rate (int): vat rate
+    """
+    query = f"""INSERT INTO VAT (rate, name)
+                VALUES ({rate},"{name}");
+            """
+    params = ()
+    execute_sql_query(query, params)
 
 
 def get_all_VAT() -> list[str]:
@@ -458,31 +515,19 @@ def get_all_VAT() -> list[str]:
     return categories_list
 
 
-def create_new_category(name: str) -> None:
-    """Create new category
+def is_vat_allready_in_base(name: str) -> bool:
+    """Verify if the vat are allready in base
 
-    Args:
-        name (str): category name
+    Returns:
+        bool: if the vat are in base or not
     """
-    query = f"""INSERT INTO Category (name)
-                VALUES ("{name}");
-            """
+    query = f"""SELECT *
+            FROM VAT
+            WHERE name = "{name}";
+        """
     params = ()
-    execute_sql_query(query, params)
-
-
-def create_new_vat(name: str, rate: int) -> None:
-    """Create new VAT
-
-    Args:
-        name (str): vat name
-        rate (int): vat rate
-    """
-    query = f"""INSERT INTO VAT (rate, name)
-                VALUES ({rate},"{name}");
-            """
-    params = ()
-    execute_sql_query(query, params)
+    result = execute_sql_query(query, params)
+    return not result == []
 
 
 def create_new_role(name: str) -> None:
@@ -496,6 +541,21 @@ def create_new_role(name: str) -> None:
             """
     params = ()
     execute_sql_query(query, params)
+
+
+def is_role_allready_in_base(name: str) -> bool:
+    """Verify if the role are allready in base
+
+    Returns:
+        bool: if the role are in base or not
+    """
+    query = f"""SELECT *
+            FROM Role
+            WHERE name = "{name}";
+        """
+    params = ()
+    result = execute_sql_query(query, params)
+    return not result == []
 
 
 # region main local

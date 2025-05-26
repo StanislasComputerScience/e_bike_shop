@@ -2,7 +2,7 @@ import streamlit as st
 import controller.controller as control
 
 
-def display():
+def display() -> None:
     """Main display"""
     try:
         # Request to the DB
