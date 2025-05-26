@@ -3,45 +3,52 @@ import controller.controller as control
 
 
 def display():
-    ecommerce_db_name = "ecommerce_database"
+    try:
+        ecommerce_db_name = "ecommerce_database"
 
-    # Request to the DB
-    if "id_user" in st.session_state:
-        id_shoppingcart = control.user_open_shopping_cart_id(
-            ecommerce_db_name, st.session_state["id_user"]
-        )
-        if id_shoppingcart:
-            shopping_cart = control.user_shopping_cart(
-                ecommerce_db_name, id_shoppingcart
+        # Request to the DB
+        if "id_user" in st.session_state:
+            id_shoppingcart = control.user_open_shopping_cart_id(
+                ecommerce_db_name, st.session_state["id_user"]
+            )
+            if id_shoppingcart:
+                shopping_cart = control.user_shopping_cart(
+                    ecommerce_db_name, id_shoppingcart
+                )
+            else:
+                shopping_cart = list()
+            user_info = control.get_all_info_user(
+                ecommerce_db_name, st.session_state["id_user"]
             )
         else:
             shopping_cart = list()
-        user_info = control.get_all_info_user(
-            ecommerce_db_name, st.session_state["id_user"]
-        )
-    else:
-        shopping_cart = list()
-        user_info = list()
+            user_info = list()
 
-    # Display the title
-    st.title("Votre commande")
+        # Display the title
+        st.title("Votre commande")
 
-    # Display User Information
-    display_table_header(user_info)
+        # Display User Information
+        display_table_header(user_info)
 
-    # Display the shopping cart as a table
-    column_widths = [1, 2, 2, 1, 1, 1]
-    display_table_sub_header(column_widths)
+        # Display the shopping cart as a table
+        column_widths = [1, 2, 2, 1, 1, 1]
+        display_table_sub_header(column_widths)
 
-    total_price_ET, total_price_IT = 0, 0
-    for command_line in shopping_cart:
-        add_prices = display_table_line(column_widths, command_line)
-        total_price_ET += add_prices[0]
-        total_price_IT += add_prices[1]
+        total_price_ET, total_price_IT = 0, 0
+        for command_line in shopping_cart:
+            add_prices = display_table_line(column_widths, command_line)
+            total_price_ET += add_prices[0]
+            total_price_IT += add_prices[1]
 
-    # Display the order button and the total price
-    column_widths = [4, 2]
-    display_order_and_total(column_widths, total_price_ET, total_price_IT)
+        # Display the total price
+        column_widths = [4, 2]
+        display_order_and_total(column_widths, total_price_ET, total_price_IT)
+
+        # Display address choice
+        display_address_choice(ecommerce_db_name)
+
+    except:
+        st.text("Il est nécessaire de vous connecter pour voir votre commande.")
 
 
 def display_table_header(user_info: list[dict]) -> None:
@@ -159,6 +166,25 @@ def display_order_and_total(
         st.text(
             f"Prix total HT: {total_price_ET:10.2f} €\nPrix total TTC: {total_price_IT:10.2f} €"
         )
+
+
+def display_address_choice(ecommerce_db_name: str) -> None:
+    user_address = control.get_user_address(st.session_state["id_user"])
+
+    options = [f"{rue}, {ville}" for rue, ville in user_address]
+
+    with st.expander("Choisissez une adresse de livraison"):
+        choix_str = st.radio("", options)
+
+    # Trouver l'index correspondant
+    index_choix = options.index(choix_str)
+
+    # Récupérer la rue et la ville depuis la liste originale
+    rue_choisie, ville_choisie = user_address[index_choix]
+
+    if st.button("order", icon="🚴") and index_choix is not None:
+        control.create_invoice(ecommerce_db_name, st.session_state["id_user"])
+        st.write("Commande effectué")
 
 
 if __name__ == "__main__":
