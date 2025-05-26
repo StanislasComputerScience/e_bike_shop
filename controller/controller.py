@@ -1,5 +1,10 @@
 import sqlite3
 from datetime import datetime
+import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+# Add parent folder au sys.path
 import const_values as cv
 
 
@@ -381,6 +386,118 @@ def is_admin(id_user: int) -> bool:
     return result[0][0] == "admin"
 
 
+def create_new_product(
+    name: str,
+    choice_cat: str,
+    number_of_units: int,
+    description: str,
+    tech_specification: str,
+    price_ET: int,
+    choice_vat: str,
+    file_path: str,
+) -> None:
+    """Create new product
+
+    Args:
+        name (str): product name
+        choice_cat (str): product category
+        number_of_units (int): number of units
+        description (str): product description
+        tech_specification (str): product technical specification
+        price_ET (int): price ET
+        choice_vat (str): product vAT
+        file_path (str): product picture file path
+    """
+    query = f"""INSERT INTO Product (id_category, id_vat, name, number_of_units, description, tech_specification, image_path, price_ET, popularity)
+                VALUES
+                ((SELECT id_category FROM Category WHERE name = "{choice_cat}"), 
+                 (SELECT id_vat FROM VAT WHERE name = "{choice_vat}"), 
+                 "{name}", 
+                 {number_of_units}, 
+                 "{description}",
+                 "{tech_specification}",
+                 "{file_path}", 
+                  {price_ET}, 
+                  1);
+            """
+    params = ()
+    execute_sql_query(query, params)
+
+
+def get_all_categories() -> list[str]:
+    """Get all categories
+
+    Returns:
+        list[str]: list of all categories
+    """
+    query = f"""SELECT name
+            FROM Category;
+        """
+    params = ()
+    result = execute_sql_query(query, params)
+    categories_list = []
+    for ind, category in enumerate(result):
+        categories_list.append(category[0])
+    return categories_list
+
+
+def get_all_VAT() -> list[str]:
+    """Get all VAT
+
+    Returns:
+        list[str]: list of all VAT
+    """
+    query = f"""SELECT name
+                FROM VAT;
+            """
+    params = ()
+    result = execute_sql_query(query, params)
+    categories_list = []
+    for ind, vat_name in enumerate(result):
+        categories_list.append(vat_name[0])
+    return categories_list
+
+
+def create_new_category(name: str) -> None:
+    """Create new category
+
+    Args:
+        name (str): category name
+    """
+    query = f"""INSERT INTO Category (name)
+                VALUES ("{name}");
+            """
+    params = ()
+    execute_sql_query(query, params)
+
+
+def create_new_vat(name: str, rate: int) -> None:
+    """Create new VAT
+
+    Args:
+        name (str): vat name
+        rate (int): vat rate
+    """
+    query = f"""INSERT INTO VAT (rate, name)
+                VALUES ({rate},"{name}");
+            """
+    params = ()
+    execute_sql_query(query, params)
+
+
+def create_new_role(name: str) -> None:
+    """Create new role
+
+    Args:
+        name (str): role name
+    """
+    query = f"""INSERT INTO Role (name)
+                VALUES ("{name}");
+            """
+    params = ()
+    execute_sql_query(query, params)
+
+
 # region main local
 def main():
     db_name = cv.bdd_path
@@ -394,6 +511,18 @@ def main():
     # get_user_address(1)
     # print(is_admin(2))
     # get_user_info_connect("paul.dupont@generator.com")
+    # print(get_all_categories())
+    # print(get_all_VAT())
+    create_new_product(
+        "Tandem",
+        1,
+        42,
+        "Tandem donc cool",
+        "Aucune spec",
+        899,
+        1,
+        "bdd/assets/produits/test",
+    )
 
 
 if __name__ == "__main__":
