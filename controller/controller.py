@@ -1,5 +1,9 @@
 import sqlite3
 from datetime import datetime
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import const_values as cv
 
 
@@ -57,6 +61,39 @@ def product_catalog() -> list[dict]:
 
         # Transformation result into a dictionnary
         return [dict(zip(fields, row)) for row in result]
+
+
+def add_new_command_line(
+    id_prod: int, id_shoppingcart: int, price: float, rate_vat: float
+) -> None:
+    """Add a new entry in the table CommandLine corresponding to
+    the id_prod and id_shoppingcart
+
+    Args:
+        id_prod (int): Id of the products
+        id_shopping_cart (int): Id of the shoppingcart
+    """
+    query = f"""INSERT INTO CommandLine (id_prod, id_shoppingcart, price_ET, quantity, rate_vat)
+                VALUES ({id_prod},{id_shoppingcart},{price:.2f}, 1, {rate_vat:.1f})
+    """
+    params = ()
+    execute_sql_query(query, params)
+
+
+def add_new_shoppingcart(id_user: int) -> None:
+    """Add a new shopping cart in the table ShoppingCart corresponding to
+    the user with id_user
+
+    Args:
+        id_user (int): Id of the user
+    """
+    today_date = datetime.now().strftime("%d/%m/%Y")
+    query = f"""INSERT INTO ShoppingCart (id_user, date)
+                VALUES ({id_user},'{today_date}');
+            """
+
+    params = ()
+    execute_sql_query(query, params)
 
 
 # region Home
