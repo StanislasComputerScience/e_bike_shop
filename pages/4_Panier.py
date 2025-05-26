@@ -1,8 +1,6 @@
 import streamlit as st
 import controller.controller as control
 
-ecommerce_db_name = "ecommerce_database"
-
 
 def display():
     """Display the page "Panier" in the streamlit app."""
@@ -10,12 +8,10 @@ def display():
     # Request to the DB
     if "id_user" in st.session_state:
         id_shoppingcart = control.user_open_shopping_cart_id(
-            ecommerce_db_name, st.session_state["id_user"]
+            st.session_state["id_user"]
         )
         if id_shoppingcart:
-            shopping_cart = control.user_shopping_cart(
-                ecommerce_db_name, id_shoppingcart
-            )
+            shopping_cart = control.user_shopping_cart(id_shoppingcart)
         else:
             shopping_cart = list()
     else:
@@ -119,7 +115,6 @@ def display_table_line(column_widths: list[int], command_line: dict) -> tuple[in
         )
         if new_quantity != command_line["quantity"]:
             control.update_command_line(
-                "ecommerce_database",
                 command_line["id_prod"],
                 command_line["id_shoppingcart"],
                 new_quantity,

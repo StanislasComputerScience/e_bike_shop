@@ -168,13 +168,12 @@ def disconnect_user(id_user: str) -> None:
 
 
 # region Panier & Commande
-def user_open_shopping_cart_id(ecommerce_db_name: str, id_user: int) -> int | None:
+def user_open_shopping_cart_id(id_user: int) -> int | None:
     """Return the id_shoppingcart of the latest opened shopping cart
     associated to the user with id id_user. An opened shopping cart
     is a shopping cart that does not have an invoice yet.
 
     Args:
-        ecommerce_db_name (str): Database name
         id_user (int): User Id
 
     Returns:
@@ -189,8 +188,6 @@ def user_open_shopping_cart_id(ecommerce_db_name: str, id_user: int) -> int | No
 
     params = ()
     result = execute_sql_query(query, params)
-    print(result)
-    print(type(result))
 
     if result:
         return result[0][0]
@@ -199,12 +196,11 @@ def user_open_shopping_cart_id(ecommerce_db_name: str, id_user: int) -> int | No
 
 
 # Shopping cart
-def user_shopping_cart(ecommerce_db_name: str, id_shoppingcart: int) -> list[dict]:
+def user_shopping_cart(id_shoppingcart: int) -> list[dict]:
     """Return information of a shopping cart.
     Interrogate the database with the name ecommerce_db_name.
 
     Args:
-        ecommerce_db_name (str): database name
         id_shoppingcart (int): shopping cart id
 
     Returns:
@@ -252,58 +248,57 @@ def user_shopping_cart(ecommerce_db_name: str, id_shoppingcart: int) -> list[dic
 
 
 # Update command line
-def update_command_line(
-    ecommerce_db_name: str, id_prod: int, id_shoppingcart: int, new_quantity: int
-):
+def update_command_line(id_prod: int, id_shoppingcart: int, new_quantity: int) -> None:
     """Update the database with the name ecommerce_db_name to modify the
     quantity of the entry with primary key id_prod, id_shopingcart
 
     Args:
-        ecommerce_db_name (str): database name
         id_prod (int): id of the product
         id_shoppingcart (int): id of the shoppingcart
         new_quantity (int): the new quantity
     """
-
-    with sqlite3.connect(f"bdd/{ecommerce_db_name}.db") as connexion:
-        cursor = connexion.cursor()
-
-        query = cursor.execute(
-            """UPDATE CommandLine
-                SET quantity = (:new_quantity)
-                WHERE id_prod = (:id_prod) AND id_shoppingcart = (:id_shoppingcart);
-            """,
-            {
-                "new_quantity": new_quantity,
-                "id_prod": id_prod,
-                "id_shoppingcart": id_shoppingcart,
-            },
-        )
+    query = f"""UPDATE CommandLine
+            SET quantity = {new_quantity}
+            WHERE id_prod = {id_prod} AND id_shoppingcart = {id_shoppingcart};
+        """
+    params = ()
+    execute_sql_query(query, params)
 
 
 # region Commande
-def get_all_info_user(ecommerce_db_name: str, id_user: str) -> dict:
-    with sqlite3.connect(f"bdd/{ecommerce_db_name}.db") as connexion:
-        cursor = connexion.cursor()
+def get_all_info_user(id_user: str) -> dict:
+    """Get user information
 
-        query = cursor.execute(
-            """SELECT u.name, u.firstname, u.email, u.phone
-                FROM User as u
-                WHERE id_user = (:id_user)
-                ;
-            """,
-            {"id_user": id_user},
-        )
-        user_info_dict = {}
-        for prod_info in query.fetchall():
-            user_info_dict["name"] = prod_info[0]
-            user_info_dict["firstname"] = prod_info[1]
-            user_info_dict["email"] = prod_info[2]
-            user_info_dict["phone"] = prod_info[3]
-        return user_info_dict
+    Args:
+        id_user (str): user id
+
+    Returns:
+        dict: user information
+    """
+    query = f"""SELECT u.name, u.firstname, u.email, u.phone
+            FROM User as u
+            WHERE id_user = {id_user}
+            ;"""
+    params = ()
+    result = execute_sql_query(query, params)
+    user_info_dict = {}
+    for prod_info in result:
+        user_info_dict["name"] = prod_info[0]
+        user_info_dict["firstname"] = prod_info[1]
+        user_info_dict["email"] = prod_info[2]
+        user_info_dict["phone"] = prod_info[3]
+    return user_info_dict
 
 
 def get_user_address(id_user: int) -> list[tuple]:
+    """Get user address
+
+    Args:
+        id_user (int): user id
+
+    Returns:
+        list[tuple]: each tuple contain address: (street, city)
+    """
     query = f"""SELECT
                     number,
                     street,
@@ -312,7 +307,6 @@ def get_user_address(id_user: int) -> list[tuple]:
                 FROM Address
                 WHERE id_user = {id_user};
             """
-
     params = ()
     result = execute_sql_query(query, params)
     final_result = []
@@ -326,8 +320,13 @@ def get_user_address(id_user: int) -> list[tuple]:
 
 
 # TODO pour améliorer la facturation, créer une clé étrangère dans invoice: id_address
-def create_invoice(ecommerce_db_name: str, id_user: int) -> None:
-    id_shoppingcart = user_open_shopping_cart_id(ecommerce_db_name, id_user)
+def create_invoice(id_user: int) -> None:
+    """Create invoice
+
+    Args:
+        id_user (int): user id
+    """
+    id_shoppingcart = user_open_shopping_cart_id(id_user)
     today_date = datetime.now().strftime("%d/%m/%Y")
     query = f"""INSERT INTO Invoice(id_shoppingcart, date)
                 VALUES({id_shoppingcart},'{today_date}');
@@ -339,6 +338,11 @@ def create_invoice(ecommerce_db_name: str, id_user: int) -> None:
 
 
 def update_shoppingcart(id_shoppingcart: int) -> None:
+    """Update shoppingcart: id_invoice
+
+    Args:
+        id_shoppingcart (int): _description_
+    """
     query = f"""UPDATE ShoppingCart
                 SET id_invoice = (SELECT inv.id_invoice
                                   FROM ShoppingCart as sc
@@ -353,6 +357,14 @@ def update_shoppingcart(id_shoppingcart: int) -> None:
 
 
 def is_admin(id_user: int) -> bool:
+    """Verify if the user is admin
+
+    Args:
+        id_user (int): user id
+
+    Returns:
+        bool: condition if the user is admin
+    """
     query = f"""SELECT r.name
                 FROM User as u
                 LEFT JOIN Role as r on r.id_role = u.id_role
@@ -366,7 +378,7 @@ def is_admin(id_user: int) -> bool:
 
 # region main local
 def main():
-    db_name = "ecommerce_database"
+    db_name = cv.bdd_path
 
     # # Test user_shopping_cart
     # for i in range(3):
