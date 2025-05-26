@@ -10,16 +10,12 @@ def changement_produit():
 
 
 # # radio button index initialisation
-# if "c" not in st.session_state:
-#     st.session_state.c = 0
+if "c" not in st.session_state:
+    st.session_state.c = 0
 
-# # loading product
-# l_products = control.product_catalog()
-# # st.write(l)
+# loading product
 
-
-# # List of product's name for the radio button
-# name_products = [p["name"] for p in l_products]
+# List of product's name for the radio button
 (l_products, name_products) = tool.load_products_and_c()
 
 # --- sidebar display ---

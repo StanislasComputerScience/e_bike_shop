@@ -7,20 +7,7 @@ st.subheader("Mosaïque de produits :")
 
 path = "./bdd/assets/products/"
 
-(list_products, name_products) = tool.load_products_and_c()
-
-
-# # Charger les produits
-# for i, f in enumerate(os.listdir(path)):
-#     chemin = os.path.join(path, f)
-#     if os.path.isfile(chemin):
-#         list_products.append(
-#             {
-#                 "nom": f"Produit_{i}",
-#                 "description": f"Produit n°{i+1} : vélo performant pour usage quotidien.",
-#                 "chemin_image": chemin,
-#             }
-#         )
+list_products, _ = tool.load_products_and_c()
 
 # Afficher en tableau de 3 colonnes par ligne
 n_colonnes = 3
