@@ -2,8 +2,6 @@ import streamlit as st
 import controller.controller as control
 import bcrypt
 
-ecommerce_db_name = "ecommerce_database"
-
 st.title("Connexion")
 
 # Formulary here
@@ -20,17 +18,18 @@ with st.form("login_form"):
 
 if submit_coo:
     try:
-        user_info = control.get_user_info_connect(ecommerce_db_name, email)
+        user_info = control.get_user_info_connect(email)
         bcrypt.checkpw(password.encode(), user_info[0]["password"].encode())
         st.session_state["id_user"] = user_info[0]["id_user"]
-        control.connect_user(ecommerce_db_name, user_info[0]["id_user"])
+        control.connect_user(user_info[0]["id_user"])
         st.success("Connexion réussie ✅")
     except:
         st.error("Identifiants incorrects ❌")
 
 if submit_disc:
     try:
-        control.disconnect_user(ecommerce_db_name, st.session_state.get("id_user"))
+        control.disconnect_user(st.session_state.get("id_user"))
+        st.session_state.pop("id_user")
         st.success("Déconnexion réussie ✅")
     except:
         st.error("Vous êtes déjà déconnectés ❌")

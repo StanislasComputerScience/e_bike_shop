@@ -1,10 +1,20 @@
 import sqlite3
 from datetime import datetime
+import const_values as cv
 
 
-def execute_sql_query(query, params=()):
+def execute_sql_query(query: str, params=()) -> list[tuple]:
+    """Function to execute sql query
+
+    Args:
+        query (str): sql query
+        params (tuple, optional): parameters. Defaults to ().
+
+    Returns:
+        list[tuple]: query result
+    """
     try:
-        with sqlite3.connect("./bdd/ecommerce_database.db") as connexion:
+        with sqlite3.connect(cv.bdd_path) as connexion:
             cursor = connexion.cursor()
             cursor.execute(query, params)
             result = cursor.fetchall()
@@ -15,7 +25,16 @@ def execute_sql_query(query, params=()):
         return None
 
 
-def product_catalog():
+def product_catalog() -> list[dict]:
+    """Function to execute sql query
+
+    Args:
+        query (str): sql query
+        params (tuple, optional): parameters. Defaults to ().
+
+    Returns:
+        list[dict]: list of all product
+    """
     query = """
         SELECT p.id_prod, p.name, p.description, p.tech_specification,
                p.image_path, p.price_ET * (1 + v.rate) AS price_it, p.price_ET as price_et
@@ -41,158 +60,111 @@ def product_catalog():
 
 
 # region Home
-# Most 2 popular products
-def most_popular_products(ecommerce_db_name: str) -> list[dict]:
-    """Most popular products
+def most_popular_products() -> list[dict]:
+    """Most 2 popular products
 
     Args:
-        ecommerce_db_name (str): database name
+        No args
 
     Returns:
         list[dict]: list of product most popular
     """
-    with sqlite3.connect(f"bdd/{ecommerce_db_name}.db") as connexion:
-        cursor = connexion.cursor()
-
-        query = cursor.execute(
-            """SELECT prod.name,
-                      prod.image_path
-               FROM Product as prod
-               ORDER BY prod.popularity DESC
-               LIMIT 2;
-            """
-        )
-        product_list = []
-        for prod_info in query.fetchall():
-            dict_temp = {}
-            dict_temp["name"] = prod_info[0]
-            dict_temp["image_path"] = prod_info[1]
-            product_list.append(dict_temp)
-        return product_list
+    query = f"""SELECT prod.name,
+                    prod.image_path
+            FROM Product as prod
+            ORDER BY prod.popularity DESC
+            LIMIT 2;"""
+    params = ()
+    result = execute_sql_query(query, params)
+    product_list = []
+    for prod_info in result:
+        dict_temp = {}
+        dict_temp["name"] = prod_info[0]
+        dict_temp["image_path"] = prod_info[1]
+        product_list.append(dict_temp)
+    return product_list
 
 
-# Most 2 products buy
-def most_products_buy(ecommerce_db_name: str) -> list[dict]:
-    """Most buy products
+def most_products_buy() -> list[dict]:
+    """Most 2 buy products
 
     Args:
-        ecommerce_db_name (str): database name
+        No args
 
     Returns:
         list[dict]: list of product most popular
     """
-    with sqlite3.connect(f"bdd/{ecommerce_db_name}.db") as connexion:
-        cursor = connexion.cursor()
-
-        query = cursor.execute(
-            """SELECT prod.name,
-                      prod.image_path
-               FROM Product as prod
-               RIGHT JOIN (SELECT cl.id_prod,
-                                SUM(cl.quantity) as number_sale,
-                                ROUND(SUM(cl.quantity) * SUM(cl.price_ET),2) as total_price_product_sale
-                            FROM CommandLine as cl
-                            RIGHT JOIN ShoppingCart as sc on sc.id_shoppingcart = cl.id_shoppingcart
-                            RIGHT JOIN Invoice as inv on inv.id_invoice = sc.id_shoppingcart
-                            GROUP BY cl.id_prod) as prod_sale on prod_sale.id_prod = prod.id_prod
-               ORDER BY prod_sale.number_sale DESC, prod_sale.total_price_product_sale DESC
-               LIMIT 2;
-            """
-        )
-        product_list = []
-        for prod_info in query.fetchall():
-            dict_temp = {}
-            dict_temp["name"] = prod_info[0]
-            dict_temp["image_path"] = prod_info[1]
-            product_list.append(dict_temp)
-        return product_list
+    query = f"""SELECT prod.name,
+                    prod.image_path
+            FROM Product as prod
+            RIGHT JOIN (SELECT cl.id_prod,
+                            SUM(cl.quantity) as number_sale,
+                            ROUND(SUM(cl.quantity) * SUM(cl.price_ET),2) as total_price_product_sale
+                        FROM CommandLine as cl
+                        RIGHT JOIN ShoppingCart as sc on sc.id_shoppingcart = cl.id_shoppingcart
+                        RIGHT JOIN Invoice as inv on inv.id_invoice = sc.id_shoppingcart
+                        GROUP BY cl.id_prod) as prod_sale on prod_sale.id_prod = prod.id_prod
+            ORDER BY prod_sale.number_sale DESC, prod_sale.total_price_product_sale DESC
+            LIMIT 2;"""
+    params = ()
+    result = execute_sql_query(query, params)
+    product_list = []
+    for prod_info in result:
+        dict_temp = {}
+        dict_temp["name"] = prod_info[0]
+        dict_temp["image_path"] = prod_info[1]
+        product_list.append(dict_temp)
+    return product_list
 
 
 # region Connection
-# Get id_user
-def get_user_info_connect(ecommerce_db_name: str, user_email: str) -> list[dict]:
+def get_user_info_connect(user_email: str) -> list[dict]:
     """Get the user information
 
     Args:
-        ecommerce_db_name (str): database name
         user_email (str): user email
 
     Returns:
         list[dict]: user information
     """
-    with sqlite3.connect(f"bdd/{ecommerce_db_name}.db") as connexion:
-        cursor = connexion.cursor()
-
-        query = cursor.execute(
-            """SELECT u.id_user, u.password
-                FROM User as u
-                WHERE u.email = (:email)
-               ;
-            """,
-            {"email": user_email},
-        )
-        user_info_list = []
-        for prod_info in query.fetchall():
-            dict_temp = {}
-            dict_temp["id_user"] = prod_info[0]
-            dict_temp["password"] = prod_info[1]
-            user_info_list.append(dict_temp)
-        return user_info_list
+    query = f"""SELECT u.id_user, u.password
+            FROM User as u
+            WHERE u.email = '{user_email}';"""
+    params = ()
+    result = execute_sql_query(query, params)
+    user_info_list = []
+    for prod_info in result:
+        dict_temp = {}
+        dict_temp["id_user"] = prod_info[0]
+        dict_temp["password"] = prod_info[1]
+        user_info_list.append(dict_temp)
+    return user_info_list
 
 
 # User is validated
-def connect_user(ecommerce_db_name: str, id_user: str) -> None:
-    with sqlite3.connect(f"bdd/{ecommerce_db_name}.db") as connexion:
-        cursor = connexion.cursor()
+def connect_user(id_user: int) -> None:
+    """Update the user connection
 
-        query = cursor.execute(
-            """UPDATE User
+    Args:
+        id_user (int): user id
+    """
+    query = f"""UPDATE User
                 SET id_connection = (SELECT con.id_connection
                                      FROM Connection as con
                                      WHERE con.status = 'connected')
-                WHERE id_user = (:id_user)
-                ;
-            """,
-            {"id_user": id_user},
-        )
+                WHERE id_user = {id_user};"""
+    params = ()
+    execute_sql_query(query, params)
 
 
-def disconnect_user(ecommerce_db_name: str, id_user: str) -> None:
-    with sqlite3.connect(f"bdd/{ecommerce_db_name}.db") as connexion:
-        cursor = connexion.cursor()
-
-        query = cursor.execute(
-            """UPDATE User
+def disconnect_user(id_user: str) -> None:
+    query = f"""UPDATE User
                 SET id_connection = (SELECT con.id_connection
                                      FROM Connection as con
                                      WHERE con.status = 'timeout')
-                WHERE id_user = (:id_user)
-                ;
-            """,
-            {"id_user": id_user},
-        )
-
-
-# region Invoice
-def get_all_info_user(ecommerce_db_name: str, id_user: str) -> dict:
-    with sqlite3.connect(f"bdd/{ecommerce_db_name}.db") as connexion:
-        cursor = connexion.cursor()
-
-        query = cursor.execute(
-            """SELECT u.name, u.firstname, u.email, u.phone
-                FROM User as u
-                WHERE id_user = (:id_user)
-                ;
-            """,
-            {"id_user": id_user},
-        )
-        user_info_dict = {}
-        for prod_info in query.fetchall():
-            user_info_dict["name"] = prod_info[0]
-            user_info_dict["firstname"] = prod_info[1]
-            user_info_dict["email"] = prod_info[2]
-            user_info_dict["phone"] = prod_info[3]
-        return user_info_dict
+                WHERE id_user = {id_user};"""
+    params = ()
+    execute_sql_query(query, params)
 
 
 # region Panier & Commande
@@ -310,6 +282,25 @@ def update_command_line(
 
 
 # region Commande
+def get_all_info_user(ecommerce_db_name: str, id_user: str) -> dict:
+    with sqlite3.connect(f"bdd/{ecommerce_db_name}.db") as connexion:
+        cursor = connexion.cursor()
+
+        query = cursor.execute(
+            """SELECT u.name, u.firstname, u.email, u.phone
+                FROM User as u
+                WHERE id_user = (:id_user)
+                ;
+            """,
+            {"id_user": id_user},
+        )
+        user_info_dict = {}
+        for prod_info in query.fetchall():
+            user_info_dict["name"] = prod_info[0]
+            user_info_dict["firstname"] = prod_info[1]
+            user_info_dict["email"] = prod_info[2]
+            user_info_dict["phone"] = prod_info[3]
+        return user_info_dict
 
 
 def get_user_address(id_user: int) -> list[tuple]:
@@ -334,7 +325,7 @@ def get_user_address(id_user: int) -> list[tuple]:
     return final_result
 
 
-# pour améliorer la facturation, créer une clé étrangère dans invoice: id_address
+# TODO pour améliorer la facturation, créer une clé étrangère dans invoice: id_address
 def create_invoice(ecommerce_db_name: str, id_user: int) -> None:
     id_shoppingcart = user_open_shopping_cart_id(ecommerce_db_name, id_user)
     today_date = datetime.now().strftime("%d/%m/%Y")
@@ -384,7 +375,8 @@ def main():
     #     print()
 
     # get_user_address(1)
-    print(is_admin(2))
+    # print(is_admin(2))
+    # get_user_info_connect("paul.dupont@generator.com")
 
 
 if __name__ == "__main__":
