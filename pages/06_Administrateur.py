@@ -4,10 +4,13 @@ import controller.controller as control
 
 def display():
     """Main display"""
-    if control.is_admin(st.session_state["id_user"]):
-        st.title("Page admin du site")
+    try:
+        if control.is_admin(st.session_state["id_user"]):
+            st.title("Page admin du site")
 
-    else:
+        else:
+            st.write("Vous n'êtes pas un administrateur")
+    except:
         st.write("Vous n'êtes pas un administrateur")
 
 
