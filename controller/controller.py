@@ -254,7 +254,7 @@ def user_shopping_cart(id_shoppingcart: int) -> list[dict]:
 
 # Update command line
 def update_command_line(id_prod: int, id_shoppingcart: int, new_quantity: int) -> None:
-    """Update the database with the name ecommerce_db_name to modify the
+    """Update the database to modify the
     quantity of the entry with primary key id_prod, id_shopingcart
 
     Args:
@@ -264,6 +264,22 @@ def update_command_line(id_prod: int, id_shoppingcart: int, new_quantity: int) -
     """
     query = f"""UPDATE CommandLine
             SET quantity = {new_quantity}
+            WHERE id_prod = {id_prod} AND id_shoppingcart = {id_shoppingcart};
+        """
+    params = ()
+    execute_sql_query(query, params)
+
+
+# Remove command line
+def remove_command_line(id_prod: int, id_shoppingcart: int) -> None:
+    """Remove in the database the command line matching the
+    primary key id_prod, id_shopingcart
+
+    Args:
+        id_prod (int): id of the product
+        id_shoppingcart (int): id of the shoppingcart
+    """
+    query = f"""DELETE FROM CommandLine
             WHERE id_prod = {id_prod} AND id_shoppingcart = {id_shoppingcart};
         """
     params = ()

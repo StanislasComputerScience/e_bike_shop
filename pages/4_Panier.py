@@ -138,7 +138,11 @@ def display_table_line(column_widths: list[int], command_line: dict) -> tuple[in
         st.text(f"{total_price_IT:10.2f} €")
 
     with col_trash:
-        st.button(label="🗑️", key=command_line["id_prod"])
+        if st.button(label="🗑️", key=command_line["id_prod"]):
+            control.remove_command_line(
+                command_line["id_prod"], command_line["id_shoppingcart"]
+            )
+            st.rerun()
 
     return total_price_ET, total_price_IT
 
