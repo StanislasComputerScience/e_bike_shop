@@ -2,8 +2,6 @@ import os
 import streamlit as st
 import controller.controller as control
 
-ecommerce_db_name = "ecommerce_database"
-
 # CSS pour centrer le texte
 st.markdown(
     """
@@ -32,8 +30,8 @@ with colonne_titre:
         unsafe_allow_html=True,
     )
 
-most_popular_products = control.most_popular_products(ecommerce_db_name)
-most_products_buy = control.most_products_buy(ecommerce_db_name)
+most_popular_products = control.most_popular_products()
+most_products_buy = control.most_products_buy()
 
 st.subheader("Produits les plus populaires :")
 # Créer 2 colonnes

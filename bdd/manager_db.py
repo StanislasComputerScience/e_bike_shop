@@ -138,7 +138,7 @@ def create_insert_into_tables(ecommerce_db_dict: dict):
     ecommerce_db_dict[
         "insert into User: second user"
     ] = """INSERT INTO User(id_connection, id_role, name,firstname, birth_date, email, password, phone)
-        VALUES(1,1,'Martin','Claire','22/07/1988','claire.martin@generator.com', '$2b$12$i8VbU.ONeJ4MQeLAJnq.uO3wVtXg1/dyVuyPNMf544ivhuZvtZOuS','060102030405');
+        VALUES(1,2,'Martin','Claire','22/07/1988','claire.martin@generator.com', '$2b$12$i8VbU.ONeJ4MQeLAJnq.uO3wVtXg1/dyVuyPNMf544ivhuZvtZOuS','060102030405');
     """
     ecommerce_db_dict[
         "insert into User: third user"
@@ -326,6 +326,11 @@ def create_insert_into_tables(ecommerce_db_dict: dict):
             VALUES(10,'10/02/2024');
         """
     ecommerce_db_dict[
+        "insert into Invoice: eleventh Invoice"
+    ] = """INSERT INTO Invoice(id_shoppingcart, date)
+            VALUES(12,'10/02/2024');
+        """
+    ecommerce_db_dict[
         "insert into ShoppingCart: first ShopCart"
     ] = """INSERT INTO ShoppingCart(id_user, id_invoice, date)
             VALUES(1,1,'28/12/1911');
@@ -374,6 +379,16 @@ def create_insert_into_tables(ecommerce_db_dict: dict):
         "insert into ShoppingCart: tenth ShopCart"
     ] = """INSERT INTO ShoppingCart(id_user, id_invoice, date)
             VALUES(10,10,'09/02/2024');
+        """
+    ecommerce_db_dict[
+        "insert into ShoppingCart: eleventh ShopCart"
+    ] = """INSERT INTO ShoppingCart(id_user, id_invoice, date)
+            VALUES(1,null,'09/02/2024');
+        """
+    ecommerce_db_dict[
+        "insert into ShoppingCart: twelfth ShopCart"
+    ] = """INSERT INTO ShoppingCart(id_user, id_invoice, date)
+            VALUES(1,11,'10/02/2024');
         """
     ecommerce_db_dict[
         "insert into Category: bike"
@@ -542,6 +557,24 @@ def create_insert_into_tables(ecommerce_db_dict: dict):
             (19, 10, 29.95, 1, 0.2),
             (13, 10, 59.90, 1, 0.2),
             (15, 10, 39.00, 2, 0.2);
+        """
+    ecommerce_db_dict[
+        "insert into CommandLine: eleventh CommandLine"
+    ] = """INSERT INTO CommandLine (id_prod, id_shoppingcart, price_ET, quantity, rate_vat)
+            VALUES
+            (5, 11, 499.50, 2, 0.2),
+            (19, 11, 29.95, 1, 0.2),
+            (13, 11, 59.90, 1, 0.2),
+            (15, 11, 39.00, 2, 0.2);
+        """
+    ecommerce_db_dict[
+        "insert into CommandLine: twelfth CommandLine"
+    ] = """INSERT INTO CommandLine (id_prod, id_shoppingcart, price_ET, quantity, rate_vat)
+            VALUES
+            (5, 12, 499.50, 2, 0.2),
+            (19, 12, 29.95, 1, 0.2),
+            (13, 12, 59.90, 1, 0.2),
+            (15, 12, 39.00, 2, 0.2);
         """
 
 
