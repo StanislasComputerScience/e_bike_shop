@@ -25,6 +25,23 @@ def execute_sql_query(query: str, params=()) -> list[tuple]:
         return None
 
 
+def commande_ver_panier(id_shoppingcart: int, id_prod: int):
+    query = """
+        SELECT com.quantity AS quantity
+        FROM CommandLine com
+        LEFT JOIN ShoppingCart s ON s.id_shoppingcart = com.id_shoppingcart
+        WHERE s.id_shoppingcart = ? AND com.id_prod = ?;
+    """
+    params = (id_shoppingcart, id_prod)
+    result = execute_sql_query(query, params)
+
+    if result:
+        fields = ["quantity"]
+        return [dict(zip(fields, row)) for row in result]
+    return []
+
+
+
 def product_catalog() -> list[dict]:
     """Function to execute sql query
 
