@@ -78,34 +78,43 @@ with colImage:
 
 
 with colToOrder:
-    # if st.button("Ajouter au panier"):
-    #     st.write("c'est ajouté")
-
     id_product = product_selected["id_prod"]
     shopping_cart_id = None 
 
     if "id_user" in st.session_state:
         id_user = st.session_state["id_user"]
-        shopping_cart_id = control.user_open_shopping_cart_id(id_user)  # user_id ==> id_shopping_cart
+        submit_buy = st.button("Ajouter au panier")
+        if submit_buy:
+            shopping_cart_id = control.user_open_shopping_cart_id(id_user)  # user_id ==> id_shopping_cart
+            if shopping_cart_id:
+                if not control.is_command_line_exist(shopping_cart_id, id_product):
+                    vat = (product_selected["price_it"] - product_selected["price_ET"]) / product_selected["price_Et"]
+                    control.add_new_command_line(id_product, shopping_cart_id, product_selected["price_ET"], vat)
+            else: #shopping doesn't exist
+                control.add_new_shoppingcart(id_user)
+                shopping_cart_id = control.user_open_shopping_cart_id(id_user)  # user_id ==> id_shopping_cart
+                vat = (product_selected["price_it"] - product_selected["price_ET"]) / product_selected["price_Et"]
+                control.add_new_command_line(id_product, shopping_cart_id, product_selected["price_ET"], vat)
+            st.switch_page("pages/4_Panier.py")
 
-    st.write(f"Shopping Cart ID : {shopping_cart_id}")
+    
 
-    if shopping_cart_id:
-        st.write(f"Il y a un shopping_cart_id : {shopping_cart_id}")
+    # if shopping_cart_id:
+    #     st.write(f"Il y a un shopping_cart_id : {shopping_cart_id}")
 
-        result = control.commande_ver_panier(shopping_cart_id, id_product)
-        if result:
-            quantity = result[0].get("quantity", 0)
-            if quantity > 0:
-                st.write(f"🧺 Le produit est présent {quantity} fois dans votre panier.")
-            else:
-                st.write("🛒 Ce produit n'apparaît pas dans votre panier.")
-        else:
-            st.write("🛒 Ce produit n'apparaît pas dans votre panier.")
-    else:
-        if st.button("Ajouter au panier"):
-            st.write("Il n'y a pas de shopping_cart")
-        st.write("Aucun panier ouvert pour cet utilisateur.")
+    #     result = control.commande_ver_panier(shopping_cart_id, id_product)
+    #     if result:
+    #         quantity = result[0].get("quantity", 0)
+    #         if quantity > 0:
+    #             st.write(f"🧺 Le produit est présent {quantity} fois dans votre panier.")
+    #         else:
+    #             st.write("🛒 Ce produit n'apparaît pas dans votre panier.")
+    #     else:
+    #         st.write("🛒 Ce produit n'apparaît pas dans votre panier.")
+    # else:
+    #     if st.button("Ajouter au panier"):
+    #         st.write("Il n'y a pas de shopping_cart")
+    #     st.write("Aucun panier ouvert pour cet utilisateur.")
 
 
         # quantity = control.commande_ver_panier(shopping_cart_id, id_product)[0]["quantity"] #product_selected["id_prod"])[0]["quantity"]

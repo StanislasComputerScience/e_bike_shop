@@ -79,6 +79,15 @@ def product_catalog() -> list[dict]:
         # Transformation result into a dictionnary
         return [dict(zip(fields, row)) for row in result]
 
+def is_command_line_exist(id_shoppingcart: int, id_prod: int) -> bool:
+    query = """
+            SELECT com.id_commandline
+            FROM CommandLine com
+            WHERE com.id_shoppingcart = ? AND com.id_prod = ?;
+        """
+    params = (id_shoppingcart, id_prod)
+    result = execute_sql_query(query, params)
+    return not result == []
 
 def add_new_command_line(
     id_prod: int, id_shoppingcart: int, price: float, rate_vat: float
