@@ -25,7 +25,7 @@ def display():
     st.header("Panier")
 
     # Display the shopping cart as a table
-    column_widths = [1, 2, 2, 1, 1, 1]
+    column_widths = [1, 2, 2, 1, 1, 1, 1]
     display_table_header(column_widths)
     total_price_ET, total_price_IT = 0, 0
     for command_line in shopping_cart:
@@ -52,6 +52,7 @@ def display_table_header(column_widths: list[int]):
         col_price_ET,
         col_total_price_ET,
         col_total_price_IT,
+        _,
     ) = st.columns(column_widths)
 
     # Column image
@@ -97,6 +98,7 @@ def display_table_line(column_widths: list[int], command_line: dict) -> tuple[in
         col_price_ET,
         col_total_price_ET,
         col_total_price_IT,
+        col_trash,
     ) = st.columns(column_widths, vertical_alignment="center")
 
     # Column image
@@ -139,6 +141,9 @@ def display_table_line(column_widths: list[int], command_line: dict) -> tuple[in
     with col_total_price_IT:
         total_price_IT = total_price_ET * (1 + command_line["rate_vat"])
         st.text(f"{total_price_IT:10.2f} €")
+
+    with col_trash:
+        st.button(label="🗑️", key=command_line["id_prod"])
 
     return total_price_ET, total_price_IT
 
