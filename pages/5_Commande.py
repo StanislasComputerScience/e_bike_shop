@@ -1,5 +1,6 @@
 import streamlit as st
 import controller.controller as control
+import datetime
 
 
 def display() -> None:
@@ -184,8 +185,18 @@ def display_address_choice() -> None:
     rue_choisie, ville_choisie = user_address[index_choix]
 
     if st.button("order", icon="🚴") and index_choix is not None:
-        control.create_invoice(st.session_state["id_user"])
-        st.write("Commande effectué")
+        id_shoppingcart = control.user_open_shopping_cart_id(
+            st.session_state["id_user"]
+        )
+        if (
+            not control.is_invoice_allready_in_base(id_shoppingcart)
+            and not control.user_shopping_cart(id_shoppingcart) == []
+        ):
+            st.write(control.user_shopping_cart(id_shoppingcart))
+            control.create_invoice(st.session_state["id_user"])
+            st.success("Commande effectuée ✅")
+        else:
+            st.error("La facture est déjà créée ou le panier est vide ❌")
 
 
 if __name__ == "__main__":

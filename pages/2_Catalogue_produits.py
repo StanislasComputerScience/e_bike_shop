@@ -77,11 +77,10 @@ with colImage:
 with colToOrder:
     id_product = product_selected["id_prod"]
     shopping_cart_id = None
-
-    if "id_user" in st.session_state:
-        id_user = st.session_state["id_user"]
-        submit_buy = st.button("Ajouter au panier")
-        if submit_buy:
+    submit_buy = st.button("Ajouter au panier")
+    if submit_buy:
+        if "id_user" in st.session_state:
+            id_user = st.session_state["id_user"]
             shopping_cart_id = control.user_open_shopping_cart_id(
                 id_user
             )  # user_id ==> id_shopping_cart
@@ -109,9 +108,8 @@ with colToOrder:
                     raise ValueError("shopping_cart_id shoul exist...")
 
             st.switch_page("pages/4_Panier.py")
-
-    else:
-        st.write("error")
+        else:
+            st.error("Vous devez vous connecter pour ajouter à votre panier ❌")
 
 # --- page main body ---
 

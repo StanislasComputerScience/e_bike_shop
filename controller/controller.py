@@ -19,7 +19,7 @@ def execute_sql_query(query: str, params=()) -> list[tuple] | None:
         list[tuple]: query result
     """
     try:
-        with sqlite3.connect(cv.bdd_path) as connexion:
+        with sqlite3.connect(cv.BDD_PATH) as connexion:
             cursor = connexion.cursor()
             cursor.execute(query, params)
             result = cursor.fetchall()
@@ -413,20 +413,40 @@ def create_invoice(id_user: int) -> None:
 
     params = ()
     execute_sql_query(query, params)
-    update_shoppingcart(id_shoppingcart)
+    update_shoppingcart(id_shoppingcart, id_user)
 
 
-def update_shoppingcart(id_shoppingcart: int) -> None:
+def is_invoice_allready_in_base(id_shoppingcart: int) -> bool:
+    """Verify if the invoice is allready in base
+
+    Args:
+        id_shoppingcart (int): shoppingcart id
+
+    Returns:
+        bool: condition if the invoice is in base
+    """
+    query = f"""SELECT *
+            FROM Invoice
+            WHERE id_shoppingcart = "{id_shoppingcart}";
+        """
+    params = ()
+    result = execute_sql_query(query, params)
+    return not result == []
+
+
+def update_shoppingcart(id_shoppingcart: int, id_user: int) -> None:
     """Update shoppingcart: id_invoice
 
     Args:
-        id_shoppingcart (int): _description_
+        id_shoppingcart (int): shoppingcart id
+        id_user (int): user id
     """
     query = f"""UPDATE ShoppingCart
-                SET id_invoice = (SELECT inv.id_invoice
-                                  FROM ShoppingCart as sc
-                                  LEFT JOIN Invoice as inv on inv.id_shoppingcart = sc.id_shoppingcart
-                                  WHERE sc.id_shoppingcart = {id_shoppingcart});
+                SET id_invoice = (SELECT MAX(inv.id_invoice) as id_invoice
+                                  FROM ShoppingCart as sc                              
+                                  LEFT JOIN Invoice as inv on inv.id_shoppingcart = sc.id_shoppingcart)
+                WHERE id_shoppingcart = {id_shoppingcart} and
+                      id_user = {id_user};
             """
     params = ()
     execute_sql_query(query, params)
@@ -677,7 +697,7 @@ def get_all_role() -> list[str]:
 
 # region main local
 def main():
-    db_name = cv.bdd_path
+    db_name = cv.BDD_PATH
 
     # # Test user_shopping_cart
     # for i in range(3):
