@@ -1,1 +1,1 @@
-rm ./bdd/ecommerce_database.*
+rm ./bdd/ecommerce_database.db

@@ -1,9 +1,10 @@
 import sqlite3
 from datetime import datetime
-import sys
 import os
+import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+# Add parent folder at the sys.path
 import const_values as cv
 
 
@@ -18,7 +19,7 @@ def execute_sql_query(query: str, params=()) -> list[tuple] | None:
         list[tuple]: query result
     """
     try:
-        with sqlite3.connect(cv.bdd_path) as connexion:
+        with sqlite3.connect(cv.BDD_PATH) as connexion:
             cursor = connexion.cursor()
             cursor.execute(query, params)
             result = cursor.fetchall()
@@ -412,20 +413,40 @@ def create_invoice(id_user: int) -> None:
 
     params = ()
     execute_sql_query(query, params)
-    update_shoppingcart(id_shoppingcart)
+    update_shoppingcart(id_shoppingcart, id_user)
 
 
-def update_shoppingcart(id_shoppingcart: int) -> None:
+def is_invoice_allready_in_base(id_shoppingcart: int) -> bool:
+    """Verify if the invoice is allready in base
+
+    Args:
+        id_shoppingcart (int): shoppingcart id
+
+    Returns:
+        bool: condition if the invoice is in base
+    """
+    query = f"""SELECT *
+            FROM Invoice
+            WHERE id_shoppingcart = "{id_shoppingcart}";
+        """
+    params = ()
+    result = execute_sql_query(query, params)
+    return not result == []
+
+
+def update_shoppingcart(id_shoppingcart: int, id_user: int) -> None:
     """Update shoppingcart: id_invoice
 
     Args:
-        id_shoppingcart (int): _description_
+        id_shoppingcart (int): shoppingcart id
+        id_user (int): user id
     """
     query = f"""UPDATE ShoppingCart
-                SET id_invoice = (SELECT inv.id_invoice
-                                  FROM ShoppingCart as sc
-                                  LEFT JOIN Invoice as inv on inv.id_shoppingcart = sc.id_shoppingcart
-                                  WHERE sc.id_shoppingcart = {id_shoppingcart});
+                SET id_invoice = (SELECT MAX(inv.id_invoice) as id_invoice
+                                  FROM ShoppingCart as sc                              
+                                  LEFT JOIN Invoice as inv on inv.id_shoppingcart = sc.id_shoppingcart)
+                WHERE id_shoppingcart = {id_shoppingcart} and
+                      id_user = {id_user};
             """
     params = ()
     execute_sql_query(query, params)
@@ -454,9 +475,229 @@ def is_admin(id_user: int) -> bool:
     return result[0][0] == "admin"
 
 
+def create_new_product(
+    name: str,
+    choice_cat: str,
+    number_of_units: int,
+    description: str,
+    tech_specification: str,
+    price_ET: int,
+    choice_vat: str,
+    file_path: str,
+) -> None:
+    """Create new product
+
+    Args:
+        name (str): product name
+        choice_cat (str): product category
+        number_of_units (int): number of units
+        description (str): product description
+        tech_specification (str): product technical specification
+        price_ET (int): price ET
+        choice_vat (str): product vAT
+        file_path (str): product picture file path
+    """
+    query = f"""INSERT INTO Product (id_category, id_vat, name, number_of_units, description, tech_specification, image_path, price_ET, popularity)
+                VALUES
+                ((SELECT id_category FROM Category WHERE name = "{choice_cat}"), 
+                 (SELECT id_vat FROM VAT WHERE name = "{choice_vat}"), 
+                 "{name}", 
+                 {number_of_units}, 
+                 "{description}",
+                 "{tech_specification}",
+                 "{file_path}", 
+                  {price_ET}, 
+                  1);
+            """
+    params = ()
+    execute_sql_query(query, params)
+
+
+def get_all_products() -> None:
+    """Get all products
+
+    Returns:
+        list[tuple]: list of all products
+    """
+    query = f"""SELECT prod.name,
+                       cat.name,
+                       prod.number_of_units, 
+                       prod.price_ET,
+                       vat.rate,
+                       ROUND(prod.price_ET * vat.rate,2) as total_price
+            FROM Product as prod
+            LEFT JOIN Category as cat on cat.id_category = prod.id_category
+            LEFT JOIN VAT as vat on vat.id_vat = prod.id_vat;
+        """
+    params = ()
+    result = execute_sql_query(query, params)
+    products_list = []
+    for prod_info in result:
+        dict_temp = {}
+        dict_temp["prod_name"] = prod_info[0]
+        dict_temp["cat_name"] = prod_info[1]
+        dict_temp["stocks"] = prod_info[2]
+        dict_temp["price_ET"] = prod_info[3]
+        dict_temp["vat"] = prod_info[4]
+        dict_temp["total_price"] = prod_info[4]
+        products_list.append(dict_temp)
+    return products_list
+
+
+def is_product_allready_in_base(name: str) -> bool:
+    """Verify if the product are allready in base
+
+    Returns:
+        bool: if the product are in base or not
+    """
+    query = f"""SELECT *
+            FROM Product
+            WHERE name = "{name}";
+        """
+    params = ()
+    result = execute_sql_query(query, params)
+    return not result == []
+
+
+def create_new_category(name: str) -> None:
+    """Create new category
+
+    Args:
+        name (str): category name
+    """
+    query = f"""INSERT INTO Category (name)
+                VALUES ("{name}");
+            """
+    params = ()
+    execute_sql_query(query, params)
+
+
+def get_all_categories() -> list[str]:
+    """Get all categories
+
+    Returns:
+        list[str]: list of all categories
+    """
+    query = f"""SELECT name
+            FROM Category;
+        """
+    params = ()
+    result = execute_sql_query(query, params)
+    categories_list = []
+    for ind, category in enumerate(result):
+        categories_list.append(category[0])
+    return categories_list
+
+
+def is_category_allready_in_base(name: str) -> bool:
+    """Verify if the category are allready in base
+
+    Returns:
+        bool: if the category are in base or not
+    """
+    query = f"""SELECT *
+            FROM Category
+            WHERE name = "{name}";
+        """
+    params = ()
+    result = execute_sql_query(query, params)
+    return not result == []
+
+
+def create_new_vat(name: str, rate: int) -> None:
+    """Create new VAT
+
+    Args:
+        name (str): vat name
+        rate (int): vat rate
+    """
+    query = f"""INSERT INTO VAT (rate, name)
+                VALUES ({rate},"{name}");
+            """
+    params = ()
+    execute_sql_query(query, params)
+
+
+def get_all_VAT() -> list[str]:
+    """Get all VAT
+
+    Returns:
+        list[str]: list of all VAT
+    """
+    query = f"""SELECT name
+                FROM VAT;
+            """
+    params = ()
+    result = execute_sql_query(query, params)
+    categories_list = []
+    for ind, vat_name in enumerate(result):
+        categories_list.append(vat_name[0])
+    return categories_list
+
+
+def is_vat_allready_in_base(name: str) -> bool:
+    """Verify if the vat are allready in base
+
+    Returns:
+        bool: if the vat are in base or not
+    """
+    query = f"""SELECT *
+            FROM VAT
+            WHERE name = "{name}";
+        """
+    params = ()
+    result = execute_sql_query(query, params)
+    return not result == []
+
+
+def create_new_role(name: str) -> None:
+    """Create new role
+
+    Args:
+        name (str): role name
+    """
+    query = f"""INSERT INTO Role (name)
+                VALUES ("{name}");
+            """
+    params = ()
+    execute_sql_query(query, params)
+
+
+def is_role_allready_in_base(name: str) -> bool:
+    """Verify if the role are allready in base
+
+    Returns:
+        bool: if the role are in base or not
+    """
+    query = f"""SELECT *
+            FROM Role
+            WHERE name = "{name}";
+        """
+    params = ()
+    result = execute_sql_query(query, params)
+    return not result == []
+
+
+def get_all_role() -> list[str]:
+    """Get all role
+
+    Returns:
+        list[str]: list of all role
+    """
+    query = f"""SELECT name
+                FROM Role;
+            """
+    params = ()
+    result = execute_sql_query(query, params)
+    categories_list = []
+    for ind, vat_name in enumerate(result):
+        categories_list.append(vat_name[0])
+    return categories_list
+
+
 # region main local
 def main():
-    db_name = cv.bdd_path
+    db_name = cv.BDD_PATH
 
     # # Test user_shopping_cart
     # for i in range(3):
@@ -467,6 +708,11 @@ def main():
     # get_user_address(1)
     # print(is_admin(2))
     # get_user_info_connect("paul.dupont@generator.com")
+    # print(get_all_categories())
+    # print(get_all_VAT())
+    # print(get_all_products())
+    # print(get_all_VAT())
+    # print(get_all_role())
 
 
 if __name__ == "__main__":

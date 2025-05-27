@@ -1,1 +1,2 @@
-bdd_path = "./bdd/ecommerce_database.db"
+BDD_PATH = "./bdd/ecommerce_database.db"
+JSON_BDD_PATH = "./bdd/ecommerce_database.json"
