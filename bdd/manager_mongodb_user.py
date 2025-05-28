@@ -293,6 +293,7 @@ def insert_shoppingcart(id_user: ObjectId) -> None:
     Args:
         id_user (ObjectId): user id
     """
+    number_of_product = 3
     # 1. Connection to MongoDB
     client = MongoClient(cv.MONGODB_LOCAL_PATH)
 
@@ -303,7 +304,7 @@ def insert_shoppingcart(id_user: ObjectId) -> None:
     # 3. Create filters and fields
     # Add new shoppingcart at the end of the list shoppingcarts
     fields = {
-        "$push": {"shoppingcarts": create_shoppingcart()},
+        "$push": {"shoppingcarts": create_shoppingcart(number_of_product)},
     }
     filter = {
         "_id": id_user,
