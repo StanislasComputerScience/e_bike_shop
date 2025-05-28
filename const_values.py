@@ -1,2 +1,6 @@
 BDD_PATH = "./bdd/ecommerce_database.db"
 JSON_BDD_PATH = "./bdd/ecommerce_database.json"
+MONGODB_NAME = "ecommerce_database"
+MONGODB_LOCAL_PATH = "mongodb://localhost:27017/"
+USER_COLLECTION = "User"
+PRODUCT_COLLECTION = "Product"
