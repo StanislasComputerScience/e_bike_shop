@@ -15,10 +15,10 @@ def create_collection_invoice():
     # 1. Schéma JSON
     schema = {
         "bsonType": "object",
-        "required": ["date", "commandlines"],
+        "required": ["date", "shoppingcart"],
         "properties": {
             "date": {"bsonType": "date"},
-            "commandlines": {
+            "shoppingcart": {
                 "bsonType": "array",
                 "minItems": 1,
                 "items": {
@@ -80,7 +80,7 @@ def create_collection_invoice():
     # 5. Création de la facture
     invoice_data = {
         "date": dt.datetime.now(),
-        "commandlines": commandlines,
+        "shoppingcart": commandlines,
     }
 
     print("🧾 Facture générée :")
