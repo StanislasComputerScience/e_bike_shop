@@ -150,7 +150,7 @@ def create_users(validator: dict) -> None:
 
     products_list = find_all_products()
 
-    # 2. Insérer un document (INSERT ONE)
+    # 2. Insérer un document (INSERT MANY)
     new_users = [
         {
             "name": "Dupont",
@@ -254,11 +254,7 @@ def find_random_products() -> list:
     Returns:
         list: list of random products
     """
-    product_list = find_all_products()
-    rand_products_id = [
-        product_list[random.randint(0, len(product_list) - 1)] for i in range(0, 3)
-    ]
-    return rand_products_id
+    return random.sample(find_all_products(), k=3)
 
 
 def create_shoppingcart() -> dict:
