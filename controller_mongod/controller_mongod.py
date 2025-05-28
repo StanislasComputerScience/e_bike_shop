@@ -1,8 +1,16 @@
 from pymongo import MongoClient
 from pymongo.database import Database
+from pymongo.collection import Collection
 from bson.objectid import ObjectId
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+# Add parent folder au sys.path
+import const_values as cv
 
 
+# region Collection connect
 def connect_to_mongodb() -> Database:
     """Connect to the mongodb database and return its content
 
@@ -10,11 +18,27 @@ def connect_to_mongodb() -> Database:
         Database: Content of the database
     """
 
-    client = MongoClient("mongodb://localhost:27017/")
-    db = client["ecommerce_database"]
+    client = MongoClient(cv.MONGODB_LOCAL_PATH)
+    db = client[cv.MONGODB_NAME]
     return db
 
 
+def connect_to_collection(name_collection: str) -> Collection:
+    """Return a specific collection in the database
+
+    Args:
+        name_collection (str): Name of the collection
+
+    Returns:
+        Collection: Collection content
+    """
+    db = connect_to_mongodb()
+    collection = db[name_collection]
+
+    return collection
+
+
+# region Catalogue & Mosaique
 def product_catalog() -> list[dict]:
     """Returns the list of products in the catalogue,
     and most of the associated information
@@ -67,7 +91,7 @@ def user_open_shopping_cart_id(id_user: ObjectId) -> tuple[ObjectId, int] | None
 
     # Result
     if response[0]:
-        return (id_user, len(response[0]["shoppingcarts"])-1)
+        return (id_user, len(response[0]["shoppingcarts"]) - 1)
     else:
         return None
 
@@ -100,24 +124,22 @@ def user_shopping_cart(id_shoppingcart: tuple[ObjectId, int]) -> list[dict]:
             shoppingcart = shoppingcarts[id_shoppingcart[1]]
         except:
             raise IndexError("Wrong index in the list of shopping carts.")
-        
-        fields = [
-            "image_path",
-            "name",
-            "number_of_units"
-        ]
+
+        fields = ["image_path", "name", "number_of_units"]
         for commandLine in shoppingcart:
             filter = {"_id": commandLine["id_product"]}
-            response = [doc for doc in db.Product.find(filter=filter, projection=fields)]
+            response = [
+                doc for doc in db.Product.find(filter=filter, projection=fields)
+            ]
 
             try:
                 product = response[0]
                 commandLine["name"] = product["name"]
                 commandLine["image_path"] = product["image_path"]
-                commandLine["number_of_units"] = product["number_of_units"]          
+                commandLine["number_of_units"] = product["number_of_units"]
             except:
                 raise Exception("Error...")
-            
+
         # TODO: Should add a shopping cart date
         return shoppingcart
 
@@ -125,16 +147,100 @@ def user_shopping_cart(id_shoppingcart: tuple[ObjectId, int]) -> list[dict]:
         return list()
 
 
-def test():
+# region Connection
+def get_user_info_connect(user_email: str) -> list[dict]:
+    """Get the user information
+
+    Args:
+        user_email (str): user email
+
+    Returns:
+        list[dict]: user information
+    """
+    # 1. Connect to collection
+    collection = connect_to_collection(cv.USER_COLLECTION)
+
+    # 2. Create filters and fields
+    fields = {
+        "_id": 1,
+        "password": 1,
+    }
+    filter = {
+        "email": user_email,
+    }
+
+    # 3. Use find() with filter : get the user
+    user_info = collection.find(filter, fields)
+    user_info_list = []
+
+    for user in user_info:
+        dict_temp = {}
+        dict_temp["id_user"] = user["_id"]
+        dict_temp["password"] = user["password"]
+        user_info_list.append(dict_temp)
+    return user_info_list
+
+
+# User is validated
+def connect_user(id_user: ObjectId) -> None:
+    """Update the user connection
+
+    Args:
+        id_user (ObjectId): user id
+    """
+    # 1. Connect to collection
+    collection = connect_to_collection(cv.USER_COLLECTION)
+
+    # 2. Create filters and fields
+    fields = {
+        "$set": {"connection": "connected"},
+    }
+    filter = {
+        "_id": id_user,
+    }
+
+    # 3. Update User: connection
+    collection.update_one(filter, fields)
+
+
+def disconnect_user(id_user: ObjectId) -> None:
+    """Update the user connection
+
+    Args:
+        id_user (ObjectId): user id
+    """
+    # 1. Connect to collection
+    collection = connect_to_collection(cv.USER_COLLECTION)
+
+    # 2. Create filters and fields
+    fields = {
+        "$set": {"connection": "timeout"},
+    }
+    filter = {
+        "_id": id_user,
+    }
+
+    # 3. Update User: connection
+    collection.update_one(filter, fields)
+
+
+def main():
     # products = product_catalog()
     # for product in products:
     #     print(product)
 
     ids = user_open_shopping_cart_id(ObjectId("683703f4815f01c742a4ef96"))
-    user_shopping_cart(ids)
+    print(ids)
+    print(user_shopping_cart(ids))
 
-#    print(user_open_shopping_cart_id(ObjectId("683703f4815f01c742a4ef97")))
+    # print(user_open_shopping_cart_id(ObjectId("683703f4815f01c742a4ef97")))
+
+    # products = product_catalog()
+    # for product in products:
+    #     print(product)
+    # get_user_info_connect("paul.dupont@generator.com")
+    # connect_user(ObjectId("683705696b9ec1d18895d51d"))
 
 
 if __name__ == "__main__":
-    test()
+    main()
