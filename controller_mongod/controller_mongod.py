@@ -139,6 +139,42 @@ def disconnect_user(id_user: ObjectId) -> None:
     collection.update_one(filter, fields)
 
 
+# region Commande
+def get_all_info_user(id_user: str) -> dict:
+    """Get user information
+
+    Args:
+        id_user (str): user id
+
+    Returns:
+        dict: user information
+    """
+    # 1. Connect to collection
+    collection = connect_to_collection(cv.USER_COLLECTION)
+
+    # 2. Create filters and fields
+    fields = {
+        "name": 1,
+        "firstname": 1,
+        "email": 1,
+        "phone": 1,
+    }
+    filter = {
+        "_id": id_user,
+    }
+
+    # 3. Get User information
+    user_info_list = []
+    for user in collection.find(filter, fields):
+        info = {}
+        info["name"] = user["name"]
+        info["firstname"] = user["firstname"]
+        info["email"] = user["email"]
+        info["phone"] = user["phone"]
+        user_info_list.append(info)
+    return user_info_list
+
+
 def main():
     pass
     # products = product_catalog()
@@ -146,6 +182,7 @@ def main():
     #     print(product)
     # get_user_info_connect("paul.dupont@generator.com")
     # connect_user(ObjectId("683705696b9ec1d18895d51d"))
+    # print(get_all_info_user(ObjectId("68371c28564b2590bf657cef")))
 
 
 if __name__ == "__main__":
