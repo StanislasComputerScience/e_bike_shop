@@ -1,7 +1,5 @@
-import os
 import streamlit as st
-import controller.controller as control
-import controller.tools as tool
+import controller_mongod.tools as tool
 
 st.subheader("Mosaïque de produits :")
 
