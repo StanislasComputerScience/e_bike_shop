@@ -33,7 +33,10 @@ def create_collection_product():
             "image_path": {"bsonType": "string"},
             "price_ET": {"bsonType": "double", "minimum": 0},
             "popularity": {"bsonType": "int", "minimum": 0},
-            "name_vat": {"bsonType": "string"},
+            "name_vat": {
+                "enum": ["french (standard)"],
+                "description": "Must be french (standard)",
+                },
             "rate_vat": {"bsonType": "double"},
         },
     }
