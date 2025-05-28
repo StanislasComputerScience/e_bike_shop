@@ -50,43 +50,18 @@ def create_collection_invoice():
         )
 
     # 3. Récupération des produits
-    products = user.find_all_products()
-    if len(products) < 5:
-        raise ValueError("❌ Pas assez de produits pour créer une facture.")
+    products = user.create_shoppingcart(5)
 
-    # 4. Génération des lignes de commande
-    selected_products = random.sample(products, k=5)
-    commandlines = []
-
-    for product in selected_products:
-        try:
-            commandlines.append(
-                {
-                    "id_product": ObjectId(product["_id"]),
-                    "price_ET": float(product["price_ET"]),
-                    "quantity": int(random.randint(1, 5)),
-                    "rate_VAT": float(product["rate_vat"]),
-                }
-            )
-        except KeyError as ke:
-            print(f"❌ Clé manquante dans le produit : {ke}")
-            pprint.pprint(product)
-            continue
-        except Exception as ex:
-            print(f"❌ Erreur dans le traitement du produit : {ex}")
-            pprint.pprint(product)
-            continue
-
-    # 5. Création de la facture
+    # 4. Création de la facture
     invoice_data = {
         "date": dt.datetime.now(),
-        "shoppingcart": commandlines,
+        "shoppingcart": products,
     }
 
     print("🧾 Facture générée :")
     pprint.pprint(invoice_data)
 
-    # 6. Insertion dans MongoDB
+    # 5. Insertion dans MongoDB
     try:
         result = db["Invoice"].insert_one(invoice_data)
         print("✅ Facture insérée avec ID :", result.inserted_id)
