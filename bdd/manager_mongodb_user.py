@@ -299,7 +299,9 @@ def insert_shoppingcart(id_user: ObjectId) -> None:
     fields = {
         "$push": {"shoppingcarts": create_shoppingcart()},
     }
-    filter = {"_id": id_user}
+    filter = {
+        "_id": id_user,
+    }
 
     # 4. Update User: id_user
     collection.update_one(filter, fields)
