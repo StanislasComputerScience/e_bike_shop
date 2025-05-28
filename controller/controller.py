@@ -31,11 +31,8 @@ def execute_sql_query(query: str, params=()) -> list[tuple] | None:
 
 
 def product_catalog() -> list[dict] | None:
-    """Function to execute sql query
-
-    Args:
-        query (str): sql query
-        params (tuple, optional): parameters. Defaults to ().
+    """Returns the list of products in the catalogue,
+    and most of the associated information
 
     Returns:
         list[dict]: list of all product
