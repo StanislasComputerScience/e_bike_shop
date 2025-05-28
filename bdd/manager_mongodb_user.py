@@ -260,13 +260,15 @@ def find_random_products(random_var: int) -> list:
     return random.sample(find_all_products(), k=random_var)
 
 
-def create_shoppingcart() -> dict:
+def create_shoppingcart(number_of_product: int) -> dict:
     """Create shoppingcart
+
+    Args:
+        number_of_product (int): number of product that you want in your shoppingcart
 
     Returns:
         dict: new shoppingcart
     """
-    number_of_product = 3
     # 1. Get random products
     product_list = find_random_products(number_of_product)
 
