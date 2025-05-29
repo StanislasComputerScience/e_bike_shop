@@ -9,10 +9,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 # Add parent folder at the sys.path
 import const_values as cv
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "bdd")))
-# Add /bdd folder at the sys.path
-import manager_mongodb_user as mmu
-
 
 # region Collection connect
 def connect_to_collection(name_collection: str) -> Collection:
@@ -199,6 +195,8 @@ def get_user_address(id_user: int) -> list[tuple]:
     filter = {
         "_id": id_user,
     }
+
+    # 3. Get information
     user_address_collect = collection.find_one(filter, fields)
     user_address_list = user_address_collect["address"]
 
@@ -212,6 +210,33 @@ def get_user_address(id_user: int) -> list[tuple]:
     return user_info_list
 
 
+# region Admin
+def is_admin(id_user: int) -> bool:
+    """Verify if the user is admin
+
+    Args:
+        id_user (int): user id
+
+    Returns:
+        bool: condition if the user is admin
+    """
+    # 1. Connect to collection
+    collection = connect_to_collection(cv.USER_COLLECTION)
+
+    # 2. Create filters and fields
+    fields = {
+        "_id": 0,
+        "role": 1,
+    }
+    filter = {
+        "_id": id_user,
+    }
+
+    # 3. Get information
+    user_role = [doc["role"] for doc in collection.find(filter, fields)]
+    return "admin" in user_role
+
+
 def main():
     pass
     # products = product_catalog()
@@ -220,7 +245,7 @@ def main():
     # get_user_info_connect("paul.dupont@generator.com")
     # connect_user(ObjectId("683705696b9ec1d18895d51d"))
     # print(get_all_info_user(ObjectId("68371c28564b2590bf657cef")))
-    print(get_user_address(mmu.find_user_id("Dupont", "Paul")))
+    print(is_admin(ObjectId("68385cce9e2c02e0112976ca")))
 
 
 if __name__ == "__main__":
