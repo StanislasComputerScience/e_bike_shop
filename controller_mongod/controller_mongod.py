@@ -6,8 +6,12 @@ import sys
 import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-# Add parent folder au sys.path
+# Add parent folder at the sys.path
 import const_values as cv
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "bdd")))
+# Add /bdd folder at the sys.path
+import manager_mongodb_user as mmu
 
 
 # region Collection connect
@@ -175,6 +179,39 @@ def get_all_info_user(id_user: str) -> dict:
     return user_info_list
 
 
+def get_user_address(id_user: int) -> list[tuple]:
+    """Get user address
+
+    Args:
+        id_user (int): user id
+
+    Returns:
+        list[tuple]: each tuple contain address: (street, city)
+    """
+    # 1. Connect to collection
+    collection = connect_to_collection(cv.USER_COLLECTION)
+
+    # 2. Create filters and fields
+    fields = {
+        "_id": 0,
+        "address": 1,
+    }
+    filter = {
+        "_id": id_user,
+    }
+    user_address_collect = collection.find_one(filter, fields)
+    user_address_list = user_address_collect["address"]
+
+    user_info_list = []
+    for user in user_address_list:
+        info = (
+            f"{user["number"]} {user["street"]}",
+            f"{user["postal_code"]} {user["city"]}",
+        )
+        user_info_list.append(info)
+    return user_info_list
+
+
 def main():
     pass
     # products = product_catalog()
@@ -183,6 +220,7 @@ def main():
     # get_user_info_connect("paul.dupont@generator.com")
     # connect_user(ObjectId("683705696b9ec1d18895d51d"))
     # print(get_all_info_user(ObjectId("68371c28564b2590bf657cef")))
+    print(get_user_address(mmu.find_user_id("Dupont", "Paul")))
 
 
 if __name__ == "__main__":
