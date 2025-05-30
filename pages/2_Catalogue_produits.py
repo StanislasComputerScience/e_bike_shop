@@ -1,7 +1,7 @@
 import os
 import streamlit as st
-import controller.controller as control
-import controller.tools as tool
+import controller_mongod.controller_mongod as control
+import controller_mongod.tools as tool
 
 
 # --- function called on radio change ---

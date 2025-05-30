@@ -39,6 +39,60 @@ def connect_to_collection(name_collection: str) -> Collection:
     return collection
 
 
+# def toto(user_id):
+#     db = connect_to_mongodb()
+#     user = db.User.find_one({"_id": user_id})
+#     shoppingcarts = user.get("shoppingcarts", [])
+
+#     if user is None:
+#         raise ValueError(f"Aucun utilisateur trouvé avec _id : {user_id}")
+
+#     if not shoppingcarts:
+#         # Créer un panier vide s'il n'existe pas
+#         shoppingcarts.append([])
+#         db.User.update_one({"_id": user_id}, {"$set": {"shoppingcarts": shoppingcarts}})
+#     # current_cart_index = len(shoppingcarts) - 1
+#     current_cart = shoppingcarts[-1]  # -1 plutôt que current_cart_index
+
+#     #############
+#     product_found = False
+#     for line in current_cart:
+#         if line["id_product"] == id_product:
+#             product_found = True
+#             new_quantity = line["quantity"] + 1
+#             update_command_line(id_product, (user_id, current_cart_index), new_quantity)
+#             break
+#     return shoppingcarts, product_found
+
+
+def toto(user_id, id_product):
+    db = connect_to_mongodb()
+    user = db.User.find_one({"_id": user_id})
+    shoppingcarts = user.get("shoppingcarts", [])
+
+    if user is None:
+        raise ValueError(f"Aucun utilisateur trouvé avec _id : {user_id}")
+
+    if not shoppingcarts:
+        # Créer un panier vide s'il n'existe pas
+        shoppingcarts.append([])
+        db.User.update_one({"_id": user_id}, {"$set": {"shoppingcarts": shoppingcarts}})
+
+    current_cart = shoppingcarts[-1]  # panier courant
+
+    product_found = False
+    for line in current_cart:
+        if line["id_product"] == id_product:
+            product_found = True
+            new_quantity = line["quantity"] + 1
+            update_command_line(
+                id_product, (user_id, len(shoppingcarts) - 1), new_quantity
+            )
+            break
+
+    return shoppingcarts, product_found
+
+
 # region Catalogue & Mosaique
 def product_catalog() -> list[dict]:
     """Returns the list of products in the catalogue,
@@ -66,6 +120,119 @@ def product_catalog() -> list[dict]:
         product["price_it"] = product["price_ET"] * (1 + product["rate_vat"])
 
     return products
+
+
+## region Catalogue
+def is_product_in_cart(user_id, id_product, cart_index):
+    """
+    Vérifie si le produit id_product est présent dans le panier d'index cart_index.
+
+    Args:
+        user_id (ObjectId): L'id de l'utilisateur.
+        id_product (ObjectId): L'id du produit à chercher.
+        cart_index (int): Index du panier dans shoppingcarts.
+
+    Returns:
+        bool: True si le produit est présent dans ce panier, False sinon.
+    """
+    db = connect_to_mongodb()
+    user = db.User.find_one({"_id": ObjectId(user_id)})
+
+    if not user:
+        raise ValueError(f"Utilisateur avec _id {user_id} non trouvé")
+
+    shoppingcarts = user.get("shoppingcarts", [])
+    if cart_index >= len(shoppingcarts) or cart_index < 0:
+        raise IndexError("Index du panier hors limites")
+
+    cart = shoppingcarts[cart_index]
+
+    for line in cart:
+        if line.get("id_product") == ObjectId(id_product):
+            return True
+
+    return False
+
+
+def is_command_line_exist(
+    shopping_cart_id: tuple[ObjectId, int], id_product: ObjectId
+):  # , id_user: ObjectId):
+    """
+    Vérifie si un produit est déjà présent dans un panier.
+
+    Args:
+        shopping_cart_id (str or ObjectId): ID du user, int : l'indice du panier dans liste des paniers de l'utilisateur
+        id_product (str or ObjectId): ID du produit recherché
+
+    Returns:
+        bool: True si le produit est dans le panier, False sinon
+    """
+    print(
+        f"Entrée: shopping_cart_id={shopping_cart_id} ({type(shopping_cart_id)}), id_product={id_product} ({type(id_product)})"
+    )
+    db = connect_to_mongodb()
+
+    field = {"_id": False, "shoppingcarts": True}
+    filter = {"_id": shopping_cart_id[0]}
+
+    user_doc = db.User.find_one(filter=filter, projection=field)
+    shopping_cart = user_doc["shoppingcarts"][shopping_cart_id[1]]
+    for d in shopping_cart:
+        if d["id_product"] == id_product:
+            return True
+    return False
+
+
+def add_new_command_line(
+    id_prod: int, id_shoppingcart: int, price: float, rate_vat: float
+) -> None:
+    """Add a new entry in the table CommandLine corresponding to
+    the id_prod and id_shoppingcart
+
+    Args:
+        id_prod (int): Id of the products
+        id_shopping_cart (int): Id of the shoppingcart
+    """
+    # 0. Create new commandline
+    commandline = {
+        "id_prod": id_prod,
+        "price_ET": price,
+        "rate_vat": rate_vat,
+        "quantity": 1,
+    }
+    # 1. Connect to collection
+    collection = connect_to_collection(cv.USER_COLLECTION)
+
+    # 2. Create filters and fields
+    new_commandline = {"$push": {f"shoppingcarts.{id_shoppingcart[1]}": commandline}}
+
+    filter = {
+        "_id": id_shoppingcart[0],
+    }
+
+    # 3. Use find() with filter : get the user
+    collection.update_one(filter, new_commandline)
+
+
+def add_new_shoppingcart(id_user: int) -> None:
+    """Add a new shopping cart in the table ShoppingCart corresponding to
+    the user with id_user
+
+    Args:
+        id_user (int): Id of the user
+    """
+    # 1. Connect to collection
+    collection = connect_to_collection(cv.USER_COLLECTION)
+
+    # 2. Create filters and fields
+    new_shoppingcart = {"$push": {f"shoppingcarts": {}}}
+
+    filter = {
+        "_id": id_user,
+    }
+
+    # 3. Use find() with filter : get the user
+    collection.update_one(filter, new_shoppingcart)
 
 
 # region Panier & Commande
@@ -309,75 +476,75 @@ def disconnect_user(id_user: ObjectId) -> None:
     collection.update_one(filter, fields)
 
 
-# region Commande
-def get_all_info_user(id_user: str) -> dict:
-    """Get user information
+# # region Commande
+# def get_all_info_user(id_user: str) -> dict:
+#     """Get user information
 
-    Args:
-        id_user (str): user id
+#     Args:
+#         id_user (str): user id
 
-    Returns:
-        dict: user information
-    """
-    # 1. Connect to collection
-    collection = connect_to_collection(cv.USER_COLLECTION)
+#     Returns:
+#         dict: user information
+#     """
+#     # 1. Connect to collection
+#     collection = connect_to_collection(cv.USER_COLLECTION)
 
-    # 2. Create filters and fields
-    fields = {
-        "name": 1,
-        "firstname": 1,
-        "email": 1,
-        "phone": 1,
-    }
-    filter = {
-        "_id": id_user,
-    }
+#     # 2. Create filters and fields
+#     fields = {
+#         "name": 1,
+#         "firstname": 1,
+#         "email": 1,
+#         "phone": 1,
+#     }
+#     filter = {
+#         "_id": id_user,
+#     }
 
-    # 3. Get User information
-    user_info_list = []
-    for user in collection.find(filter, fields):
-        info = {}
-        info["name"] = user["name"]
-        info["firstname"] = user["firstname"]
-        info["email"] = user["email"]
-        info["phone"] = user["phone"]
-        user_info_list.append(info)
-    return user_info_list
+#     # 3. Get User information
+#     user_info_list = []
+#     for user in collection.find(filter, fields):
+#         info = {}
+#         info["name"] = user["name"]
+#         info["firstname"] = user["firstname"]
+#         info["email"] = user["email"]
+#         info["phone"] = user["phone"]
+#         user_info_list.append(info)
+#     return user_info_list
 
 
-def get_user_address(id_user: int) -> list[tuple]:
-    """Get user address
+# def get_user_address(id_user: int) -> list[tuple]:
+#     """Get user address
 
-    Args:
-        id_user (int): user id
+#     Args:
+#         id_user (int): user id
 
-    Returns:
-        list[tuple]: each tuple contain address: (street, city)
-    """
-    # 1. Connect to collection
-    collection = connect_to_collection(cv.USER_COLLECTION)
+#     Returns:
+#         list[tuple]: each tuple contain address: (street, city)
+#     """
+#     # 1. Connect to collection
+#     collection = connect_to_collection(cv.USER_COLLECTION)
 
-    # 2. Create filters and fields
-    fields = {
-        "_id": 0,
-        "address": 1,
-    }
-    filter = {
-        "_id": id_user,
-    }
+#     # 2. Create filters and fields
+#     fields = {
+#         "_id": 0,
+#         "address": 1,
+#     }
+#     filter = {
+#         "_id": id_user,
+#     }
 
-    # 3. Get information
-    user_address_collect = collection.find_one(filter, fields)
-    user_address_list = user_address_collect["address"]
+#     # 3. Get information
+#     user_address_collect = collection.find_one(filter, fields)
+#     user_address_list = user_address_collect["address"]
 
-    user_info_list = []
-    for user in user_address_list:
-        info = (
-            f"{user["number"]} {user["street"]}",
-            f"{user["postal_code"]} {user["city"]}",
-        )
-        user_info_list.append(info)
-    return user_info_list
+#     user_info_list = []
+#     for user in user_address_list:
+#         info = (
+#             f"{user["number"]} {user["street"]}",
+#             f"{user["postal_code"]} {user["city"]}",
+#         )
+#         user_info_list.append(info)
+#     return user_info_list
 
 
 def create_invoice(id_user: int) -> None:
@@ -501,7 +668,17 @@ def main():
     # connect_user(ObjectId("683705696b9ec1d18895d51d"))
     # print(get_all_info_user(ObjectId("68371c28564b2590bf657cef")))
     # print(is_admin(ObjectId("68385cce9e2c02e0112976ca")))
-    print(create_invoice(ObjectId("683992513d4b1cfa55f45cc7")))
+    # print(create_invoice(ObjectId("683992513d4b1cfa55f45cc7")))
+    print(
+        is_command_line_exist(
+            (ObjectId("6839af0853c3a13967668609"), 0),
+            ObjectId("6839af07d20a00d5ac0ac795"),
+        ),
+        is_command_line_exist(
+            (ObjectId("6839af0853c3a13967668609"), 0),
+            ObjectId("6839af07d20a00d5ac0ac796"),
+        ),
+    )
 
 
 if __name__ == "__main__":

@@ -268,7 +268,7 @@ def user_shopping_cart(id_shoppingcart: int) -> list[dict]:
         on the page "Panier" or "Command".
     """
 
-    query = f"""SELECT 
+    query = f"""SELECT
                     cl.id_prod,
                     cl.id_shoppingcart,
                     prod.image_path,
@@ -440,7 +440,7 @@ def update_shoppingcart(id_shoppingcart: int, id_user: int) -> None:
     """
     query = f"""UPDATE ShoppingCart
                 SET id_invoice = (SELECT MAX(inv.id_invoice) as id_invoice
-                                  FROM ShoppingCart as sc                              
+                                  FROM ShoppingCart as sc
                                   LEFT JOIN Invoice as inv on inv.id_shoppingcart = sc.id_shoppingcart)
                 WHERE id_shoppingcart = {id_shoppingcart} and
                       id_user = {id_user};
@@ -494,14 +494,14 @@ def create_new_product(
     """
     query = f"""INSERT INTO Product (id_category, id_vat, name, number_of_units, description, tech_specification, image_path, price_ET, popularity)
                 VALUES
-                ((SELECT id_category FROM Category WHERE name = "{choice_cat}"), 
-                 (SELECT id_vat FROM VAT WHERE name = "{choice_vat}"), 
-                 "{name}", 
-                 {number_of_units}, 
+                ((SELECT id_category FROM Category WHERE name = "{choice_cat}"),
+                 (SELECT id_vat FROM VAT WHERE name = "{choice_vat}"),
+                 "{name}",
+                 {number_of_units},
                  "{description}",
                  "{tech_specification}",
-                 "{file_path}", 
-                  {price_ET}, 
+                 "{file_path}",
+                  {price_ET},
                   1);
             """
     params = ()
@@ -516,7 +516,7 @@ def get_all_products() -> None:
     """
     query = f"""SELECT prod.name,
                        cat.name,
-                       prod.number_of_units, 
+                       prod.number_of_units,
                        prod.price_ET,
                        vat.rate,
                        ROUND(prod.price_ET * vat.rate,2) as total_price

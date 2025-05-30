@@ -127,7 +127,7 @@ def display_table_line(column_widths: list[int], command_line: dict) -> tuple[in
 
     # Column product price ET
     with col_price_ET:
-        st.text(f"{command_line["price_ET"]:10.2f} €")
+        st.text(f"{command_line['price_ET']:10.2f} €")
 
     # Column command line price ET
     with col_total_price_ET:
