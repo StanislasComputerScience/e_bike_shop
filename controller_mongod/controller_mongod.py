@@ -49,14 +49,15 @@ def product_catalog() -> list[dict]:
     """
 
     db = connect_to_mongodb()
-    fields = [
-        "name",
-        "description",
-        "tech_specification",
-        "image_path",
-        "price_ET",
-        "rate_vat",
-    ]
+    fields = {
+        "_id": True,
+        "name": True,
+        "description": True,
+        "tech_specification": True,
+        "image_path": True,
+        "price_ET": True,
+        "rate_vat": True,
+    }
     products = [doc for doc in db.Product.find(projection=fields)]
 
     count = 0
@@ -142,6 +143,83 @@ def most_products_buy() -> list[dict]:
     for doc in response:
         product_list.append(doc)
     return product_list
+
+
+# region Catalogue
+def add_new_command_line(
+    id_prod: int, id_shoppingcart: int, price: float, rate_vat: float
+) -> None:
+    """Add a new entry in the table CommandLine corresponding to
+    the id_prod and id_shoppingcart
+
+    Args:
+        id_prod (int): Id of the products
+        id_shopping_cart (int): Id of the shoppingcart
+    """
+    # 0. Create new commandline
+    commandline = {
+        "id_product": id_prod,
+        "price_ET": price,
+        "rate_vat": rate_vat,
+        "quantity": 1,
+    }
+    # 1. Connect to collection
+    collection = connect_to_collection(cv.USER_COLLECTION)
+
+    # 2. Create filters and fields
+    new_commandline = {"$push": {f"shoppingcarts.{id_shoppingcart[1]}": commandline}}
+
+    filter = {
+        "_id": id_shoppingcart[0],
+    }
+
+    # 3. Use find() with filter : get the user
+    collection.update_one(filter, new_commandline)
+
+
+def add_new_shoppingcart(id_user: int) -> None:
+    """Add a new shopping cart in the table ShoppingCart corresponding to
+    the user with id_user
+
+    Args:
+        id_user (int): Id of the user
+    """
+    # 1. Connect to collection
+    collection = connect_to_collection(cv.USER_COLLECTION)
+
+    # 2. Create filters and fields
+    new_shoppingcart = {"$push": {f"shoppingcarts": {}}}
+
+    filter = {
+        "_id": id_user,
+    }
+
+    # 3. Use find() with filter : get the user
+    collection.update_one(filter, new_shoppingcart)
+
+
+def is_command_line_exist(
+    shopping_cart_id: tuple[ObjectId, int], id_product: ObjectId
+) -> bool:  # , id_user: ObjectId):
+    """
+    Vérifie si un produit est déjà présent dans un panier.
+
+    Args:
+        shopping_cart_id (str or ObjectId): ID du user, int : l'indice du panier dans liste des paniers de l'utilisateur
+        id_product (str or ObjectId): ID du produit recherché
+
+    Returns:
+        bool: True si le produit est dans le panier, False sinon
+    """
+    db = connect_to_mongodb()
+    field = {"_id": False, "shoppingcarts": True}
+    filter = {"_id": shopping_cart_id[0]}
+
+    user_doc = db.User.find_one(filter=filter, projection=field)
+    shopping_cart = user_doc["shoppingcarts"][shopping_cart_id[1]]
+    return any(
+        [True if doc["id_product"] == id_product else False for doc in shopping_cart]
+    )
 
 
 # region Panier & Commande
@@ -612,37 +690,6 @@ def create_new_product(
         file_path (str): product picture file path
     """
     pass
-
-
-def find_user_id(name: str, firstname: str) -> ObjectId:
-    """Find user id
-
-    Args:
-        name (str): user name
-        firstname (str): user firstname
-
-    Returns:
-        ObjectId: User id
-    """
-    # 1. Connection to MongoDB
-    client = MongoClient(cv.MONGODB_LOCAL_PATH)
-
-    # 2. Access database and collection
-    db = client[cv.MONGODB_NAME]
-    collection = db[cv.USER_COLLECTION]
-
-    # 3. Create filters and fields
-    fields = {
-        "_id": 1,
-    }
-    filter = {
-        "name": name,
-        "firstname": firstname,
-    }
-
-    # 4. Use find() with filter : get the user
-    user_id = [doc["_id"] for doc in collection.find(filter, fields)]
-    return user_id[0]
 
 
 def main():

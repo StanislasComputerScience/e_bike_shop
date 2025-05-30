@@ -1,7 +1,8 @@
 import os
 import streamlit as st
-import controller.controller as control
-import controller.tools as tool
+import controller_mongod.controller_mongod as control
+import controller_mongod.tools as tool
+from bson import ObjectId
 
 
 # --- function called on radio change ---
@@ -75,7 +76,10 @@ with colImage:
 
 
 with colToOrder:
-    id_product = product_selected["id_prod"]
+    if not isinstance(st.session_state["id_user"], ObjectId):
+        id_product = product_selected["id_prod"]
+    else:
+        id_product = l_products[st.session_state.c]["_id"]
     shopping_cart_id = None
     submit_buy = st.button("Ajouter au panier")
     if submit_buy:
