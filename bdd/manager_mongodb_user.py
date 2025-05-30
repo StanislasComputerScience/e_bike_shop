@@ -293,6 +293,7 @@ def insert_shoppingcart(id_user: ObjectId, number_of_products: int) -> None:
     Args:
         id_user (ObjectId): user id
     """
+    number_of_product = 3
     # 1. Connection to MongoDB
     client = MongoClient(cv.MONGODB_LOCAL_PATH)
 
