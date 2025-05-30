@@ -117,7 +117,7 @@ def most_products_buy() -> list[dict]:
             },
             {"$sort": {"quantity": -1}},
             {"$limit": 2},
-            {"$project": {"_id": 1}}
+            {"$project": {"_id": 1}},
         ]
     )
 
@@ -134,9 +134,7 @@ def most_products_buy() -> list[dict]:
         "name": True,
         "image_path": True,
     }
-    filter = {
-        "$or": [{"_id": id_product} for id_product in id_product_list]
-    }
+    filter = {"$or": [{"_id": id_product} for id_product in id_product_list]}
     response = collection.find(filter=filter, projection=fields)
 
     # Return
@@ -150,7 +148,7 @@ def most_products_buy() -> list[dict]:
 # Shopping cart id
 def user_open_shopping_cart_id(id_user: ObjectId) -> tuple[ObjectId, int] | None:
     """Return the index of the latest opened shopping cart
-    associated to the user with id id_user. An opened shopping cart
+    associated to the user with id id_user without id_invoice. An opened shopping cart
     is a shopping cart that is stored in a document of the collection
     User.
 
@@ -177,7 +175,7 @@ def user_open_shopping_cart_id(id_user: ObjectId) -> tuple[ObjectId, int] | None
 
     # Result
     if response[0]:
-        for idx in range(len(shoppingcarts)-1,-1,-1):
+        for idx in range(len(shoppingcarts) - 1, -1, -1):
             shoppingcart = shoppingcarts[idx]
             first_command_line = shoppingcart[0]
             if not "id_invoice" in first_command_line.keys():
@@ -417,15 +415,13 @@ def get_all_info_user(id_user: str) -> dict:
     }
 
     # 3. Get User information
-    user_info_list = []
     for user in collection.find(filter, fields):
-        info = {}
-        info["name"] = user["name"]
-        info["firstname"] = user["firstname"]
-        info["email"] = user["email"]
-        info["phone"] = user["phone"]
-        user_info_list.append(info)
-    return user_info_list
+        info_user = {}
+        info_user["name"] = user["name"]
+        info_user["firstname"] = user["firstname"]
+        info_user["email"] = user["email"]
+        info_user["phone"] = user["phone"]
+    return info_user
 
 
 def get_user_address(id_user: int) -> list[tuple]:
@@ -509,6 +505,62 @@ def create_invoice(id_user: int) -> None:
         new_invoice,
     )
 
+    # 6. Get invoice id
+    fields_invoice = {
+        "_id": 1,
+        "shoppingcart": 1,
+    }
+    filter_invoice = {
+        "id_user": id_user,
+    }
+
+    result = [doc for doc in collection_invoice.find(filter_invoice, fields_invoice)]
+    id_invoice = result[-1]["_id"]
+
+    # 7. Update shoppingcarts
+    for commandline in shoppingcart:
+        commandline["id_invoice"] = id_invoice
+    shoppingcarts_info.append(shoppingcart)
+
+    new_shoppingcarts = {
+        "$set": {"shoppingcarts": shoppingcarts_info},
+    }
+
+    collection_user.update_one(
+        filter_user,
+        new_shoppingcarts,
+    )
+
+
+def is_invoice_allready_in_base(id_shoppingcart: tuple[ObjectId, int]) -> bool:
+    """Verify if the invoice is allready in base
+
+    Args:
+        id_shoppingcart (int): shoppingcart id
+
+    Returns:
+        bool: condition if the invoice is in base
+    """
+    # 1. Connect to collection
+    collection_user = connect_to_collection(cv.USER_COLLECTION)
+
+    # 2. Create filters, fields
+    fields_user = {
+        "_id": 0,
+        "shoppingcarts": 1,
+    }
+    filter_user = {
+        "_id": id_shoppingcart[0],
+    }
+
+    # 3. Get information
+    result = collection_user.find_one(filter_user, fields_user)
+    shoppingcarts = result["shoppingcarts"]
+    shoppingcart = shoppingcarts[id_shoppingcart[1]]
+    return [
+        True if "id_invoice" in commandline else False for commandline in shoppingcart
+    ][0]
+
 
 # region Admin
 def is_admin(id_user: int) -> bool:
@@ -562,14 +614,45 @@ def create_new_product(
     pass
 
 
+def find_user_id(name: str, firstname: str) -> ObjectId:
+    """Find user id
+
+    Args:
+        name (str): user name
+        firstname (str): user firstname
+
+    Returns:
+        ObjectId: User id
+    """
+    # 1. Connection to MongoDB
+    client = MongoClient(cv.MONGODB_LOCAL_PATH)
+
+    # 2. Access database and collection
+    db = client[cv.MONGODB_NAME]
+    collection = db[cv.USER_COLLECTION]
+
+    # 3. Create filters and fields
+    fields = {
+        "_id": 1,
+    }
+    filter = {
+        "name": name,
+        "firstname": firstname,
+    }
+
+    # 4. Use find() with filter : get the user
+    user_id = [doc["_id"] for doc in collection.find(filter, fields)]
+    return user_id[0]
+
+
 def main():
+    pass
     # products = product_catalog()
     # for product in products:
     #     print(product)
-
-    id_user = "6839a4da0bd08d31d85cc070"
-    id_product = "6839a4d91b4594bc1df2e7b7"
-    ids = user_open_shopping_cart_id(ObjectId(id_user))
+    # id_user = "6839a4da0bd08d31d85cc070"
+    # id_product = "6839a4d91b4594bc1df2e7b7"
+    # ids = user_open_shopping_cart_id(ObjectId(id_user))
     # print(user_open_shopping_cart_id(ObjectId(id_user)))
     # print(ids)
     # print(user_shopping_cart(ids))
@@ -584,11 +667,8 @@ def main():
     # connect_user(ObjectId("683705696b9ec1d18895d51d"))
     # print(get_all_info_user(ObjectId("68371c28564b2590bf657cef")))
     # print(is_admin(ObjectId("68385cce9e2c02e0112976ca")))
-    # print(create_invoice(ObjectId("683992513d4b1cfa55f45cc7")))
-
-    # most_popular = most_popular_products()
-    # print(most_popular)
-    most_products_buy()
+    # print(create_invoice(find_user_id("Dupont", "Paul")))
+    # print(is_invoice_allready_in_base((find_user_id("Dupont", "Paul"), 0)))
 
 
 if __name__ == "__main__":
