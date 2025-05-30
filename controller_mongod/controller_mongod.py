@@ -68,6 +68,84 @@ def product_catalog() -> list[dict]:
     return products
 
 
+# region Home
+# 2 most popular products
+def most_popular_products() -> list[dict]:
+    """Most 2 popular products
+
+    Args:
+        No args
+
+    Returns:
+        list[dict]: list of product most popular
+    """
+
+    # Connect to collection
+    collection = connect_to_collection(cv.PRODUCT_COLLECTION)
+
+    # Request
+    fields = ["popularity", "name", "image_path"]
+    sort = {"popularity": -1}
+    response = collection.find(projection=fields).sort(sort).limit(2)
+
+    return [doc for doc in response]
+
+
+# 2 most bought products
+def most_products_buy() -> list[dict]:
+    """Most 2 buy products
+
+    Args:
+        No args
+
+    Returns:
+        list[dict]: list of product most popular
+    """
+
+    # Connect to collection
+    collection = connect_to_collection(cv.INVOICE_COLLECTION)
+
+    # Request: Get the object Id of the two most bought
+    response = collection.aggregate(
+        [
+            {"$unwind": "$shoppingcart"},
+            {
+                "$group": {
+                    "_id": "$shoppingcart.id_product",
+                    "quantity": {"$sum": "$shoppingcart.quantity"},
+                }
+            },
+            {"$sort": {"quantity": -1}},
+            {"$limit": 2},
+            {"$project": {"_id": 1}}
+        ]
+    )
+
+    id_product_list = []
+    for doc in response:
+        id_product_list.append(doc["_id"])
+
+    # Connect to collection
+    collection = connect_to_collection(cv.PRODUCT_COLLECTION)
+
+    # Request: Get the information required for the two products
+    fields = {
+        "_id": False,
+        "name": True,
+        "image_path": True,
+    }
+    filter = {
+        "$or": [{"_id": id_product} for id_product in id_product_list]
+    }
+    response = collection.find(filter=filter, projection=fields)
+
+    # Return
+    product_list = []
+    for doc in response:
+        product_list.append(doc)
+    return product_list
+
+
 # region Panier & Commande
 # Shopping cart id
 def user_open_shopping_cart_id(id_user: ObjectId) -> tuple[ObjectId, int] | None:
@@ -507,6 +585,10 @@ def main():
     # print(get_all_info_user(ObjectId("68371c28564b2590bf657cef")))
     # print(is_admin(ObjectId("68385cce9e2c02e0112976ca")))
     # print(create_invoice(ObjectId("683992513d4b1cfa55f45cc7")))
+
+    # most_popular = most_popular_products()
+    # print(most_popular)
+    most_products_buy()
 
 
 if __name__ == "__main__":
