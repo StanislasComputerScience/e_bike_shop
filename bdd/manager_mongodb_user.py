@@ -153,7 +153,12 @@ def create_schema_user() -> dict:
                         ],
                         "properties": {
                             # commandline
-                            "id_product": {"bsonType": "objectId"},
+                            "id_product": {
+                                "bsonType": "objectId",
+                            },
+                            "id_invoice": {
+                                "bsonType": "objectId",
+                            },
                             "price_ET": {
                                 "bsonType": "double",
                                 "minimum": 0.0,
