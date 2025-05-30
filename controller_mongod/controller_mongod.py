@@ -87,8 +87,13 @@ def user_open_shopping_cart_id(id_user: ObjectId) -> tuple[ObjectId, int] | None
     db = connect_to_mongodb()
 
     # Request
-    fields = {"_id": False, "shoppingcarts": True}
-    filter = {"_id": id_user}
+    fields = {
+        "_id": False,
+        "shoppingcarts": True,
+    }
+    filter = {
+        # "_id": id_user,
+    }
     response = [doc for doc in db.User.find(filter=filter, projection=fields)]
 
     # Result
@@ -383,31 +388,43 @@ def create_invoice(id_user: int) -> None:
     """
     # 1. Connect to collection
     collection_user = connect_to_collection(cv.USER_COLLECTION)
-    collection_invoice = connect_to_collection(cv.USER_COLLECTION)
+    collection_invoice = connect_to_collection(cv.INVOICE_COLLECTION)
 
-    # 2. Create filters, fields and new_invoice{}
+    # 2. Create filters, fields
     _, id_shoppingcart = user_open_shopping_cart_id(id_user)
 
-    # fields_user = {
-    #     "_id": 0,
-    #     f"shoppingcarts.{id_shoppingcart}": 1,
-    # }
-    # filter_user = {
-    #     "_id": id_user,
-    # }
+    fields_user = {
+        "_id": 0,
+        "shoppingcarts": 1,
+    }
+    filter_user = {
+        "_id": id_user,
+    }
 
-    # # 3. Get information
-    # result_one = collection_user.find_one(filter_user, fields_user)
-    # result_many = result_one["shoppingcarts"]
-    # for doc in result_many:
-    #     print(doc)
+    # 3. Get information
+    result = collection_user.find_one(filter_user, fields_user)
+    shoppingcarts_info = result["shoppingcarts"]
+    shoppingcart = shoppingcarts_info.pop(id_shoppingcart)
 
-    # 4. Create invoice
+    # 4. Update User: shoppingcarts
+    update_fields_user = {"$set": {"shoppingcarts": shoppingcarts_info}}
+
+    collection_user.update_one(
+        filter_user,
+        update_fields_user,
+    )
+
+    # 5. Create invoice
     today_date = dt.datetime.now()
-    # new_invoice = {
-    #     "date": today_date,
-    #     "shoppingcart": ,
-    # }
+    new_invoice = {
+        "date": today_date,
+        "id_user": id_user,
+        "shoppingcart": shoppingcart,
+    }
+
+    collection_invoice.insert_one(
+        new_invoice,
+    )
 
 
 # region Admin
@@ -467,15 +484,15 @@ def main():
     # for product in products:
     #     print(product)
 
-    id_user = "683970c434aa88b4792013f0"
-    id_product = "683970c0b906f90c552d4b03"
-    ids = user_open_shopping_cart_id(ObjectId(id_user))
+    # id_user = "683970c434aa88b4792013f0"
+    # id_product = "683970c0b906f90c552d4b03"
+    # ids = user_open_shopping_cart_id(ObjectId(id_user))
     # print(user_open_shopping_cart_id(ObjectId(id_user)))
     # print(ids)
     # print(user_shopping_cart(ids))
-    if ids:
-        update_command_line(ObjectId(id_product), ids, 15)
-        remove_command_line(ObjectId(id_product), ids)
+    # if ids:
+    #     update_command_line(ObjectId(id_product), ids, 15)
+    #     remove_command_line(ObjectId(id_product), ids)
 
     # products = product_catalog()
     # for product in products:
@@ -484,7 +501,7 @@ def main():
     # connect_user(ObjectId("683705696b9ec1d18895d51d"))
     # print(get_all_info_user(ObjectId("68371c28564b2590bf657cef")))
     # print(is_admin(ObjectId("68385cce9e2c02e0112976ca")))
-    print(user_open_shopping_cart_id(ObjectId("683972d4934bfa48a1e9ce69")))
+    print(create_invoice(ObjectId("683992513d4b1cfa55f45cc7")))
 
 
 if __name__ == "__main__":
