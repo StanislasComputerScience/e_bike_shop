@@ -4,6 +4,7 @@ from pymongo.collection import Collection
 from bson.objectid import ObjectId
 import sys
 import os
+import datetime as dt
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 # Add parent folder at the sys.path
@@ -210,6 +211,41 @@ def get_user_address(id_user: int) -> list[tuple]:
     return user_info_list
 
 
+def create_invoice(id_user: int) -> None:
+    """Create invoice
+
+    Args:
+        id_user (int): user id
+    """
+    # 1. Connect to collection
+    collection_user = connect_to_collection(cv.USER_COLLECTION)
+    collection_invoice = connect_to_collection(cv.USER_COLLECTION)
+
+    # 2. Create filters, fields and new_invoice{}
+    _, id_shoppingcart = user_open_shopping_cart_id(id_user)
+
+    # fields_user = {
+    #     "_id": 0,
+    #     f"shoppingcarts.{id_shoppingcart}": 1,
+    # }
+    # filter_user = {
+    #     "_id": id_user,
+    # }
+
+    # # 3. Get information
+    # result_one = collection_user.find_one(filter_user, fields_user)
+    # result_many = result_one["shoppingcarts"]
+    # for doc in result_many:
+    #     print(doc)
+
+    # 4. Create invoice
+    today_date = dt.datetime.now()
+    # new_invoice = {
+    #     "date": today_date,
+    #     "shoppingcart": ,
+    # }
+
+
 # region Admin
 def is_admin(id_user: int) -> bool:
     """Verify if the user is admin
@@ -259,41 +295,7 @@ def create_new_product(
         choice_vat (str): product vAT
         file_path (str): product picture file path
     """
-    # # 1st. Get VAT information
-    # # 1. Connect to collection
-    # collection = connect_to_collection(cv.VAT_COLLECTION)
-
-    # # 2. Create filters and fields
-    # fields = {
-    #     "_id": 0,
-    #     "name": 1,
-    #     "rate": 1,
-    # }
-    # filter = {
-    #     "name": choice_vat,
-    # }
-    # vat_info = [vat for vat in collection.find(filter, fields)]
-    # for vat in collection.find(filter, fields):
-    #     vat_info.append(vat)
-
-    # 2nd. Create new product
-    # 1. Connect to collection
-    collection = connect_to_collection(cv.PRODUCT_COLLECTION)
-
-    # 2. Create filters and fields
-    new_product = {
-        "name": name,
-        "category": choice_cat,
-        "number_of_units": number_of_units,
-        "description": description,
-        "tech_specification": tech_specification,
-        "price_ET": price_ET,
-        "image_path": file_path,
-    }
-
-    # 3. Create new product
-    result_one = collection.insert_one(new_product)
-    print(f"ID inséré pour {new_product['name']} : {result_one.inserted_id}")
+    pass
 
 
 def main():
@@ -305,23 +307,7 @@ def main():
     # connect_user(ObjectId("683705696b9ec1d18895d51d"))
     # print(get_all_info_user(ObjectId("68371c28564b2590bf657cef")))
     # print(is_admin(ObjectId("68385cce9e2c02e0112976ca")))
-    # 0. Get VAT information
-    collection = connect_to_collection(cv.VAT_COLLECTION)
-
-    # Create filters and fields
-    fields = {
-        "_id": 0,
-        "name": 1,
-        "rate": 1,
-    }
-    filter = {
-        "name": "french (standard)",
-    }
-    vat_info = []
-    for vat in collection.find(filter, fields):
-        vat_info.append(vat)
-
-    print(vat_info)
+    print(user_open_shopping_cart_id(ObjectId("683972d4934bfa48a1e9ce69")))
 
 
 if __name__ == "__main__":
