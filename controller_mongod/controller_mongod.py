@@ -98,12 +98,12 @@ def user_open_shopping_cart_id(id_user: ObjectId) -> tuple[ObjectId, int] | None
 
 
 # Shopping cart
-def user_shopping_cart(id_shoppingcart: tuple[ObjectId, int]) -> list[dict]:
+def user_shopping_cart(id_user_and_shoppingcart: tuple[ObjectId, int]) -> list[dict]:
     """Return information of a shopping cart of a user.
     Interrogate the database with the name ecommerce_db_name.
 
     Args:
-        id_shoppingcart (tuple[ObjectId, int]): User Id and index of the shopping cart in its shopping cart list
+        id_user_and_shoppingcart (tuple[ObjectId, int]): User Id and index of the shopping cart in its shopping cart list
 
     Returns:
         (list[dict]): list of shopping cart command lines to display
@@ -113,16 +113,20 @@ def user_shopping_cart(id_shoppingcart: tuple[ObjectId, int]) -> list[dict]:
     # Connection
     db = connect_to_mongodb()
 
+    # Split tuple
+    id_user = id_user_and_shoppingcart[0]
+    idx_shoppingcart = id_user_and_shoppingcart[1]
+
     # Request
     fields = {"_id": False, "shoppingcarts": True}
-    filter = {"_id": id_shoppingcart[0]}
+    filter = {"_id": id_user}
     response = [doc for doc in db.User.find(filter=filter, projection=fields)]
 
     if response[0]:
         # Get the shopping cart in the list
         shoppingcarts = response[0]["shoppingcarts"]
         try:
-            shoppingcart = shoppingcarts[id_shoppingcart[1]]
+            shoppingcart = shoppingcarts[idx_shoppingcart]
         except:
             raise IndexError("Wrong index in the list of shopping carts.")
 
@@ -139,7 +143,7 @@ def user_shopping_cart(id_shoppingcart: tuple[ObjectId, int]) -> list[dict]:
                 commandLine["product_name"] = product["name"]
                 commandLine["image_path"] = product["image_path"]
                 commandLine["number_of_units"] = product["number_of_units"]
-                commandLine["id_shoppingcart"] = id_shoppingcart
+                commandLine["id_shoppingcart"] = id_user_and_shoppingcart
                 commandLine["id_prod"] = product["_id"]
 
                 count += 1
