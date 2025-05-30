@@ -450,8 +450,6 @@ def update_shoppingcart(id_shoppingcart: int, id_user: int) -> None:
 
 
 # region Admin
-
-
 def is_admin(id_user: int) -> bool:
     """Verify if the user is admin
 

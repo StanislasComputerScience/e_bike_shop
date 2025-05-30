@@ -70,16 +70,28 @@ def create_schema_user() -> dict:
             "role",
         ],
         "properties": {
-            "name": {"bsonType": "string"},
-            "firstname": {"bsonType": "string"},
-            "birth_date": {"bsonType": "date"},
-            "email": {"bsonType": "string"},
-            "password": {"bsonType": "string"},
+            "name": {
+                "bsonType": "string",
+            },
+            "firstname": {
+                "bsonType": "string",
+            },
+            "birth_date": {
+                "bsonType": "date",
+            },
+            "email": {
+                "bsonType": "string",
+            },
+            "password": {
+                "bsonType": "string",
+            },
             "age": {
                 "bsonType": "int",
                 "minimum": 0,
             },
-            "phone": {"bsonType": "string"},
+            "phone": {
+                "bsonType": "string",
+            },
             "connection": {
                 "enum": [
                     "timeout",
@@ -94,6 +106,35 @@ def create_schema_user() -> dict:
                     "user",
                 ],
                 "description": "Must be either admin or user",
+            },
+            "address": {
+                "bsonType": "array",
+                "minItems": 0,
+                "items": {
+                    "bsonType": "object",
+                    "required": [
+                        "number",
+                        "street",
+                        "postal_code",
+                        "city",
+                    ],
+                    "properties": {
+                        "number": {
+                            "bsonType": "int",
+                            "minimum": 0,
+                        },
+                        "street": {
+                            "bsonType": "string",
+                        },
+                        "postal_code": {
+                            "bsonType": "string",
+                        },
+                        "city": {
+                            "bsonType": "string",
+                        },
+                    },
+                },
+                "description": "List contain all address of a user",
             },
             "shoppingcarts": {
                 "bsonType": "array",
@@ -112,7 +153,12 @@ def create_schema_user() -> dict:
                         ],
                         "properties": {
                             # commandline
-                            "id_product": {"bsonType": "objectId"},
+                            "id_product": {
+                                "bsonType": "objectId",
+                            },
+                            "id_invoice": {
+                                "bsonType": "objectId",
+                            },
                             "price_ET": {
                                 "bsonType": "double",
                                 "minimum": 0.0,
@@ -162,6 +208,26 @@ def create_users(validator: dict) -> None:
             "role": "user",
             "age": 33,
             "phone": "010203040506",
+            "address": [
+                {
+                    "number": 2,
+                    "street": "Rue de la mouette",
+                    "postal_code": "97400",
+                    "city": "Saint-Denis",
+                },
+                {
+                    "number": 4,
+                    "street": "Rue de la vallée",
+                    "postal_code": "35000",
+                    "city": "Dedana",
+                },
+                {
+                    "number": 122,
+                    "street": "Rue des Conques",
+                    "postal_code": "75010",
+                    "city": "Bikini Bottom",
+                },
+            ],
         },
         {
             "name": "Martin",
@@ -173,6 +239,14 @@ def create_users(validator: dict) -> None:
             "role": "admin",
             "age": 37,
             "phone": "060102030405",
+            "address": [
+                {
+                    "number": 10,
+                    "street": "Avenue des Cèdres",
+                    "postal_code": "75012",
+                    "city": "Paris",
+                }
+            ],
         },
     ]
     result_many = collection.insert_many(new_users)
