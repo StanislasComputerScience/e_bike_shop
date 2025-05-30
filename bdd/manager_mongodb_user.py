@@ -108,7 +108,7 @@ def create_schema_user() -> dict:
                             "id_product",
                             "price_ET",
                             "quantity",
-                            "rate_VAT",
+                            "rate_vat",
                         ],
                         "properties": {
                             # commandline
@@ -121,7 +121,7 @@ def create_schema_user() -> dict:
                                 "bsonType": "int",
                                 "minimum": 0,
                             },
-                            "rate_VAT": {
+                            "rate_vat": {
                                 "bsonType": "double",
                                 "minimum": 0.0,
                             },
@@ -281,7 +281,7 @@ def create_shoppingcart(number_of_products: int) -> dict:
         commandline["id_product"] = product["_id"]
         commandline["price_ET"] = product["price_ET"]
         commandline["quantity"] = random.randint(0, product["number_of_units"])
-        commandline["rate_VAT"] = product["rate_vat"]
+        commandline["rate_vat"] = product["rate_vat"]
         new_shoppingcart.append(commandline)
 
     return new_shoppingcart
