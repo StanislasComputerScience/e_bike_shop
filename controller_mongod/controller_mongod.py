@@ -173,10 +173,15 @@ def user_open_shopping_cart_id(id_user: ObjectId) -> tuple[ObjectId, int] | None
         # "_id": id_user,
     }
     response = [doc for doc in db.User.find(filter=filter, projection=fields)]
+    shoppingcarts = response[0]["shoppingcarts"]
 
     # Result
     if response[0]:
-        return (id_user, len(response[0]["shoppingcarts"]) - 1)
+        for idx in range(len(shoppingcarts)-1,-1,-1):
+            shoppingcart = shoppingcarts[idx]
+            first_command_line = shoppingcart[0]
+            if not "id_invoice" in first_command_line.keys():
+                return (id_user, idx)
     else:
         return None
 
@@ -562,9 +567,9 @@ def main():
     # for product in products:
     #     print(product)
 
-    # id_user = "683970c434aa88b4792013f0"
-    # id_product = "683970c0b906f90c552d4b03"
-    # ids = user_open_shopping_cart_id(ObjectId(id_user))
+    id_user = "6839a4da0bd08d31d85cc070"
+    id_product = "6839a4d91b4594bc1df2e7b7"
+    ids = user_open_shopping_cart_id(ObjectId(id_user))
     # print(user_open_shopping_cart_id(ObjectId(id_user)))
     # print(ids)
     # print(user_shopping_cart(ids))
