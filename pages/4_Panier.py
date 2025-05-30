@@ -1,5 +1,5 @@
 import streamlit as st
-import controller.controller as control
+import controller_mongod.controller_mongod as control
 
 
 def display():
