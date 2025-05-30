@@ -199,20 +199,24 @@ def remove_command_line(
     filter = {
         "_id": id_shoppingcart[0],
     }
-    response = [doc for doc in db.User.find(filter=filter, projection=fields)]
-    # TODO find_one permet de supprimer les [0]
-    count = 0
-    for command_line in response[0]["shoppingcarts"][id_shoppingcart[1]]:
-        if command_line["id_product"] == id_prod:
-            response[0]["shoppingcarts"][id_shoppingcart[1]].pop(count)
+    response = db.User.find_one(filter=filter, projection=fields)
+    if response:
+        count = 0
+        for command_line in response["shoppingcarts"][id_shoppingcart[1]]:
+            if command_line["id_product"] == id_prod:
+                response["shoppingcarts"][id_shoppingcart[1]].pop(count)
 
-        count += 1
+            count += 1
 
-    filter = {
-        "_id": id_shoppingcart[0],
-    }
-    update = {"$set": {"shoppingcarts": response[0]["shoppingcarts"]}}
-    db.User.update_one(filter=filter, update=update)
+        filter = {
+            "_id": id_shoppingcart[0],
+        }
+        update = {"$set": {"shoppingcarts": response["shoppingcarts"]}}
+        db.User.update_one(filter=filter, update=update)
+    else:
+        raise KeyError(
+            f"No document with user Id {id_shoppingcart[0]} in collection User"
+        )
 
 
 # region Connection
@@ -297,14 +301,15 @@ def main():
     # for product in products:
     #     print(product)
 
-    id_user = "683968d120a2a1c3a8a8a911"
-    id_product = "683966affa3736d5110d1519"
+    id_user = "683970c434aa88b4792013f0"
+    id_product = "683970c0b906f90c552d4b03"
     ids = user_open_shopping_cart_id(ObjectId(id_user))
     # print(user_open_shopping_cart_id(ObjectId(id_user)))
     # print(ids)
     # print(user_shopping_cart(ids))
-    update_command_line(ObjectId(id_product), ids, 15)
-    remove_command_line(ObjectId(id_product), ids)
+    if ids:
+        update_command_line(ObjectId(id_product), ids, 15)
+        remove_command_line(ObjectId(id_product), ids)
 
     # products = product_catalog()
     # for product in products:
