@@ -1,6 +1,6 @@
 import os
 import streamlit as st
-import controller.controller as control
+import controller_mongod.controller_mongod as control
 from random import choice
 
 # CSS pour centrer le texte
