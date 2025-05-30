@@ -103,39 +103,6 @@ def user_open_shopping_cart_id(id_user: ObjectId) -> tuple[ObjectId, int] | None
         return None
 
 
-def get_user_open_shopping_cart_id(id_user: ObjectId) -> tuple[ObjectId, int] | None:
-    """Return the index of the latest opened shopping cart
-    associated to the user with id id_user. An opened shopping cart
-    is a shopping cart that is stored in a document of the collection
-    User.
-
-    Args:
-        id_user (ObjectId): User Id
-
-    Returns:
-        int: Index of the shopping cart in the list of the user's shopping carts
-    """
-
-    # Connection
-    db = connect_to_mongodb()
-
-    # Request
-    fields = {
-        "_id": False,
-        "shoppingcarts": True,
-    }
-    filter = {
-        # "_id": id_user,
-    }
-    response = [doc for doc in db.User.find(filter=filter, projection=fields)]
-
-    # Result
-    if response[0]:
-        return (id_user, len(response[0]["shoppingcarts"]) - 1)
-    else:
-        return None
-
-
 # Shopping cart
 def user_shopping_cart(id_user_and_shoppingcart: tuple[ObjectId, int]) -> list[dict]:
     """Return information of a shopping cart of a user.
@@ -367,15 +334,13 @@ def get_all_info_user(id_user: str) -> dict:
     }
 
     # 3. Get User information
-    user_info_list = []
     for user in collection.find(filter, fields):
-        info = {}
-        info["name"] = user["name"]
-        info["firstname"] = user["firstname"]
-        info["email"] = user["email"]
-        info["phone"] = user["phone"]
-        user_info_list.append(info)
-    return user_info_list
+        info_user = {}
+        info_user["name"] = user["name"]
+        info_user["firstname"] = user["firstname"]
+        info_user["email"] = user["email"]
+        info_user["phone"] = user["phone"]
+    return info_user
 
 
 def get_user_address(id_user: int) -> list[tuple]:
@@ -486,11 +451,10 @@ def create_invoice(id_user: int) -> None:
     )
 
 
-def is_invoice_allready_in_base(id_user: ObjectId, id_shoppingcart: int) -> bool:
+def is_invoice_allready_in_base(id_shoppingcart: tuple[ObjectId, int]) -> bool:
     """Verify if the invoice is allready in base
 
     Args:
-        id_user (ObjectId): user id
         id_shoppingcart (int): shoppingcart id
 
     Returns:
@@ -505,16 +469,15 @@ def is_invoice_allready_in_base(id_user: ObjectId, id_shoppingcart: int) -> bool
         "shoppingcarts": 1,
     }
     filter_user = {
-        "_id": id_user,
+        "_id": id_shoppingcart[0],
     }
 
     # 3. Get information
     result = collection_user.find_one(filter_user, fields_user)
     shoppingcarts = result["shoppingcarts"]
-    shoppingcart = shoppingcarts[id_shoppingcart]
+    shoppingcart = shoppingcarts[id_shoppingcart[1]]
     return [
-        True if commandline["id_invoice"] is not None else False
-        for commandline in shoppingcart
+        True if "id_invoice" in commandline else False for commandline in shoppingcart
     ][0]
 
 
@@ -623,8 +586,8 @@ def main():
     # connect_user(ObjectId("683705696b9ec1d18895d51d"))
     # print(get_all_info_user(ObjectId("68371c28564b2590bf657cef")))
     # print(is_admin(ObjectId("68385cce9e2c02e0112976ca")))
-    # print(create_invoice(find_user_id("Dupont", "Paul")))
-    print(is_invoice_allready_in_base(find_user_id("Dupont", "Paul"), 0))
+    print(create_invoice(find_user_id("Dupont", "Paul")))
+    print(is_invoice_allready_in_base((find_user_id("Dupont", "Paul"), 0)))
 
 
 if __name__ == "__main__":

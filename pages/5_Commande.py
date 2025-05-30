@@ -49,11 +49,11 @@ def display() -> None:
         st.text("Il est nécessaire de vous connecter pour voir votre commande.")
 
 
-def display_table_header(user_info: list[dict]) -> None:
+def display_table_header(user_info: dict) -> None:
     """Display header who contain user information
 
     Args:
-        user_info (list[dict]): user information
+        user_info (dict): user information
     """
     st.text(f"Utilisateur: {user_info["name"]} {user_info["firstname"]}")
     st.text(f"Mail: {user_info["email"]}")
@@ -187,31 +187,17 @@ def display_address_choice() -> None:
     rue_choisie, ville_choisie = user_address[index_choix]
 
     if st.button("order", icon="🚴") and index_choix is not None:
-        if not isinstance(st.session_state["id_user"], ObjectId):
-            id_shoppingcart = control.user_open_shopping_cart_id(
-                st.session_state["id_user"]
-            )
-            if (
-                not control.is_invoice_allready_in_base(id_shoppingcart)
-                and not control.user_shopping_cart(id_shoppingcart) == []
-            ):
-                st.write(control.user_shopping_cart(id_shoppingcart))
-                control.create_invoice(st.session_state["id_user"])
-                st.success("Commande effectuée ✅")
-            else:
-                st.error("La facture est déjà créée ou le panier est vide ❌")
+        id_shoppingcart = controlmdb.user_open_shopping_cart_id(
+            st.session_state["id_user"]
+        )
+        if (
+            not controlmdb.is_invoice_allready_in_base(id_shoppingcart)
+            and not controlmdb.user_shopping_cart(id_shoppingcart) == []
+        ):
+            controlmdb.create_invoice(st.session_state["id_user"])
+            st.success("Commande effectuée ✅")
         else:
-            id_shoppingcart = controlmdb.get_user_open_shopping_cart_id(
-                st.session_state["id_user"]
-            )
-            if (
-                not controlmdb.is_invoice_allready_in_base(id_shoppingcart)
-                and not control.user_shopping_cart(id_shoppingcart) == []
-            ):
-                controlmdb.create_invoice(st.session_state["id_user"])
-                st.success("Commande effectuée ✅")
-            else:
-                st.error("La facture est déjà créée ou le panier est vide ❌")
+            st.error("La facture est déjà créée ou le panier est vide ❌")
 
 
 if __name__ == "__main__":
