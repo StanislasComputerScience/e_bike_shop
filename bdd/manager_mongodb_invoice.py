@@ -54,25 +54,26 @@ def create_collection_invoice():
             "Invoice", validator={"$jsonSchema": schema}, validationLevel="strict"
         )
 
-    # 3. Récupération des produits
-    products = user.create_shoppingcart(5)
-    user_id = user.find_user_id("Dupont", "Paul")
-    # 4. Création de la facture
-    invoice_data = {
-        "date": dt.datetime.now(),
-        "id_user": user_id,
-        "shoppingcart": products,
-    }
+    for _ in range(2):
+        # 3. Récupération des produits
+        products = user.create_shoppingcart(5)
+        user_id = user.find_user_id("Dupont", "Paul")
+        # 4. Création de la facture
+        invoice_data = {
+            "date": dt.datetime.now(),
+            "id_user": user_id,
+            "shoppingcart": products,
+        }
 
-    print("🧾 Facture générée :")
-    pprint.pprint(invoice_data)
+        print("🧾 Facture générée :")
+        pprint.pprint(invoice_data)
 
-    # 5. Insertion dans MongoDB
-    try:
-        result = db["Invoice"].insert_one(invoice_data)
-        print("✅ Facture insérée avec ID :", result.inserted_id)
-    except Exception as insert_error:
-        print("❌ Erreur à l'insertion :", insert_error)
+        # 5. Insertion dans MongoDB
+        try:
+            result = db["Invoice"].insert_one(invoice_data)
+            print("✅ Facture insérée avec ID :", result.inserted_id)
+        except Exception as insert_error:
+            print("❌ Erreur à l'insertion :", insert_error)
 
 
 if __name__ == "__main__":
