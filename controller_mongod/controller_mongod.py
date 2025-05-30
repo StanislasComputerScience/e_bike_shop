@@ -237,6 +237,65 @@ def is_admin(id_user: int) -> bool:
     return "admin" in user_role
 
 
+def create_new_product(
+    name: str,
+    choice_cat: str,
+    number_of_units: int,
+    description: str,
+    tech_specification: str,
+    price_ET: int,
+    choice_vat: str,
+    file_path: str,
+) -> None:
+    """Create new product
+
+    Args:
+        name (str): product name
+        choice_cat (str): product category
+        number_of_units (int): number of units
+        description (str): product description
+        tech_specification (str): product technical specification
+        price_ET (int): price ET
+        choice_vat (str): product vAT
+        file_path (str): product picture file path
+    """
+    # # 1st. Get VAT information
+    # # 1. Connect to collection
+    # collection = connect_to_collection(cv.VAT_COLLECTION)
+
+    # # 2. Create filters and fields
+    # fields = {
+    #     "_id": 0,
+    #     "name": 1,
+    #     "rate": 1,
+    # }
+    # filter = {
+    #     "name": choice_vat,
+    # }
+    # vat_info = [vat for vat in collection.find(filter, fields)]
+    # for vat in collection.find(filter, fields):
+    #     vat_info.append(vat)
+
+    # 2nd. Create new product
+    # 1. Connect to collection
+    collection = connect_to_collection(cv.PRODUCT_COLLECTION)
+
+    # 2. Create filters and fields
+    new_product = {
+        "name": name,
+        "category": choice_cat,
+        "number_of_units": number_of_units,
+        "description": description,
+        "tech_specification": tech_specification,
+        "price_ET": price_ET,
+        "image_path": file_path,
+    }
+
+    # 3. Create new product
+    result_one = collection.insert_one(new_product)
+    print(f"ID inséré pour {new_product['name']} : {result_one.inserted_id}")
+
+
 def main():
     pass
     # products = product_catalog()
@@ -245,7 +304,24 @@ def main():
     # get_user_info_connect("paul.dupont@generator.com")
     # connect_user(ObjectId("683705696b9ec1d18895d51d"))
     # print(get_all_info_user(ObjectId("68371c28564b2590bf657cef")))
-    print(is_admin(ObjectId("68385cce9e2c02e0112976ca")))
+    # print(is_admin(ObjectId("68385cce9e2c02e0112976ca")))
+    # 0. Get VAT information
+    collection = connect_to_collection(cv.VAT_COLLECTION)
+
+    # Create filters and fields
+    fields = {
+        "_id": 0,
+        "name": 1,
+        "rate": 1,
+    }
+    filter = {
+        "name": "french (standard)",
+    }
+    vat_info = []
+    for vat in collection.find(filter, fields):
+        vat_info.append(vat)
+
+    print(vat_info)
 
 
 if __name__ == "__main__":
