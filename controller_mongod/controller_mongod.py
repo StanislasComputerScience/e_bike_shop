@@ -127,6 +127,7 @@ def user_shopping_cart(id_shoppingcart: tuple[ObjectId, int]) -> list[dict]:
             raise IndexError("Wrong index in the list of shopping carts.")
 
         fields = ["image_path", "name", "number_of_units"]
+        count = 0
         for commandLine in shoppingcart:
             filter = {"_id": commandLine["id_product"]}
             response = [
@@ -135,14 +136,16 @@ def user_shopping_cart(id_shoppingcart: tuple[ObjectId, int]) -> list[dict]:
 
             try:
                 product = response[0]
-                commandLine["name"] = product["name"]
+                commandLine["product_name"] = product["name"]
                 commandLine["image_path"] = product["image_path"]
                 commandLine["number_of_units"] = product["number_of_units"]
                 commandLine["id_shoppingcart"] = id_shoppingcart
+                commandLine["id_prod"] = product["_id"]
+
+                count += 1
             except:
                 raise Exception("Error...")
 
-        # TODO: Should add a shopping cart date
         return shoppingcart
 
     else:
