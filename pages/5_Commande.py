@@ -1,6 +1,8 @@
 import streamlit as st
 import controller.controller as control
+import controller_mongod.controller_mongod as controlmdb
 import datetime
+from bson import ObjectId
 
 
 def display() -> None:
@@ -8,14 +10,14 @@ def display() -> None:
     try:
         # Request to the DB
         if "id_user" in st.session_state:
-            id_shoppingcart = control.user_open_shopping_cart_id(
+            id_shoppingcart = controlmdb.user_open_shopping_cart_id(
                 st.session_state["id_user"]
             )
             if id_shoppingcart:
-                shopping_cart = control.user_shopping_cart(id_shoppingcart)
+                shopping_cart = controlmdb.user_shopping_cart(id_shoppingcart)
             else:
                 shopping_cart = list()
-            user_info = control.get_all_info_user(st.session_state["id_user"])
+            user_info = controlmdb.get_all_info_user(st.session_state["id_user"])
         else:
             shopping_cart = list()
             user_info = list()
@@ -171,7 +173,7 @@ def display_order_and_total(
 
 def display_address_choice() -> None:
     """Display in streamlit all address to permit to the user the choice"""
-    user_address = control.get_user_address(st.session_state["id_user"])
+    user_address = controlmdb.get_user_address(st.session_state["id_user"])
 
     options = [f"{rue}, {ville}" for rue, ville in user_address]
 
@@ -185,18 +187,31 @@ def display_address_choice() -> None:
     rue_choisie, ville_choisie = user_address[index_choix]
 
     if st.button("order", icon="🚴") and index_choix is not None:
-        id_shoppingcart = control.user_open_shopping_cart_id(
-            st.session_state["id_user"]
-        )
-        if (
-            not control.is_invoice_allready_in_base(id_shoppingcart)
-            and not control.user_shopping_cart(id_shoppingcart) == []
-        ):
-            st.write(control.user_shopping_cart(id_shoppingcart))
-            control.create_invoice(st.session_state["id_user"])
-            st.success("Commande effectuée ✅")
+        if not isinstance(st.session_state["id_user"], ObjectId):
+            id_shoppingcart = control.user_open_shopping_cart_id(
+                st.session_state["id_user"]
+            )
+            if (
+                not control.is_invoice_allready_in_base(id_shoppingcart)
+                and not control.user_shopping_cart(id_shoppingcart) == []
+            ):
+                st.write(control.user_shopping_cart(id_shoppingcart))
+                control.create_invoice(st.session_state["id_user"])
+                st.success("Commande effectuée ✅")
+            else:
+                st.error("La facture est déjà créée ou le panier est vide ❌")
         else:
-            st.error("La facture est déjà créée ou le panier est vide ❌")
+            id_shoppingcart = controlmdb.get_user_open_shopping_cart_id(
+                st.session_state["id_user"]
+            )
+            if (
+                not controlmdb.is_invoice_allready_in_base(id_shoppingcart)
+                and not control.user_shopping_cart(id_shoppingcart) == []
+            ):
+                controlmdb.create_invoice(st.session_state["id_user"])
+                st.success("Commande effectuée ✅")
+            else:
+                st.error("La facture est déjà créée ou le panier est vide ❌")
 
 
 if __name__ == "__main__":

@@ -72,6 +72,39 @@ def product_catalog() -> list[dict]:
 # Shopping cart id
 def user_open_shopping_cart_id(id_user: ObjectId) -> tuple[ObjectId, int] | None:
     """Return the index of the latest opened shopping cart
+    associated to the user with id id_user without id_invoice. An opened shopping cart
+    is a shopping cart that is stored in a document of the collection
+    User.
+
+    Args:
+        id_user (ObjectId): User Id
+
+    Returns:
+        int: Index of the shopping cart in the list of the user's shopping carts
+    """
+
+    # Connection
+    db = connect_to_mongodb()
+
+    # Request
+    fields = {
+        "_id": False,
+        "shoppingcarts": True,
+    }
+    filter = {
+        # "_id": id_user,
+    }
+    response = [doc for doc in db.User.find(filter=filter, projection=fields)]
+
+    # Result
+    if response[0]:
+        return (id_user, len(response[0]["shoppingcarts"]) - 1)
+    else:
+        return None
+
+
+def get_user_open_shopping_cart_id(id_user: ObjectId) -> tuple[ObjectId, int] | None:
+    """Return the index of the latest opened shopping cart
     associated to the user with id id_user. An opened shopping cart
     is a shopping cart that is stored in a document of the collection
     User.
@@ -426,6 +459,64 @@ def create_invoice(id_user: int) -> None:
         new_invoice,
     )
 
+    # 6. Get invoice id
+    fields_invoice = {
+        "_id": 1,
+        "shoppingcart": 1,
+    }
+    filter_invoice = {
+        "id_user": id_user,
+    }
+
+    result = [doc for doc in collection_invoice.find(filter_invoice, fields_invoice)]
+    id_invoice = result[-1]["_id"]
+
+    # 7. Update shoppingcarts
+    for commandline in shoppingcart:
+        commandline["id_invoice"] = id_invoice
+    shoppingcarts_info.append(shoppingcart)
+
+    new_shoppingcarts = {
+        "$set": {"shoppingcarts": shoppingcarts_info},
+    }
+
+    collection_user.update_one(
+        filter_user,
+        new_shoppingcarts,
+    )
+
+
+def is_invoice_allready_in_base(id_user: ObjectId, id_shoppingcart: int) -> bool:
+    """Verify if the invoice is allready in base
+
+    Args:
+        id_user (ObjectId): user id
+        id_shoppingcart (int): shoppingcart id
+
+    Returns:
+        bool: condition if the invoice is in base
+    """
+    # 1. Connect to collection
+    collection_user = connect_to_collection(cv.USER_COLLECTION)
+
+    # 2. Create filters, fields
+    fields_user = {
+        "_id": 0,
+        "shoppingcarts": 1,
+    }
+    filter_user = {
+        "_id": id_user,
+    }
+
+    # 3. Get information
+    result = collection_user.find_one(filter_user, fields_user)
+    shoppingcarts = result["shoppingcarts"]
+    shoppingcart = shoppingcarts[id_shoppingcart]
+    return [
+        True if commandline["id_invoice"] is not None else False
+        for commandline in shoppingcart
+    ][0]
+
 
 # region Admin
 def is_admin(id_user: int) -> bool:
@@ -479,6 +570,37 @@ def create_new_product(
     pass
 
 
+def find_user_id(name: str, firstname: str) -> ObjectId:
+    """Find user id
+
+    Args:
+        name (str): user name
+        firstname (str): user firstname
+
+    Returns:
+        ObjectId: User id
+    """
+    # 1. Connection to MongoDB
+    client = MongoClient(cv.MONGODB_LOCAL_PATH)
+
+    # 2. Access database and collection
+    db = client[cv.MONGODB_NAME]
+    collection = db[cv.USER_COLLECTION]
+
+    # 3. Create filters and fields
+    fields = {
+        "_id": 1,
+    }
+    filter = {
+        "name": name,
+        "firstname": firstname,
+    }
+
+    # 4. Use find() with filter : get the user
+    user_id = [doc["_id"] for doc in collection.find(filter, fields)]
+    return user_id[0]
+
+
 def main():
     # products = product_catalog()
     # for product in products:
@@ -501,7 +623,8 @@ def main():
     # connect_user(ObjectId("683705696b9ec1d18895d51d"))
     # print(get_all_info_user(ObjectId("68371c28564b2590bf657cef")))
     # print(is_admin(ObjectId("68385cce9e2c02e0112976ca")))
-    print(create_invoice(ObjectId("683992513d4b1cfa55f45cc7")))
+    # print(create_invoice(find_user_id("Dupont", "Paul")))
+    print(is_invoice_allready_in_base(find_user_id("Dupont", "Paul"), 0))
 
 
 if __name__ == "__main__":
