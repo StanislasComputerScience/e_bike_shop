@@ -68,6 +68,7 @@ def product_catalog() -> list[dict]:
 
 
 # region Panier & Commande
+# Shopping cart id
 def user_open_shopping_cart_id(id_user: ObjectId) -> tuple[ObjectId, int] | None:
     """Return the index of the latest opened shopping cart
     associated to the user with id id_user. An opened shopping cart
@@ -137,6 +138,7 @@ def user_shopping_cart(id_shoppingcart: tuple[ObjectId, int]) -> list[dict]:
                 commandLine["name"] = product["name"]
                 commandLine["image_path"] = product["image_path"]
                 commandLine["number_of_units"] = product["number_of_units"]
+                commandLine["id_shoppingcart"] = id_shoppingcart
             except:
                 raise Exception("Error...")
 
@@ -145,6 +147,72 @@ def user_shopping_cart(id_shoppingcart: tuple[ObjectId, int]) -> list[dict]:
 
     else:
         return list()
+
+
+# Update command line
+def update_command_line(
+    id_prod: ObjectId, id_shoppingcart: tuple[ObjectId, int], new_quantity: int
+) -> None:
+    """Update the database to modify the
+    quantity of the command line associated to id_prod for the user
+    shopping cart identified by id_shoppingcart
+
+    Args:
+        id_prod (ObjectId): id of the product associated to the command line
+        id_shoppingcart (tuple[ObjectId, int]): Id of the user and index of the shopping cart in its shopping cart list
+        new_quantity (int): the new quantity
+    """
+
+    # Connection
+    db = connect_to_mongodb()
+
+    filter = {
+        "_id": id_shoppingcart[0],
+    }
+    update = {
+        "$set": {
+            "shoppingcarts."
+            + str(id_shoppingcart[1])
+            + ".$[line].quantity": new_quantity
+        }
+    }
+    array_filters = [{"line.id_product": id_prod}]
+    db.User.update_one(filter=filter, update=update, array_filters=array_filters)
+
+
+# Remove command line
+def remove_command_line(
+    id_prod: ObjectId, id_shoppingcart: tuple[ObjectId, int]
+) -> None:
+    """Remove in the database the command line associated with the product
+    id_prod to the user shopping cart identified by the pair id_shoppingcart.
+
+    Args:
+        id_prod (int): id of the product
+        id_shoppingcart (int): User id and the index of the shopping cart in its shopping cart list
+    """
+
+    # Connection
+    db = connect_to_mongodb()
+
+    fields = {"_id": False, "shoppingcarts": True}
+    filter = {
+        "_id": id_shoppingcart[0],
+    }
+    response = [doc for doc in db.User.find(filter=filter, projection=fields)]
+    # TODO find_one permet de supprimer les [0]
+    count = 0
+    for command_line in response[0]["shoppingcarts"][id_shoppingcart[1]]:
+        if command_line["id_product"] == id_prod:
+            response[0]["shoppingcarts"][id_shoppingcart[1]].pop(count)
+
+        count += 1
+
+    filter = {
+        "_id": id_shoppingcart[0],
+    }
+    update = {"$set": {"shoppingcarts": response[0]["shoppingcarts"]}}
+    db.User.update_one(filter=filter, update=update)
 
 
 # region Connection
@@ -229,11 +297,14 @@ def main():
     # for product in products:
     #     print(product)
 
-    ids = user_open_shopping_cart_id(ObjectId("683703f4815f01c742a4ef96"))
-    print(ids)
-    print(user_shopping_cart(ids))
-
-    # print(user_open_shopping_cart_id(ObjectId("683703f4815f01c742a4ef97")))
+    id_user = "683968d120a2a1c3a8a8a911"
+    id_product = "683966affa3736d5110d1519"
+    ids = user_open_shopping_cart_id(ObjectId(id_user))
+    # print(user_open_shopping_cart_id(ObjectId(id_user)))
+    # print(ids)
+    # print(user_shopping_cart(ids))
+    update_command_line(ObjectId(id_product), ids, 15)
+    remove_command_line(ObjectId(id_product), ids)
 
     # products = product_catalog()
     # for product in products:
