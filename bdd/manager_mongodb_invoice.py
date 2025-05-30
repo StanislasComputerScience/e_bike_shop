@@ -15,20 +15,25 @@ def create_collection_invoice():
     # 1. Schéma JSON
     schema = {
         "bsonType": "object",
-        "required": ["date", "shoppingcart"],
+        "required": ["date", "id_user", "shoppingcart"],
         "properties": {
-            "date": {"bsonType": "date"},
+            "date": {
+                "bsonType": "date",
+            },
+            "id_user": {
+                "bsonType": "objectId",
+            },
             "shoppingcart": {
                 "bsonType": "array",
                 "minItems": 1,
                 "items": {
                     "bsonType": "object",
-                    "required": ["id_product", "price_ET", "quantity", "rate_VAT"],
+                    "required": ["id_product", "price_ET", "quantity", "rate_vat"],
                     "properties": {
                         "id_product": {"bsonType": "objectId"},
                         "price_ET": {"bsonType": "double", "minimum": 0.0},
                         "quantity": {"bsonType": "int", "minimum": 0},
-                        "rate_VAT": {"bsonType": "double", "minimum": 0.0},
+                        "rate_vat": {"bsonType": "double", "minimum": 0.0},
                     },
                 },
             },
@@ -51,10 +56,11 @@ def create_collection_invoice():
 
     # 3. Récupération des produits
     products = user.create_shoppingcart(5)
-
+    user_id = user.find_user_id("Dupont", "Paul")
     # 4. Création de la facture
     invoice_data = {
         "date": dt.datetime.now(),
+        "id_user": user_id,
         "shoppingcart": products,
     }
 

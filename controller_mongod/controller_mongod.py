@@ -4,9 +4,10 @@ from pymongo.collection import Collection
 from bson.objectid import ObjectId
 import sys
 import os
+import datetime as dt
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-# Add parent folder au sys.path
+# Add parent folder at the sys.path
 import const_values as cv
 
 
@@ -86,8 +87,13 @@ def user_open_shopping_cart_id(id_user: ObjectId) -> tuple[ObjectId, int] | None
     db = connect_to_mongodb()
 
     # Request
-    fields = {"_id": False, "shoppingcarts": True}
-    filter = {"_id": id_user}
+    fields = {
+        "_id": False,
+        "shoppingcarts": True,
+    }
+    filter = {
+        # "_id": id_user,
+    }
     response = [doc for doc in db.User.find(filter=filter, projection=fields)]
 
     # Result
@@ -303,26 +309,199 @@ def disconnect_user(id_user: ObjectId) -> None:
     collection.update_one(filter, fields)
 
 
+# region Commande
+def get_all_info_user(id_user: str) -> dict:
+    """Get user information
+
+    Args:
+        id_user (str): user id
+
+    Returns:
+        dict: user information
+    """
+    # 1. Connect to collection
+    collection = connect_to_collection(cv.USER_COLLECTION)
+
+    # 2. Create filters and fields
+    fields = {
+        "name": 1,
+        "firstname": 1,
+        "email": 1,
+        "phone": 1,
+    }
+    filter = {
+        "_id": id_user,
+    }
+
+    # 3. Get User information
+    user_info_list = []
+    for user in collection.find(filter, fields):
+        info = {}
+        info["name"] = user["name"]
+        info["firstname"] = user["firstname"]
+        info["email"] = user["email"]
+        info["phone"] = user["phone"]
+        user_info_list.append(info)
+    return user_info_list
+
+
+def get_user_address(id_user: int) -> list[tuple]:
+    """Get user address
+
+    Args:
+        id_user (int): user id
+
+    Returns:
+        list[tuple]: each tuple contain address: (street, city)
+    """
+    # 1. Connect to collection
+    collection = connect_to_collection(cv.USER_COLLECTION)
+
+    # 2. Create filters and fields
+    fields = {
+        "_id": 0,
+        "address": 1,
+    }
+    filter = {
+        "_id": id_user,
+    }
+
+    # 3. Get information
+    user_address_collect = collection.find_one(filter, fields)
+    user_address_list = user_address_collect["address"]
+
+    user_info_list = []
+    for user in user_address_list:
+        info = (
+            f"{user["number"]} {user["street"]}",
+            f"{user["postal_code"]} {user["city"]}",
+        )
+        user_info_list.append(info)
+    return user_info_list
+
+
+def create_invoice(id_user: int) -> None:
+    """Create invoice
+
+    Args:
+        id_user (int): user id
+    """
+    # 1. Connect to collection
+    collection_user = connect_to_collection(cv.USER_COLLECTION)
+    collection_invoice = connect_to_collection(cv.INVOICE_COLLECTION)
+
+    # 2. Create filters, fields
+    _, id_shoppingcart = user_open_shopping_cart_id(id_user)
+
+    fields_user = {
+        "_id": 0,
+        "shoppingcarts": 1,
+    }
+    filter_user = {
+        "_id": id_user,
+    }
+
+    # 3. Get information
+    result = collection_user.find_one(filter_user, fields_user)
+    shoppingcarts_info = result["shoppingcarts"]
+    shoppingcart = shoppingcarts_info.pop(id_shoppingcart)
+
+    # 4. Update User: shoppingcarts
+    update_fields_user = {"$set": {"shoppingcarts": shoppingcarts_info}}
+
+    collection_user.update_one(
+        filter_user,
+        update_fields_user,
+    )
+
+    # 5. Create invoice
+    today_date = dt.datetime.now()
+    new_invoice = {
+        "date": today_date,
+        "id_user": id_user,
+        "shoppingcart": shoppingcart,
+    }
+
+    collection_invoice.insert_one(
+        new_invoice,
+    )
+
+
+# region Admin
+def is_admin(id_user: int) -> bool:
+    """Verify if the user is admin
+
+    Args:
+        id_user (int): user id
+
+    Returns:
+        bool: condition if the user is admin
+    """
+    # 1. Connect to collection
+    collection = connect_to_collection(cv.USER_COLLECTION)
+
+    # 2. Create filters and fields
+    fields = {
+        "_id": 0,
+        "role": 1,
+    }
+    filter = {
+        "_id": id_user,
+    }
+
+    # 3. Get information
+    user_role = [doc["role"] for doc in collection.find(filter, fields)]
+    return "admin" in user_role
+
+
+def create_new_product(
+    name: str,
+    choice_cat: str,
+    number_of_units: int,
+    description: str,
+    tech_specification: str,
+    price_ET: int,
+    choice_vat: str,
+    file_path: str,
+) -> None:
+    """Create new product
+
+    Args:
+        name (str): product name
+        choice_cat (str): product category
+        number_of_units (int): number of units
+        description (str): product description
+        tech_specification (str): product technical specification
+        price_ET (int): price ET
+        choice_vat (str): product vAT
+        file_path (str): product picture file path
+    """
+    pass
+
+
 def main():
     # products = product_catalog()
     # for product in products:
     #     print(product)
 
-    id_user = "683970c434aa88b4792013f0"
-    id_product = "683970c0b906f90c552d4b03"
-    ids = user_open_shopping_cart_id(ObjectId(id_user))
+    # id_user = "683970c434aa88b4792013f0"
+    # id_product = "683970c0b906f90c552d4b03"
+    # ids = user_open_shopping_cart_id(ObjectId(id_user))
     # print(user_open_shopping_cart_id(ObjectId(id_user)))
     # print(ids)
     # print(user_shopping_cart(ids))
-    if ids:
-        update_command_line(ObjectId(id_product), ids, 15)
-        remove_command_line(ObjectId(id_product), ids)
+    # if ids:
+    #     update_command_line(ObjectId(id_product), ids, 15)
+    #     remove_command_line(ObjectId(id_product), ids)
 
     # products = product_catalog()
     # for product in products:
     #     print(product)
     # get_user_info_connect("paul.dupont@generator.com")
     # connect_user(ObjectId("683705696b9ec1d18895d51d"))
+    # print(get_all_info_user(ObjectId("68371c28564b2590bf657cef")))
+    # print(is_admin(ObjectId("68385cce9e2c02e0112976ca")))
+    print(create_invoice(ObjectId("683992513d4b1cfa55f45cc7")))
 
 
 if __name__ == "__main__":
