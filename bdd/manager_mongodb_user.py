@@ -260,7 +260,7 @@ def find_random_products(random_var: int) -> list:
     return random.sample(find_all_products(), k=random_var)
 
 
-def create_shoppingcart(number_of_product: int) -> dict:
+def create_shoppingcart(number_of_products: int) -> dict:
     """Create shoppingcart
 
     Args:
@@ -270,7 +270,7 @@ def create_shoppingcart(number_of_product: int) -> dict:
         dict: new shoppingcart
     """
     # 1. Get random products
-    product_list = find_random_products(number_of_product)
+    product_list = find_random_products(number_of_products)
 
     # 2. Create shoppingcart
     new_shoppingcart = []
@@ -287,7 +287,7 @@ def create_shoppingcart(number_of_product: int) -> dict:
     return new_shoppingcart
 
 
-def insert_shoppingcart(id_user: ObjectId) -> None:
+def insert_shoppingcart(id_user: ObjectId, number_of_products: int) -> None:
     """Insert shoppingcart
 
     Args:
@@ -303,7 +303,7 @@ def insert_shoppingcart(id_user: ObjectId) -> None:
     # 3. Create filters and fields
     # Add new shoppingcart at the end of the list shoppingcarts
     fields = {
-        "$push": {"shoppingcarts": create_shoppingcart()},
+        "$push": {"shoppingcarts": create_shoppingcart(number_of_products)},
     }
     filter = {
         "_id": id_user,
@@ -320,8 +320,8 @@ def main():
     # generate_password()
     validator = create_schema_user()
     create_users(validator)
-    insert_shoppingcart(find_user_id("Dupont", "Paul"))
-    insert_shoppingcart(find_user_id("Martin", "Claire"))
+    insert_shoppingcart(find_user_id("Dupont", "Paul"), 4)
+    insert_shoppingcart(find_user_id("Martin", "Claire"), 5)
 
 
 if __name__ == "__main__":
