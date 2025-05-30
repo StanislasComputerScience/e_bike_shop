@@ -67,6 +67,28 @@ def product_catalog() -> list[dict]:
     return products
 
 
+# region Home
+def most_popular_products() -> list[dict]:
+    """Most 2 popular products
+
+    Args:
+        No args
+
+    Returns:
+        list[dict]: list of product most popular
+    """
+
+    # Connect to collection
+    collection = connect_to_collection(cv.PRODUCT_COLLECTION)
+
+    # Request
+    fields = ["popularity", "name", "image_path"]
+    sort = {"popularity": -1}
+    response = collection.find(projection=fields).sort(sort).limit(2)
+
+    return [doc for doc in response]
+
+
 # region Panier & Commande
 # Shopping cart id
 def user_open_shopping_cart_id(id_user: ObjectId) -> tuple[ObjectId, int] | None:
@@ -308,21 +330,24 @@ def main():
     # for product in products:
     #     print(product)
 
-    id_user = "683970c434aa88b4792013f0"
-    id_product = "683970c0b906f90c552d4b03"
-    ids = user_open_shopping_cart_id(ObjectId(id_user))
+    # id_user = "683970c434aa88b4792013f0"
+    # id_product = "683970c0b906f90c552d4b03"
+    # ids = user_open_shopping_cart_id(ObjectId(id_user))
     # print(user_open_shopping_cart_id(ObjectId(id_user)))
     # print(ids)
     # print(user_shopping_cart(ids))
-    if ids:
-        update_command_line(ObjectId(id_product), ids, 15)
-        remove_command_line(ObjectId(id_product), ids)
+    # if ids:
+    #     update_command_line(ObjectId(id_product), ids, 15)
+    #     remove_command_line(ObjectId(id_product), ids)
 
     # products = product_catalog()
     # for product in products:
     #     print(product)
     # get_user_info_connect("paul.dupont@generator.com")
     # connect_user(ObjectId("683705696b9ec1d18895d51d"))
+
+    most_popular = most_popular_products()
+    print(most_popular)
 
 
 if __name__ == "__main__":
