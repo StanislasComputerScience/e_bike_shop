@@ -635,9 +635,9 @@ def is_invoice_allready_in_base(id_shoppingcart: tuple[ObjectId, int]) -> bool:
     result = collection_user.find_one(filter_user, fields_user)
     shoppingcarts = result["shoppingcarts"]
     shoppingcart = shoppingcarts[id_shoppingcart[1]]
-    return [
-        True if "id_invoice" in commandline else False for commandline in shoppingcart
-    ][0]
+    return any(
+        [True if "id_invoice" in commandline else False for commandline in shoppingcart]
+    )
 
 
 # region Admin

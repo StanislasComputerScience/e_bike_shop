@@ -76,44 +76,51 @@ with colImage:
 
 
 with colToOrder:
-    if not isinstance(st.session_state["id_user"], ObjectId):
-        id_product = product_selected["id_prod"]
-    else:
-        id_product = l_products[st.session_state.c]["_id"]
     shopping_cart_id = None
     submit_buy = st.button("Ajouter au panier")
     if submit_buy:
+        try:
+            if not isinstance(st.session_state["id_user"], ObjectId):
+                id_product = product_selected["id_prod"]
+            else:
+                id_product = l_products[st.session_state.c]["_id"]
+        except:
+            st.error("Vous devez vous connecter pour ajouter à votre panier ❌")
+
         if "id_user" in st.session_state:
             id_user = st.session_state["id_user"]
-            shopping_cart_id = control.user_open_shopping_cart_id(
-                id_user
-            )  # user_id ==> id_shopping_cart
+            shopping_cart_id = control.user_open_shopping_cart_id(id_user)
+
             if shopping_cart_id:
                 if not control.is_command_line_exist(shopping_cart_id, id_product):
                     vat = (
                         product_selected["price_it"] - product_selected["price_ET"]
                     ) / product_selected["price_ET"]
                     control.add_new_command_line(
-                        id_product, shopping_cart_id, product_selected["price_ET"], vat
+                        id_product,
+                        shopping_cart_id,
+                        product_selected["price_ET"],
+                        vat,
                     )
-            else:  # shopping doesn't exist
+                    st.switch_page("pages/4_Panier.py")
+                else:
+                    st.error("Le produit est déjà dans le panier ❌")
+            else:
                 control.add_new_shoppingcart(id_user)
-                shopping_cart_id = control.user_open_shopping_cart_id(
-                    id_user
-                )  # user_id ==> id_shopping_cart
+                shopping_cart_id = control.user_open_shopping_cart_id(id_user)
                 if shopping_cart_id:
                     vat = (
                         product_selected["price_it"] - product_selected["price_ET"]
                     ) / product_selected["price_ET"]
                     control.add_new_command_line(
-                        id_product, shopping_cart_id, product_selected["price_ET"], vat
+                        id_product,
+                        shopping_cart_id,
+                        product_selected["price_ET"],
+                        vat,
                     )
+                    st.switch_page("pages/4_Panier.py")
                 else:
-                    raise ValueError("shopping_cart_id shoul exist...")
-
-            st.switch_page("pages/4_Panier.py")
-        else:
-            st.error("Vous devez vous connecter pour ajouter à votre panier ❌")
+                    raise ValueError("shopping_cart_id should exist...")
 
 # --- page main body ---
 
