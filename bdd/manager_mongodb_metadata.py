@@ -116,29 +116,27 @@ def create_metadata(validator: dict) -> None:
     collection = get_collection(validator)
 
     # 2. Insérer un document (INSERT MANY)
-    new_metadata = dict(
-        {
-            "vat": [
-                {"name": "french (standard)", "rate": 0.2},
-            ],
-            "category": [
-                {
-                    "name": "bike",
-                },
-                {
-                    "name": "accessory",
-                },
-            ],
-            "role": [
-                {
-                    "name": "user",
-                },
-                {
-                    "name": "admin",
-                },
-            ],
-        },
-    )
+    new_metadata = {
+        "vat": [
+            {"name": "french (standard)", "rate": 0.2},
+        ],
+        "category": [
+            {
+                "name": "bike",
+            },
+            {
+                "name": "accessory",
+            },
+        ],
+        "role": [
+            {
+                "name": "user",
+            },
+            {
+                "name": "admin",
+            },
+        ],
+    }
     result_one = collection.insert_one(new_metadata)
     print("METADATA inséré :", result_one.inserted_id)
 

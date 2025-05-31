@@ -46,7 +46,7 @@ def display() -> None:
         display_address_choice()
 
     except:
-        st.text("Il est nécessaire de vous connecter pour voir votre commande.")
+        st.text("Vous n'êtes pas connecté ou votre panier est vide.")
 
 
 def display_table_header(user_info: dict) -> None:
