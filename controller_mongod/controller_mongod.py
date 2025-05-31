@@ -667,6 +667,35 @@ def is_admin(id_user: int) -> bool:
     return "admin" in user_role
 
 
+def get_all_categories() -> list[str]:
+    """Get all categories
+
+    Returns:
+        list[str]: list of all categories
+    """
+    query = f"""SELECT name
+            FROM Category;
+        """
+    params = ()
+    result = execute_sql_query(query, params)
+    categories_list = []
+    for ind, category in enumerate(result):
+        categories_list.append(category[0])
+    return categories_list
+
+    # 1. Connect to collection
+    collection = connect_to_collection(cv)
+
+    # 2. Create filters and fields
+    fields = {
+        "_id": 0,
+        "name": 1,
+    }
+    filter = {}
+
+    # 3. Get information
+
+
 def create_new_product(
     name: str,
     choice_cat: str,
