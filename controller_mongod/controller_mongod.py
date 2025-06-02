@@ -49,14 +49,15 @@ def product_catalog() -> list[dict]:
     """
 
     db = connect_to_mongodb()
-    fields = [
-        "name",
-        "description",
-        "tech_specification",
-        "image_path",
-        "price_ET",
-        "rate_vat",
-    ]
+    fields = {
+        "_id": True,
+        "name": True,
+        "description": True,
+        "tech_specification": True,
+        "image_path": True,
+        "price_ET": True,
+        "rate_vat": True,
+    }
     products = [doc for doc in db.Product.find(projection=fields)]
 
     count = 0
@@ -144,6 +145,83 @@ def most_products_buy() -> list[dict]:
     return product_list
 
 
+# region Catalogue
+def add_new_command_line(
+    id_prod: int, id_shoppingcart: int, price: float, rate_vat: float
+) -> None:
+    """Add a new entry in the table CommandLine corresponding to
+    the id_prod and id_shoppingcart
+
+    Args:
+        id_prod (int): Id of the products
+        id_shopping_cart (int): Id of the shoppingcart
+    """
+    # 0. Create new commandline
+    commandline = {
+        "id_product": id_prod,
+        "price_ET": price,
+        "rate_vat": rate_vat,
+        "quantity": 1,
+    }
+    # 1. Connect to collection
+    collection = connect_to_collection(cv.USER_COLLECTION)
+
+    # 2. Create filters and fields
+    new_commandline = {"$push": {f"shoppingcarts.{id_shoppingcart[1]}": commandline}}
+
+    filter = {
+        "_id": id_shoppingcart[0],
+    }
+
+    # 3. Use find() with filter : get the user
+    collection.update_one(filter, new_commandline)
+
+
+def add_new_shoppingcart(id_user: int) -> None:
+    """Add a new shopping cart in the table ShoppingCart corresponding to
+    the user with id_user
+
+    Args:
+        id_user (int): Id of the user
+    """
+    # 1. Connect to collection
+    collection = connect_to_collection(cv.USER_COLLECTION)
+
+    # 2. Create filters and fields
+    new_shoppingcart = {"$push": {"shoppingcarts": {"$each": [[]]}}}
+
+    filter = {
+        "_id": id_user,
+    }
+
+    # 3. Use find() with filter : get the user
+    collection.update_one(filter, new_shoppingcart)
+
+
+def is_command_line_exist(
+    shopping_cart_id: tuple[ObjectId, int], id_product: ObjectId
+) -> bool:  # , id_user: ObjectId):
+    """
+    Vérifie si un produit est déjà présent dans un panier.
+
+    Args:
+        shopping_cart_id (str or ObjectId): ID du user, int : l'indice du panier dans liste des paniers de l'utilisateur
+        id_product (str or ObjectId): ID du produit recherché
+
+    Returns:
+        bool: True si le produit est dans le panier, False sinon
+    """
+    db = connect_to_mongodb()
+    field = {"_id": False, "shoppingcarts": True}
+    filter = {"_id": shopping_cart_id[0]}
+
+    user_doc = db.User.find_one(filter=filter, projection=field)
+    shopping_cart = user_doc["shoppingcarts"][shopping_cart_id[1]]
+    return any(
+        [True if doc["id_product"] == id_product else False for doc in shopping_cart]
+    )
+
+
 # region Panier & Commande
 # Shopping cart id
 def user_open_shopping_cart_id(id_user: ObjectId) -> tuple[ObjectId, int] | None:
@@ -168,20 +246,15 @@ def user_open_shopping_cart_id(id_user: ObjectId) -> tuple[ObjectId, int] | None
         "shoppingcarts": True,
     }
     filter = {
-        # "_id": id_user,
+        "_id": id_user,
     }
-    response = [doc for doc in db.User.find(filter=filter, projection=fields)]
-    shoppingcarts = response[0]["shoppingcarts"]
-
-    # Result
-    if response[0]:
-        for idx in range(len(shoppingcarts) - 1, -1, -1):
-            shoppingcart = shoppingcarts[idx]
-            first_command_line = shoppingcart[0]
-            if not "id_invoice" in first_command_line.keys():
-                return (id_user, idx)
-    else:
-        return None
+    response = db.User.find_one(filter=filter, projection=fields)
+    shoppingcarts = response["shoppingcarts"]
+    for i in range(len(shoppingcarts) - 1, -1, -1):
+        cart = shoppingcarts[i]
+        if all("id_invoice" not in line for line in cart):
+            return (id_user, i)
+    return None
 
 
 # Shopping cart
@@ -557,9 +630,9 @@ def is_invoice_allready_in_base(id_shoppingcart: tuple[ObjectId, int]) -> bool:
     result = collection_user.find_one(filter_user, fields_user)
     shoppingcarts = result["shoppingcarts"]
     shoppingcart = shoppingcarts[id_shoppingcart[1]]
-    return [
-        True if "id_invoice" in commandline else False for commandline in shoppingcart
-    ][0]
+    return any(
+        [True if "id_invoice" in commandline else False for commandline in shoppingcart]
+    )
 
 
 # region Admin
@@ -589,6 +662,231 @@ def is_admin(id_user: int) -> bool:
     return "admin" in user_role
 
 
+def get_all_categories() -> list[str]:
+    """Get all categories
+
+    Returns:
+        list[str]: list of all categories
+    """
+    # 1. Connect to collection
+    collection = connect_to_collection(cv.METADATA_COLLECTION)
+
+    # 2. Create filters and fields
+    fields = {
+        "_id": 0,
+        "category": 1,
+    }
+    filter = {}
+
+    # 3. Get information
+    doc_info = collection.find_one(filter, fields)
+    return [name_cat["name"] for name_cat in doc_info["category"]]
+
+
+def create_new_category(name: str) -> None:
+    """Create new category
+
+    Args:
+        name (str): category name
+    """
+    # 1. Connect to collection
+    collection = connect_to_collection(cv.METADATA_COLLECTION)
+
+    # 2. Create filters and fields
+    new_category = {"$push": {"category": {"name": name}}}
+    filter = {}
+
+    # 3. Get information
+    collection.update_one(filter, new_category)
+
+
+def is_category_allready_in_base(name: str) -> bool:
+    """Verify if the category are allready in base
+
+    Returns:
+        bool: if the category are in base or not
+    """
+    # 1. Connect to collection
+    collection = connect_to_collection(cv.METADATA_COLLECTION)
+
+    # 2. Create filters and fields
+    fields = {
+        "_id": 0,
+        "category": 1,
+    }
+    filter = {}
+
+    # 3. Get information
+    result = collection.find_one(filter, fields)
+    all_categories = result["category"]
+    return any([True if doc["name"] == name else False for doc in all_categories])
+
+
+def get_all_VAT() -> list[str]:
+    """Get all VAT
+
+    Returns:
+        list[str]: list of all VAT
+    """
+    # 1. Connect to collection
+    collection = connect_to_collection(cv.METADATA_COLLECTION)
+
+    # 2. Create filters and fields
+    fields = {
+        "_id": 0,
+        "vat": 1,
+    }
+    filter = {}
+
+    # 3. Get information
+    doc_info = collection.find_one(filter, fields)
+    return [name_cat["name"] for name_cat in doc_info["vat"]]
+
+
+def create_new_vat(name: str, rate: int) -> None:
+    """Create new VAT
+
+    Args:
+        name (str): vat name
+        rate (int): vat rate
+    """
+    # 1. Connect to collection
+    collection = connect_to_collection(cv.METADATA_COLLECTION)
+
+    # 2. Create filters and fields
+    new_vat = {
+        "$push": {
+            "vat": {
+                "name": name,
+                "rate": rate,
+            }
+        }
+    }
+    filter = {}
+
+    # 3. Get information
+    collection.update_one(filter, new_vat)
+
+
+def is_vat_allready_in_base(name: str) -> bool:
+    """Verify if the vat are allready in base
+
+    Returns:
+        bool: if the vat are in base or not
+    """
+    # 1. Connect to collection
+    collection = connect_to_collection(cv.METADATA_COLLECTION)
+
+    # 2. Create filters and fields
+    fields = {
+        "_id": 0,
+        "vat": 1,
+    }
+    filter = {}
+
+    # 3. Get information
+    result = collection.find_one(filter, fields)
+    all_vat = result["vat"]
+    return any([True if doc["name"] == name else False for doc in all_vat])
+
+
+def get_all_role() -> list[str]:
+    """Get all role
+
+    Returns:
+        list[str]: list of all role
+    """
+    # 1. Connect to collection
+    collection = connect_to_collection(cv.METADATA_COLLECTION)
+
+    # 2. Create filters and fields
+    fields = {
+        "_id": 0,
+        "role": 1,
+    }
+    filter = {}
+
+    # 3. Get information
+    doc_info = collection.find_one(filter, fields)
+    return [name_cat["name"] for name_cat in doc_info["role"]]
+
+
+def create_new_role(name: str) -> None:
+    """Create new role
+
+    Args:
+        name (str): role name
+    """
+    # 1. Connect to collection
+    collection = connect_to_collection(cv.METADATA_COLLECTION)
+
+    # 2. Create filters and fields
+    new_role = {"$push": {"role": {"name": name}}}
+    filter = {}
+
+    # 3. Get information
+    collection.update_one(filter, new_role)
+
+
+def is_role_allready_in_base(name: str) -> bool:
+    """Verify if the role are allready in base
+
+    Returns:
+        bool: if the role are in base or not
+    """
+    # 1. Connect to collection
+    collection = connect_to_collection(cv.METADATA_COLLECTION)
+
+    # 2. Create filters and fields
+    fields = {
+        "_id": 0,
+        "role": 1,
+    }
+    filter = {}
+
+    # 3. Get information
+    result = collection.find_one(filter, fields)
+    all_roles = result["role"]
+    return any([True if doc["name"] == name else False for doc in all_roles])
+
+
+def get_all_products() -> list[dict]:
+    """Get all products
+
+    Returns:
+        list[dict]: list of all products
+    """
+    # 1. Connect to collection
+    collection = connect_to_collection(cv.PRODUCT_COLLECTION)
+
+    # 2. Create filters and fields
+    fields = {
+        "_id": 0,
+        "name": 1,
+        "category": 1,
+        "number_of_units": 1,
+        "price_ET": 1,
+        "rate_vat": 1,
+    }
+    filter = {}
+
+    # 3. Get information
+    result = collection.find(filter, fields)
+    products_list = []
+    for prod_info in result:
+        dict_temp = {}
+        dict_temp["prod_name"] = prod_info["name"]
+        dict_temp["cat_name"] = prod_info["category"]
+        dict_temp["stocks"] = prod_info["number_of_units"]
+        dict_temp["price_ET"] = prod_info["price_ET"]
+        dict_temp["vat"] = prod_info["rate_vat"]
+        dict_temp["total_price"] = round(
+            prod_info["price_ET"] * prod_info["rate_vat"], 2
+        )
+        products_list.append(dict_temp)
+    return products_list
+
+
 def create_new_product(
     name: str,
     choice_cat: str,
@@ -611,38 +909,63 @@ def create_new_product(
         choice_vat (str): product vAT
         file_path (str): product picture file path
     """
-    pass
+    # 1. Connect to collection
+    collection_prod = connect_to_collection(cv.PRODUCT_COLLECTION)
+    collection_meta = connect_to_collection(cv.METADATA_COLLECTION)
+
+    # 2. Find VAT Rate
+    fields = {
+        "_id": 0,
+        "vat": 1,
+    }
+    filter = {}
+
+    # 3. Get information
+    result = collection_meta.find_one(filter, fields)
+    all_vat = result["vat"]
+
+    rate_vat = next((vat["rate"] for vat in all_vat if vat["name"] == choice_vat), 0)
+
+    # 2. Create filters and fields
+    create_new_product = {
+        "name": name,
+        "category": choice_cat,
+        "number_of_units": number_of_units,
+        "description": description,
+        "tech_specification": tech_specification,
+        "image_path": file_path,
+        "price_ET": float(price_ET),
+        "popularity": 1,
+        "name_vat": choice_vat,
+        "rate_vat": float(rate_vat),
+    }
+
+    # 3. Get information
+    collection_prod.insert_one(create_new_product)
 
 
-def find_user_id(name: str, firstname: str) -> ObjectId:
-    """Find user id
-
-    Args:
-        name (str): user name
-        firstname (str): user firstname
+def is_product_allready_in_base(name: str) -> bool:
+    """Verify if the product are allready in base
 
     Returns:
-        ObjectId: User id
+        bool: if the product are in base or not
     """
-    # 1. Connection to MongoDB
-    client = MongoClient(cv.MONGODB_LOCAL_PATH)
+    # 1. Connect to collection
+    collection = connect_to_collection(cv.PRODUCT_COLLECTION)
 
-    # 2. Access database and collection
-    db = client[cv.MONGODB_NAME]
-    collection = db[cv.USER_COLLECTION]
-
-    # 3. Create filters and fields
+    # 2. Create filters and fields
     fields = {
-        "_id": 1,
+        "_id": 0,
+        "name": 1,
     }
-    filter = {
-        "name": name,
-        "firstname": firstname,
-    }
+    filter = {}
 
-    # 4. Use find() with filter : get the user
-    user_id = [doc["_id"] for doc in collection.find(filter, fields)]
-    return user_id[0]
+    # 3. Get information
+    result = collection.find(filter, fields)
+    all_product = [doc["name"] for doc in result]
+    return any(
+        [True if name == product_name else False for product_name in all_product]
+    )
 
 
 def main():
@@ -667,8 +990,15 @@ def main():
     # connect_user(ObjectId("683705696b9ec1d18895d51d"))
     # print(get_all_info_user(ObjectId("68371c28564b2590bf657cef")))
     # print(is_admin(ObjectId("68385cce9e2c02e0112976ca")))
-    # print(create_invoice(find_user_id("Dupont", "Paul")))
-    # print(is_invoice_allready_in_base((find_user_id("Dupont", "Paul"), 0)))
+    # print(get_all_categories())
+    # print(is_category_allready_in_base("bike"))
+    # print(is_product_allready_in_base("VTT XC Pro 900"))
+    # print(get_all_products())
+    # create_new_product(
+    #     "toto", "bike", 42, "test", "test", 899, "french (standard)", "toto/test"
+    # )
+    # add_new_shoppingcart(ObjectId("683b03d9e5e3ebf72771dfa5"))
+    # print(user_open_shopping_cart_id(ObjectId("683b063938f442fd0da9de7e")))
 
 
 if __name__ == "__main__":

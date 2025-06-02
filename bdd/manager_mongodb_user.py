@@ -142,15 +142,9 @@ def create_schema_user() -> dict:
                 "items": {
                     # shoppingcart
                     "bsonType": "array",
-                    "minItems": 1,
+                    "minItems": 0,
                     "items": {
                         "bsonType": "object",
-                        "required": [
-                            "id_product",
-                            "price_ET",
-                            "quantity",
-                            "rate_vat",
-                        ],
                         "properties": {
                             # commandline
                             "id_product": {

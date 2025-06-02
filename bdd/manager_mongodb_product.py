@@ -24,7 +24,7 @@ def create_collection_product():
         "properties": {
             "name": {"bsonType": "string"},
             "category": {
-                "enum": ["bike", "accessory"],
+                "bsonType": "string",
                 "description": "Must be either a bike or an accessory",
             },
             "number_of_units": {"bsonType": "int"},
@@ -34,9 +34,9 @@ def create_collection_product():
             "price_ET": {"bsonType": "double", "minimum": 0},
             "popularity": {"bsonType": "int", "minimum": 0},
             "name_vat": {
-                "enum": ["french (standard)"],
+                "bsonType": "string",
                 "description": "Must be french (standard)",
-                },
+            },
             "rate_vat": {"bsonType": "double"},
         },
     }
