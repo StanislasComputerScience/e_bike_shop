@@ -1,5 +1,10 @@
 import streamlit as st
-import controller_mongod.tools as tool
+import const_values as cv
+
+if cv.BDD_TECHNO == "mongodb":
+    import controller_mongod.tools as tool
+else:
+    import controller.tools as tool
 
 st.subheader("Mosaïque de produits :")
 
@@ -18,5 +23,5 @@ for i in range(0, len(list_products), n_colonnes):
                 st.image(product["image_path"], use_container_width=True)
                 st.write(product["description"])
                 if st.button(label="Cliquez ici !", icon="🚴", key=product["id_prod"]):
-                    st.session_state.c = i+j
+                    st.session_state.c = i + j
                     st.switch_page("pages/2_Catalogue_produits.py")
