@@ -1,3 +1,4 @@
+BDD_TECHNO = "mongodb"
 BDD_PATH = "./bdd/ecommerce_database.db"
 JSON_BDD_PATH = "./bdd/ecommerce_database.json"
 MONGODB_NAME = "ecommerce_database"

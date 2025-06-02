@@ -1,6 +1,11 @@
 import os
 import streamlit as st
-import controller_mongod.controller_mongod as control
+import const_values as cv
+
+if cv.BDD_TECHNO == "mongodb":
+    import controller_mongod.controller_mongod as control
+else:
+    import controller.controller as control
 from random import choice
 
 # CSS pour centrer le texte

@@ -1,7 +1,11 @@
 import streamlit as st
 
-# import controller.controller as control
-import controller_mongod.controller_mongod as control
+import const_values as cv
+
+if cv.BDD_TECHNO == "mongodb":
+    import controller_mongod.controller_mongod as control
+else:
+    import controller.controller as control
 
 
 def display():

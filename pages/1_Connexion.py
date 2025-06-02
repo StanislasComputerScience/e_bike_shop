@@ -1,7 +1,7 @@
 import streamlit as st
 
 # import controller.controller as control
-import controller_mongod.controller_mongod as controlmdb
+import controller_mongod.controller_mongod as control
 import bcrypt
 
 
@@ -23,17 +23,17 @@ def display() -> None:
 
     if submit_coo:
         try:
-            user_info = controlmdb.get_user_info_connect(email)
+            user_info = control.get_user_info_connect(email)
             bcrypt.checkpw(password.encode(), user_info[0]["password"].encode())
             st.session_state["id_user"] = user_info[0]["id_user"]
-            controlmdb.connect_user(user_info[0]["id_user"])
+            control.connect_user(user_info[0]["id_user"])
             st.success("Connexion réussie ✅")
         except:
             st.error("Identifiants incorrects ❌")
 
     if submit_disc:
         try:
-            controlmdb.disconnect_user(st.session_state.get("id_user"))
+            control.disconnect_user(st.session_state.get("id_user"))
             st.session_state.pop("id_user")
             st.success("Déconnexion réussie ✅")
         except:
