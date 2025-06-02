@@ -856,16 +856,6 @@ def get_all_products() -> list[dict]:
     Returns:
         list[dict]: list of all products
     """
-    query = f"""SELECT prod.name,
-                       cat.name,
-                       prod.number_of_units, 
-                       prod.price_ET,
-                       vat.rate,
-                       ROUND(prod.price_ET * vat.rate,2) as total_price
-            FROM Product as prod
-            LEFT JOIN Category as cat on cat.id_category = prod.id_category
-            LEFT JOIN VAT as vat on vat.id_vat = prod.id_vat;
-        """
     # 1. Connect to collection
     collection = connect_to_collection(cv.PRODUCT_COLLECTION)
 
