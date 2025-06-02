@@ -5,8 +5,8 @@ if cv.BDD_TECHNO == "mongodb":
     import controller_mongod.controller_mongod as control
 else:
     import controller.controller as control
+    
 import os
-import pandas as pd
 
 
 def display() -> None:

@@ -1,12 +1,13 @@
-import os
 import streamlit as st
 import const_values as cv
 
 if cv.BDD_TECHNO == "mongodb":
     import controller_mongod.controller_mongod as control
+    import controller_mongod.tools as tool
 else:
     import controller.controller as control
-import controller_mongod.tools as tool
+    import controller.tools as tool
+
 from bson import ObjectId
 
 
