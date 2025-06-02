@@ -1,9 +1,14 @@
-import os
 import streamlit as st
-import controller.controller as control
+import const_values as cv
+
+if cv.BDD_TECHNO == "mongodb":
+    import controller_mongod.controller_mongod as control
+else:
+    import controller.controller as control
+
 from random import choice
 
-# CSS pour centrer le texte
+# CSS to centerize the text
 st.markdown(
     """
 <style>
@@ -18,7 +23,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Crée 2 colonnes : image et message bienvenue
+# Create 2 columns : image and welcome message
 colonne_image, colonne_titre = st.columns([3, 2])
 
 with colonne_image:
@@ -38,7 +43,7 @@ most_popular_products = control.most_popular_products()
 most_products_buy = control.most_products_buy()
 
 st.subheader("Produits les plus populaires :")
-# Créer 2 colonnes
+# Create 2 columns
 colonne_gauche, colonne_droite = st.columns(2)
 
 with colonne_gauche:

@@ -1,7 +1,12 @@
 import streamlit as st
-import controller.controller as control
+import const_values as cv
+
+if cv.BDD_TECHNO == "mongodb":
+    import controller_mongod.controller_mongod as control
+else:
+    import controller.controller as control
+    
 import os
-import pandas as pd
 
 
 def display() -> None:
@@ -79,7 +84,7 @@ def new_product() -> None:
         tech_specification = st.text_area(
             "⚙️ Insérer la description technique du produit"
         )
-        price_ET = st.number_input("💰 Insérer le prix du produit", min_value=0)
+        price_ET = st.number_input("💰 Insérer le prix du produit", min_value=0.00)
 
         options = control.get_all_VAT()
         # Choose actions to do
@@ -162,7 +167,7 @@ def new_vat() -> None:
 
     with st.form("product_info"):
         name = st.text_input("🚴 Insérer le nom de la TVA")
-        rate = st.number_input("💰 Insérer le taux pas en pourcentage")
+        rate = st.number_input("💰 Insérer le taux pas en pourcentage", min_value=0.00)
         submit_coo = st.form_submit_button("Valider")
         if submit_coo:
             if not control.is_vat_allready_in_base(name):

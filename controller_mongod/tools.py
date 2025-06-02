@@ -1,5 +1,4 @@
-from .controller import product_catalog
-import streamlit as st
+from .controller_mongod import product_catalog
 
 
 def load_products_and_c() -> tuple[list[dict], list[str]]:
@@ -12,4 +11,3 @@ def load_products_and_c() -> tuple[list[dict], list[str]]:
     name_products = [p["name"] for p in l_products]
 
     return l_products, name_products
-

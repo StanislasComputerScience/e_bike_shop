@@ -1,6 +1,10 @@
 import streamlit as st
-import controller.controller as control
-import datetime
+import const_values as cv
+
+if cv.BDD_TECHNO == "mongodb":
+    import controller_mongod.controller_mongod as control
+else:
+    import controller.controller as control
 
 
 def display() -> None:
@@ -44,14 +48,14 @@ def display() -> None:
         display_address_choice()
 
     except:
-        st.text("Il est nécessaire de vous connecter pour voir votre commande.")
+        st.text("Vous n'êtes pas connecté ou votre panier est vide.")
 
 
-def display_table_header(user_info: list[dict]) -> None:
+def display_table_header(user_info: dict) -> None:
     """Display header who contain user information
 
     Args:
-        user_info (list[dict]): user information
+        user_info (dict): user information
     """
     st.text(f"Utilisateur: {user_info["name"]} {user_info["firstname"]}")
     st.text(f"Mail: {user_info["email"]}")
@@ -192,7 +196,6 @@ def display_address_choice() -> None:
             not control.is_invoice_allready_in_base(id_shoppingcart)
             and not control.user_shopping_cart(id_shoppingcart) == []
         ):
-            st.write(control.user_shopping_cart(id_shoppingcart))
             control.create_invoice(st.session_state["id_user"])
             st.success("Commande effectuée ✅")
         else:

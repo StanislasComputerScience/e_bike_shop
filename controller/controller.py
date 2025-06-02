@@ -31,11 +31,8 @@ def execute_sql_query(query: str, params=()) -> list[tuple] | None:
 
 
 def product_catalog() -> list[dict] | None:
-    """Function to execute sql query
-
-    Args:
-        query (str): sql query
-        params (tuple, optional): parameters. Defaults to ().
+    """Returns the list of products in the catalogue,
+    and most of the associated information
 
     Returns:
         list[dict]: list of all product
@@ -453,8 +450,6 @@ def update_shoppingcart(id_shoppingcart: int, id_user: int) -> None:
 
 
 # region Admin
-
-
 def is_admin(id_user: int) -> bool:
     """Verify if the user is admin
 
@@ -513,11 +508,11 @@ def create_new_product(
     execute_sql_query(query, params)
 
 
-def get_all_products() -> None:
+def get_all_products() -> list[dict]:
     """Get all products
 
     Returns:
-        list[tuple]: list of all products
+        list[dict]: list of all products
     """
     query = f"""SELECT prod.name,
                        cat.name,
