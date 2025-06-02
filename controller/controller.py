@@ -450,8 +450,6 @@ def update_shoppingcart(id_shoppingcart: int, id_user: int) -> None:
 
 
 # region Admin
-
-
 def is_admin(id_user: int) -> bool:
     """Verify if the user is admin
 
@@ -510,11 +508,11 @@ def create_new_product(
     execute_sql_query(query, params)
 
 
-def get_all_products() -> None:
+def get_all_products() -> list[dict]:
     """Get all products
 
     Returns:
-        list[tuple]: list of all products
+        list[dict]: list of all products
     """
     query = f"""SELECT prod.name,
                        cat.name,

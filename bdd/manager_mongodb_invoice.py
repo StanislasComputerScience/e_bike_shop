@@ -15,20 +15,25 @@ def create_collection_invoice():
     # 1. Schéma JSON
     schema = {
         "bsonType": "object",
-        "required": ["date", "shoppingcart"],
+        "required": ["date", "id_user", "shoppingcart"],
         "properties": {
-            "date": {"bsonType": "date"},
+            "date": {
+                "bsonType": "date",
+            },
+            "id_user": {
+                "bsonType": "objectId",
+            },
             "shoppingcart": {
                 "bsonType": "array",
                 "minItems": 1,
                 "items": {
                     "bsonType": "object",
-                    "required": ["id_product", "price_ET", "quantity", "rate_VAT"],
+                    "required": ["id_product", "price_ET", "quantity", "rate_vat"],
                     "properties": {
                         "id_product": {"bsonType": "objectId"},
                         "price_ET": {"bsonType": "double", "minimum": 0.0},
                         "quantity": {"bsonType": "int", "minimum": 0},
-                        "rate_VAT": {"bsonType": "double", "minimum": 0.0},
+                        "rate_vat": {"bsonType": "double", "minimum": 0.0},
                     },
                 },
             },
@@ -49,24 +54,26 @@ def create_collection_invoice():
             "Invoice", validator={"$jsonSchema": schema}, validationLevel="strict"
         )
 
-    # 3. Récupération des produits
-    products = user.create_shoppingcart(5)
+    for _ in range(2):
+        # 3. Récupération des produits
+        products = user.create_shoppingcart(5)
+        user_id = user.find_user_id("Dupont", "Paul")
+        # 4. Création de la facture
+        invoice_data = {
+            "date": dt.datetime.now(),
+            "id_user": user_id,
+            "shoppingcart": products,
+        }
 
-    # 4. Création de la facture
-    invoice_data = {
-        "date": dt.datetime.now(),
-        "shoppingcart": products,
-    }
+        print("🧾 Facture générée :")
+        pprint.pprint(invoice_data)
 
-    print("🧾 Facture générée :")
-    pprint.pprint(invoice_data)
-
-    # 5. Insertion dans MongoDB
-    try:
-        result = db["Invoice"].insert_one(invoice_data)
-        print("✅ Facture insérée avec ID :", result.inserted_id)
-    except Exception as insert_error:
-        print("❌ Erreur à l'insertion :", insert_error)
+        # 5. Insertion dans MongoDB
+        try:
+            result = db["Invoice"].insert_one(invoice_data)
+            print("✅ Facture insérée avec ID :", result.inserted_id)
+        except Exception as insert_error:
+            print("❌ Erreur à l'insertion :", insert_error)
 
 
 if __name__ == "__main__":
