@@ -5,8 +5,6 @@ if cv.BDD_TECHNO == "mongodb":
     import controller_mongod.controller_mongod as control
 else:
     import controller.controller as control
-import datetime
-from bson import ObjectId
 
 
 def display() -> None:

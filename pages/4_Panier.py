@@ -1,5 +1,4 @@
 import streamlit as st
-
 import const_values as cv
 
 if cv.BDD_TECHNO == "mongodb":

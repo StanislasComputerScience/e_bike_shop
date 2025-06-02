@@ -202,14 +202,14 @@ def is_command_line_exist(
     shopping_cart_id: tuple[ObjectId, int], id_product: ObjectId
 ) -> bool:  # , id_user: ObjectId):
     """
-    Vérifie si un produit est déjà présent dans un panier.
+    Check if a product is already present in the shopping cart.
 
     Args:
-        shopping_cart_id (str or ObjectId): ID du user, int : l'indice du panier dans liste des paniers de l'utilisateur
-        id_product (str or ObjectId): ID du produit recherché
+        shopping_cart_id (str or ObjectId): User ID and index of the shopping cart in the user list of shopping carts
+        id_product (str or ObjectId): Search product ID
 
     Returns:
-        bool: True si le produit est dans le panier, False sinon
+        bool: True if the product is in the shopping cart, False otherwise
     """
     db = connect_to_mongodb()
     field = {"_id": False, "shoppingcarts": True}
